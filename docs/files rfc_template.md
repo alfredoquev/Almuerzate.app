@@ -11,21 +11,20 @@ Buscamos crear una aplicación que sirva como sistema de asignación de comedore
 
 En los comedores de la universidad hay un problema claro: algunos están saturados mientras que otros presentan un aforo mínimo. Esto genera filas interminables, estudiantes llegando tarde a sus clases y, en general, un gran descontento por parte de la comunidad estudiantil.
 
-## 3 Propuesta de implementación
+## 3. Propuesta de implementación
+# Entrega 1
 
-<!--
-Este es el núcleo de tu propuesta, y su proposito es ayudarte a pensar en la solución. Esto debe ser un wireframe, no un documento perfecto con todos los detalles.
+Se planea implementar una aplicación en línea en la que los estudiantes puedan consultar el comedor que les ha sido asignado. Esta asignación se realizará de manera inteligente, teniendo en cuenta determinada información personal y las características de cada estudiante.
 
-Escribir es pensar https://medium.learningbyshipping.com/writing-is-thinking-an-annotated-twitter-thread-2a75fe07fade
+# Entrega 2
 
-  - usa diagramas para ilustrat tus ideas o flujos
-  - inluye ejemplos de código si estas proponiendo una interfaz o contrato de sistemsa nuevo
-  - agrega links con las especificaciones de proyectos
+En esta etapa se incorporará a la aplicación una encuesta que permitirá identificar de manera más precisa las necesidades y preferencias de los estudiantes. Con base en la información recopilada, se establecerá un sistema de reasignación periódica de los comedores. Además, se buscará mejorar el proceso de asignación de cupos para optimizar su distribución y aprovechamiento.
 
-El proposito de esta sección se resume en:
-"Esta es la dirección en la que nos voy a llevar, alguién ve huecos en mi propuesta o tiene comentarios sobre cómo mejorarla?
+# Entrega final
 
- -->
+En la entrega final se añadirá un sistema de estadísticas que permitirá a los administradores consultar y analizar el comportamiento de los comedores, facilitando la toma de decisiones. Asimismo, los administradores podrán realizar reasignaciones de comedores en situaciones de emergencia.
+
+Finalmente, se implementará un sistema de diferenciación en la asignación de cupos según el lapso de tiempo al que el estudiante opte, selección que se realizará a partir de sus preferencias registradas en la encuesta.
 
 ## 4 Métricas
 
