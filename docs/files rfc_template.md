@@ -12,15 +12,15 @@ Buscamos crear una aplicación que sirva como sistema de asignación de comedore
 En los comedores de la universidad hay un problema claro: algunos están saturados mientras que otros presentan un aforo mínimo. Esto genera filas interminables, estudiantes llegando tarde a sus clases y, en general, un gran descontento por parte de la comunidad estudiantil.
 
 ## 3. Propuesta de implementación
-# Entrega 1
+### Entrega 1
 
 Se planea implementar una aplicación en línea en la que los estudiantes puedan consultar el comedor que les ha sido asignado. Esta asignación se realizará de manera inteligente, teniendo en cuenta determinada información personal y las características de cada estudiante.
 
-# Entrega 2
+### Entrega 2
 
 En esta etapa se incorporará a la aplicación una encuesta que permitirá identificar de manera más precisa las necesidades y preferencias de los estudiantes. Con base en la información recopilada, se establecerá un sistema de reasignación periódica de los comedores. Además, se buscará mejorar el proceso de asignación de cupos para optimizar su distribución y aprovechamiento.
 
-# Entrega final
+### Entrega final
 
 En la entrega final se añadirá un sistema de estadísticas que permitirá a los administradores consultar y analizar el comportamiento de los comedores, facilitando la toma de decisiones. Asimismo, los administradores podrán realizar reasignaciones de comedores en situaciones de emergencia.
 
