@@ -1,13 +1,18 @@
 # Título (lee el source code del markdown para ver los comentarios)
 
 Autores:
- - @githubusername
+ - @juanfpg1
+ - @xedroc422
+ - @alfredoquev
+ - @amadodev07
+ - @julondonoz07
 
 ## 1 TL;DR
 
 <!--
 párrafo corto que explica qué estas proponiendo
 -->
+Buscamos crear una aplicación que sirva como sistema de asignación de comedores en la Universidad Nacional de Colombia, el cual priorizará el aforo de cada comedor junto con las preferencias de cada estudiante y su ubicación relativa a cada comedor.
 
 ## 2 Motivación
 
@@ -15,6 +20,7 @@ párrafo corto que explica qué estas proponiendo
 ¿qué motiva esta decisión y por qué es importante?
 el propósito de esta sección es articular de una manera sencilla el valor de la decision que vamos a tomar
 -->
+Al solicitar almuerzos en comedores de la universidad, surge el problema de que a veces los comedores se encuentran muy llenos y con filas que tardan mucho en ser atendidas, lo cual conlleva a que estudiantes lleguen tarde a sus clases y no tengan suficiente tiempo para almorzar.
 
 ## 3 Propuesta de implementación
 
@@ -23,7 +29,7 @@ Este es el núcleo de tu propuesta, y su proposito es ayudarte a pensar en la so
 
 Escribir es pensar https://medium.learningbyshipping.com/writing-is-thinking-an-annotated-twitter-thread-2a75fe07fade
 
-  - usa diagramas para ilustrat tus ideas o flujos
+  - usa diagramas para ilustrar tus ideas o flujos
   - inluye ejemplos de código si estas proponiendo una interfaz o contrato de sistemsa nuevo
   - agrega links con las especificaciones de proyectos
 
@@ -31,6 +37,7 @@ El proposito de esta sección se resume en:
 "Esta es la dirección en la que nos voy a llevar, alguién ve huecos en mi propuesta o tiene comentarios sobre cómo mejorarla?
 
  -->
+ 
 
 ## 4 Métricas
 
