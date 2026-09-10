@@ -1,13 +1,19 @@
-# Título (lee el source code del markdown para ver los comentarios)
+# Almuérzate
 
 Autores:
- - @githubusername
+ - @amadodev07
+ - @juanfpg1
+ - @xedroc422
+ - @alfredoquev
+ - @julondono07
+ 
 
 ## 1 TL;DR
 
 <!--
 párrafo corto que explica qué estas proponiendo
 -->
+Sistema de Gestión de comedores universitarios. Proponemos una solución que priorizará las preferencias de los estudiantes y las posibilidades de los comedores para administrar de forma inteligente los horarios y los cupos de los comedores. Buscando reducir los tiempos de espera y la satisfacción del servicio.
 
 ## 2 Motivación
 
@@ -15,6 +21,7 @@ párrafo corto que explica qué estas proponiendo
 ¿qué motiva esta decisión y por qué es importante?
 el propósito de esta sección es articular de una manera sencilla el valor de la decision que vamos a tomar
 -->
+Actualmente, los comedores tienen una problematica central: los tiempos de espera en horas pico son muy altas. Hay comedores con una saturación y tiempos de espera que no son sostenibles para los estudiantes. Es indispensable mejorar la gestión de los comedores para mejorar la percepción del serivicio y la calidad de vida de los estudiantes.
 
 ## 3 Propuesta de implementación
 
