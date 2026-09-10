@@ -1,15 +1,20 @@
 # Título (lee el source code del markdown para ver los comentarios)
 
 Autores:
- @amadodev07, @juanfpg1, @xedroc422, @alfredoquev y @julondono07
+ - @githubusername
 
 ## 1 TL;DR
 
-Buscamos crear una aplicación que sirva como sistema de asignación de comedores en la Universidad Nacional de Colombia, el cual priorizará el aforo de cada comedor junto con las preferencias de cada estudiante y su ubicación relativa a cada comedor.
+<!--
+párrafo corto que explica qué estas proponiendo
+-->
 
 ## 2 Motivación
 
-En los comedores de la universidad hay un problema claro: algunos están saturados mientras que otros presentan un aforo mínimo. Esto genera filas interminables, estudiantes llegando tarde a sus clases y, en general, un gran descontento por parte de la comunidad estudiantil.
+<!--
+¿qué motiva esta decisión y por qué es importante?
+el propósito de esta sección es articular de una manera sencilla el valor de la decision que vamos a tomar
+-->
 
 ## 3 Propuesta de implementación
 
