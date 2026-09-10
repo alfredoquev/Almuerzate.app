@@ -1,4 +1,4 @@
-# Almuerzate w
+# Almuerzaté 
 
 Autores:
 - @amadodev07
@@ -12,7 +12,7 @@ Buscamos crear una aplicación que sirva como sistema de asignación de comedore
 
 ## 2 Motivación
 
-Dada la deficiente asignación de cupos para los comedores en la UNAL, se han presentado deficiencias en la experiencia de los usuarios de estos; principalmente, grandes filas que resultan en tiempos muy largos de espera. La relevancia de este problema reside en las deficiencias en la alimentación de los estudiantes resultantes y su impacto en el desempeño académico de estos.
+Dada la deficiente asignación de cupos para los comedores en la UNAL, se han presentado deficiencias en la experiencia de los usuarios de estos, principalmente, grandes filas que resultan en tiempos muy largos de espera. La relevancia de este problema reside en las deficiencias en la alimentación de los estudiantes resultantes y su impacto en el desempeño académico de estos.
 
 ## 3 Propuesta de implementación
 
