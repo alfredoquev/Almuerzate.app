@@ -11,8 +11,8 @@ por qué el sistema es como es.
 -->
  
 Autores:
- - @githubusername
-Fecha: AAAA-MM-DD
+ - @amadodev07, @juanfpg1, @xedroc422, @alfredoquev y @julondono07
+Fecha: 2026-09-12
  
 ## Estado
  
