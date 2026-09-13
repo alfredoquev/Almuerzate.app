@@ -12,17 +12,17 @@ Aceptado
  
 ## Contexto
  
-La asignacion de los cupos en el comedor es parte fundamental del programa, por lo que se busca manejar un lenguaje que sea capaz de manejar grandes cantidades de datos por medio de distintas estructuras de datos y que pueda ser conectado tanto con las bases de datos como con el frontend; ademas, dado que el sistema a implementar puede considerar una complejidad considerable, es pertinente hacer uso de un lenguaje conocido.
+La asignación de los cupos en el comedor es parte fundamental del programa, por lo que se busca manejar un lenguaje que sea capaz de manejar grandes cantidades de datos por medio de distintas estructuras de datos y que pueda ser conectado tanto con las bases de datos como con el frontend; además, dado que el sistema a implementar puede considerar una complejidad considerable, es pertinente hacer uso de un lenguaje conocido.
  
 ## Decisión
  
-En base a lo anterior, se definio el uso de C++, ya que es un lenguiaje conocido por su capacidad de manejo de grandes cantidades de datos junto con una mejor implementacion de estructuras de datos como resultado del manejo de memoria que este permite. Ademas, es una lenguaje al cual el equpo de trabajo es afin lo que facilita el desarollo de la aplicacion.
+En base a lo anterior, se definió el uso de C++, ya que es un lenguaje conocido por su capacidad de manejo de grandes cantidades de datos junto con una mejor implementación de estructuras de datos como resultado del manejo de memoria que este permite. Además, es una lenguaje al cual el equipo de trabajo es afín lo que facilita el desarrollo de la aplicación.
  
 ## Alternativas consideradas
  
-Se considero la implementacion de Java, el cual es un lenguaje que tambien permite un buen manejo de estructuras de datos y puede garantizar una buena implementacion con el frontend; sin embargo, dado que el equipo no esta muy familiarizado con este y su sintaxis se descarto esta opcion.
+Se consideró la implementación de Java, el cual es un lenguaje que también permite un buen manejo de estructuras de datos y puede garantizar una buena implementación con el frontend debido a la existencia de librerías dedicadas a la creación de interfaces de usuario; sin embargo, dado que el equipo no esta muy familiarizado con este y su sintaxis se descartó esta opción.
  
 ## Consecuencias
 
-Una vez considerada la decision de C++, es importante hacer hincapie en la implementacion adecuada de las estructuras de datos que se van a utilizar ya que C++ es un lenguaje que tiene cierta complejudad en el desarrollo de estos. Por otro lado, tambie es necesario implementar una correcta conexion con el frontend por medio de APIs. Finalmente, se entiende que C++ es un lenguaje complejo que puiede dificultar el desarrollo de la aplicacion pero tambien garantizar una mejor implementacion.
+Una vez considerada la decisión de C++, es importante hacer hincapié en la implementación adecuada de las estructuras de datos que se van a utilizar ya que C++ es un lenguaje que tiene cierta complejidad en el manejo de estas. Por otro lado, también es necesario implementar una correcta conexión con el frontend por medio de APIs. Además C++ es un lenguaje comúnmente utilizado en otras aplicaciones de navegador junto con cadenas de herramientas para compilación, debido a que permite la escritura de código de más bajo nivel e intensivo en rendimiento sin necesidad de interactuar directamente con WebAssembly.
  
