@@ -9,7 +9,7 @@ Criterios de Aceptación - Accesibilidad y Completitud (la información basta pa
 | ------------- | ------------- | ------------- |
 | CA-01  | Estoy en cualquier pantalla (main)  | Renderizar el navbar con la opción "Mi comedor"  |
 | CA-02  | Doy clic en "Mi comedor" sin sesión  | Redirigir al login y validar credenciales (datos de prueba)  |
-| CA-03  | Estoy autenticado en "Mi comedor"  | Llamar al backend C++, que consulta en PostgreSQL la asignación y responde un JSON  |
+| CA-03  | Estoy autenticado en "Mi comedor"  | Llamar al backend, que consulta en la base de datos la asignación y responde un archivo feedback |
 | CA-04  | El front recibió el JSON  | Mostrar una tarjeta con el comedor del día actual: nombre, edificio y horario de atención  |
 | CA-05  | Estoy viendo la tarjeta de información del día  | Mostrar la vista semanal (L–V) con el comedor de cada día y su motivo (ej. "Cercanía")  |
 | CA-06  | No tengo asignación registrada  | Mostrar el mensaje "Aún no tienes comedor asignado" en lugar de un error  |
@@ -23,7 +23,7 @@ Criterios de Aceptación - Trazabilidad y Control (el cambio lo decide un admini
 | ID  | Parto desde | El sistema debe |
 | ------------- | ------------- | ------------- |
 | CA-01  | Estoy en la vista semanal  | Renderizar el botón "Solicitar cambio" junto a cada día|
-| CA-02  | Doy clic en "Solicitar cambio" | Abrir un formulario (Google Forms) con día, comedor deseado (opcional) y motivo (obligatorio)  |
+| CA-02  | Doy clic en "Solicitar cambio" | Abrir un formulario (nativo en la pagina) con día, comedor deseado (opcional) y motivo (obligatorio)  |
 | CA-03  | Envío el formulario completo  | Validar los campos y guardar la solicitud en PostgreSQL con estado "Pendiente"  |
 | CA-04  | La solicitud se guardó  | Mostrar la confirmación y la solicitud en mi historial con su estado  |
 | CA-05  | Soy administrador en el panel  | Listar las solicitudes pendientes con los datos del estudiante, su asignación actual y la ocupación de cada comedor |
