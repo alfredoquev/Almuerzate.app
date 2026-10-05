@@ -34,3 +34,15 @@ Criterios de Aceptación - Disponibilidad de Información
 | :--- | :--- | :--- |
 | CA-01 | Cualquier pantalla (main) | Proveer un acceso visible (ej. en el footer o navbar) a la sección de "Información del servicio" o "Tarifas y Horarios". |
 | CA-02 | La sección de Información del servicio | Mostrar una tabla o listado claro con los valores del almuerzo según perfil (si aplica) y la franja de horario en la que se sirve. |
+
+## Historia de estudiante beneficiado 
+
+Como estudiante beneficiado que ha reportado un caso atípico, quiero consultar el estado y la justificación de mi solicitud, para entender la decisión administrativa y tener claridad sobre mi asignación final.
+
+Criterios de Aceptación - Seguimiento de Solicitudes
+
+| ID | Parto desde | El sistema debe |
+| :--- | :--- | :--- |
+| CA-01 | La sección "Mi historial de solicitudes" | Listar todas mis solicitudes enviadas indicando claramente su estado actual ("Pendiente", "Aprobada", "Rechazada"). |
+| CA-02 | Una solicitud con estado "Aprobada" o "Rechazada" | Desplegar el comentario o justificación específica redactada por el administrador que evaluó el caso. |
+| CA-03 | La aprobación de un cambio de comedor | Actualizar automáticamente la información en mi vista de "Mi comedor" para reflejar la nueva asignación en los días correspondientes. |
