@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="es" class="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Almuérzate — Tu comedor universitario</title>
+  <meta name="description" content="Almuérzate: asignación inteligente de comedores universitarios. Reduce filas, optimiza tu tiempo.">
+  <meta name="theme-color" content="#059669">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN (para estadísticas admin) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #a7f3d0; border-radius: 999px; }
+    .dark ::-webkit-scrollbar-thumb { background: #065f46; }
+    /* Animations */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-24px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+    .anim-fadeInUp { animation: fadeInUp .45s ease-out both; }
+    .anim-fadeIn { animation: fadeIn .35s ease-out both; }
+    .anim-slideUp { animation: slideUp .35s cubic-bezier(.22,1,.36,1) both; }
+    .anim-slideDown { animation: slideDown .3s ease-out both; }
+    .anim-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+    .delay-1 { animation-delay: .07s; }
+    .delay-2 { animation-delay: .14s; }
+    .delay-3 { animation-delay: .21s; }
+    .delay-4 { animation-delay: .28s; }
+    /* Toggle switch */
+    .toggle-track { width: 44px; height: 24px; border-radius: 999px; position: relative; cursor: pointer; transition: background .25s; }
+    .toggle-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .25s; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+    .toggle-track.active { background: #10b981; }
+    .toggle-track.active::after { transform: translateX(20px); }
+    .toggle-track:not(.active) { background: #d1d5db; }
+    .dark .toggle-track:not(.active) { background: #4b5563; }
+    /* Occupancy bar colors */
+    .occ-low { background: #10b981; }
+    .occ-mid { background: #f59e0b; }
+    .occ-high { background: #ef4444; }
+  </style>
+</head>
+
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-300">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     1. LOGIN SCREEN
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="screen-login" class="min-h-screen flex items-center justify-center px-5 py-10 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 relative overflow-hidden">
+  <!-- Decorative blobs -->
+  <div class="absolute -top-24 -left-24 w-72 h-72 bg-emerald-400/30 rounded-full blur-3xl"></div>
+  <div class="absolute -bottom-32 -right-20 w-80 h-80 bg-teal-400/20 rounded-full blur-3xl"></div>
+
+  <div class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 w-full max-w-sm relative z-10 anim-fadeInUp">
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/30 mb-4">
+        <span class="text-3xl">🍽️</span>
+      </div>
+      <h1 class="text-3xl font-extrabold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">Almuérzate</h1>
+      <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">Tu comedor universitario, optimizado</p>
+    </div>
+
+    <!-- Form -->
+    <div class="space-y-4">
+      <div>
+        <label for="input-username" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Usuario</label>
+        <input type="text" id="input-username" placeholder="Ej: santiago.amado"
+               class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-gray-100 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-500">
+      </div>
+      <div>
+        <label for="input-password" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Contraseña</label>
+        <input type="password" id="input-password" placeholder="••••••••"
+               class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-gray-100 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-500">
+      </div>
+
+      <!-- Role selector -->
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">Tipo de usuario</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="selectRole('beneficiario')" id="role-beneficiario"
+                  class="role-btn px-2 py-2.5 rounded-xl text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 hover:border-emerald-400 dark:hover:border-emerald-500 transition-all duration-200 leading-tight">
+            Beneficiario
+          </button>
+          <button onclick="selectRole('no_beneficiario')" id="role-no_beneficiario"
+                  class="role-btn px-2 py-2.5 rounded-xl text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 hover:border-emerald-400 dark:hover:border-emerald-500 transition-all duration-200 leading-tight">
+            No Beneficiario
+          </button>
+          <button onclick="selectRole('administrativo')" id="role-administrativo"
+                  class="role-btn px-2 py-2.5 rounded-xl text-[11px] font-bold border-2 border-gray-200 dark:border-gray-600 text-gray-400 dark:text-gray-500 hover:border-emerald-400 dark:hover:border-emerald-500 transition-all duration-200 leading-tight">
+            Administrativo
+          </button>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button onclick="login()"
+              class="w-full py-3.5 mt-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 text-sm">
+        Ingresar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     2. APP SHELL (hidden until login)
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="app-shell" class="hidden">
+  <main id="main-content" class="pb-24 min-h-screen">
+
+    <!-- ─── DASHBOARD ─── -->
+    <div id="screen-dashboard" class="screen">
+
+      <!-- === BENEFICIARIO === -->
+      <div id="dashboard-beneficiario" class="hidden">
+        <!-- Header gradient -->
+        <div class="bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 px-6 pt-10 pb-14 rounded-b-[2rem] shadow-lg relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4"></div>
+          <p class="text-emerald-100 text-sm font-medium anim-fadeInUp">Bienvenido, <span class="text-white font-bold display-username">Usuario</span> 👋</p>
+          <div class="mt-6 text-center anim-fadeInUp delay-1">
+            <p class="text-emerald-200/70 text-xs uppercase tracking-[.2em] font-semibold">Hoy tu comedor es</p>
+            <h2 class="text-[1.7rem] font-extrabold text-white mt-2 leading-tight" id="today-comedor">Yu Takeuchi</h2>
+          </div>
+          <div class="text-center mt-4 anim-fadeInUp delay-2">
+            <button onclick="toggleExplanation()" class="text-white/40 hover:text-white/80 text-xs underline underline-offset-4 transition-colors duration-200">
+              ¿Por qué este es mi comedor?
+            </button>
+          </div>
+          <!-- Explanation card -->
+          <div id="explanation-card" class="hidden mt-5 bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-white/90 text-[13px] leading-relaxed anim-fadeIn border border-white/10">
+            <p class="font-bold text-sm mb-2 flex items-center gap-2">🧠 Asignación inteligente</p>
+            <p>Tu comedor se calcula automáticamente mediante un <strong>árbol de decisión</strong> que tiene en cuenta:</p>
+            <ul class="mt-2 space-y-1 ml-4 list-disc marker:text-emerald-300">
+              <li>Tu <strong>horario de clases</strong> y la ubicación de tu última clase antes del almuerzo</li>
+              <li>Tus <strong>preferencias personales</strong> registradas en la encuesta</li>
+              <li>La <strong>cercanía</strong> entre tu edificio y cada comedor</li>
+              <li>La <strong>saturación estimada</strong> de cada comedor en tiempo real</li>
+              <li>Tu <strong>disponibilidad</strong> horaria del semestre</li>
+            </ul>
+            <p class="mt-3 text-white/50 text-xs">La asignación se recalcula cada semestre para optimizar tu experiencia. Si crees que hay un error, puedes solicitar una reasignación.</p>
+          </div>
+        </div>
+
+        <!-- Weekly schedule -->
+        <div class="px-5 -mt-6 relative z-10">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-black/5 dark:shadow-black/20 p-5 anim-fadeInUp delay-2">
+            <h3 class="font-bold text-base mb-3 flex items-center gap-2">📅 Tu semana</h3>
+            <div class="space-y-2" id="weekly-schedule"></div>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="px-5 mt-5 space-y-3 anim-fadeInUp delay-3">
+          <button onclick="showModal('modal-reassignment')"
+                  class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl shadow-md shadow-emerald-500/20 hover:shadow-emerald-500/40 active:scale-[0.98] transition-all text-sm flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182"/></svg>
+            Solicitar reasignación de comedor
+          </button>
+          <button onclick="showToast('📋 No tienes solicitudes pendientes')"
+                  class="w-full py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-[0.98] transition-all text-sm">
+            Consultar solicitudes
+          </button>
+        </div>
+      </div>
+
+      <!-- === NO BENEFICIARIO === -->
+      <div id="dashboard-no-beneficiario" class="hidden">
+        <div class="bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 px-6 pt-10 pb-10 rounded-b-[2rem] shadow-lg relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4"></div>
+          <p class="text-emerald-100 text-sm font-medium anim-fadeInUp">Bienvenido, <span class="text-white font-bold display-username">Usuario</span> 👋</p>
+          <h2 class="text-xl font-extrabold text-white mt-3 anim-fadeInUp delay-1">Información de comedores</h2>
+          <p class="text-emerald-200/60 text-xs mt-1 anim-fadeInUp delay-2">Consulta horarios, ubicación y ocupación estimada</p>
+        </div>
+        <div class="px-5 mt-5 space-y-4" id="nb-dining-cards"></div>
+      </div>
+
+      <!-- === ADMINISTRATIVO === -->
+      <div id="dashboard-admin" class="hidden">
+        <div class="bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 px-6 pt-10 pb-10 rounded-b-[2rem] shadow-lg relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4"></div>
+          <p class="text-emerald-100 text-sm font-medium anim-fadeInUp">Bienvenido, <span class="text-white font-bold display-username">Usuario</span> 👋</p>
+          <h2 class="text-xl font-extrabold text-white mt-3 anim-fadeInUp delay-1">Panel de Administración</h2>
+          <p class="text-emerald-200/60 text-xs mt-1 anim-fadeInUp delay-2">Gestiona comedores, estadísticas y solicitudes</p>
+        </div>
+        <div class="px-5 mt-5 space-y-4">
+          <!-- Stats card -->
+          <button onclick="showStats()" class="w-full text-left bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-black/5 dark:shadow-black/20 p-5 hover:shadow-xl active:scale-[0.98] transition-all anim-fadeInUp delay-1 group">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/25 group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>
+              </div>
+              <div>
+                <h3 class="font-bold text-base text-gray-800 dark:text-gray-100">Consultar estadísticas</h3>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Ocupación por hora de cada comedor</p>
+              </div>
+              <svg class="w-5 h-5 text-gray-300 dark:text-gray-600 ml-auto" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+            </div>
+          </button>
+          <!-- Atypical cases card -->
+          <button onclick="showScreen('atypical')" class="w-full text-left bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-black/5 dark:shadow-black/20 p-5 hover:shadow-xl active:scale-[0.98] transition-all anim-fadeInUp delay-2 group">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-md shadow-amber-500/25 group-hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>
+              </div>
+              <div>
+                <h3 class="font-bold text-base text-gray-800 dark:text-gray-100">Manejo de casos atípicos</h3>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">3 casos pendientes de revisión</p>
+              </div>
+              <span class="ml-auto bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">3</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── MAPA INTERACTIVO ─── -->
+    <div id="screen-map" class="screen hidden">
+      <div class="px-6 pt-10 pb-6">
+        <h2 class="text-xl font-extrabold anim-fadeInUp">Mapa interactivo</h2>
+        <p class="text-gray-400 dark:text-gray-500 text-sm mt-1 anim-fadeInUp delay-1">Encuentra tu comedor fácilmente</p>
+      </div>
+      <div class="px-5 anim-fadeInUp delay-2">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 flex flex-col items-center justify-center min-h-[50vh] border-2 border-dashed border-gray-200 dark:border-gray-700">
+          <div class="w-20 h-20 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center mb-5">
+            <svg class="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"/></svg>
+          </div>
+          <h3 class="font-bold text-lg text-gray-700 dark:text-gray-300">Próximamente</h3>
+          <p class="text-gray-400 dark:text-gray-500 text-sm text-center mt-2 max-w-[250px]">Estamos trabajando en un mapa interactivo del campus con la ubicación de todos los comedores.</p>
+          <span class="mt-5 px-4 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold">En desarrollo 🚧</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── INFORMACIÓN DE COMEDORES ─── -->
+    <div id="screen-dining-info" class="screen hidden">
+      <div class="px-6 pt-10 pb-6">
+        <h2 class="text-xl font-extrabold anim-fadeInUp">Comedores</h2>
+        <p class="text-gray-400 dark:text-gray-500 text-sm mt-1 anim-fadeInUp delay-1">Horarios, ubicación y ocupación estimada</p>
+      </div>
+      <div class="px-5 space-y-4" id="dining-info-cards"></div>
+    </div>
+
+    <!-- ─── AJUSTES ─── -->
+    <div id="screen-settings" class="screen hidden">
+      <div class="px-6 pt-10 pb-6">
+        <h2 class="text-xl font-extrabold anim-fadeInUp">Ajustes</h2>
+        <p class="text-gray-400 dark:text-gray-500 text-sm mt-1 anim-fadeInUp delay-1">Personaliza tu experiencia</p>
+      </div>
+      <div class="px-5 space-y-4">
+        <!-- Dark mode -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-black/5 dark:shadow-black/20 p-5 anim-fadeInUp delay-1">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gray-900 dark:bg-gray-600 flex items-center justify-center">
+                <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/></svg>
+              </div>
+              <div>
+                <p class="font-semibold text-sm">Modo oscuro</p>
+                <p class="text-xs text-gray-400 dark:text-gray-500">Tema de interfaz</p>
+              </div>
+            </div>
+            <div id="toggle-darkmode" onclick="toggleDarkMode()" class="toggle-track" role="switch" aria-label="Modo oscuro"></div>
+          </div>
+        </div>
+        <!-- Notifications -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-black/5 dark:shadow-black/20 p-5 anim-fadeInUp delay-2">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
+              </div>
+              <div>
+                <p class="font-semibold text-sm">Notificaciones</p>
+                <p class="text-xs text-gray-400 dark:text-gray-500">Recibir alertas push</p>
+              </div>
+            </div>
+            <div id="toggle-notif" onclick="toggleNotifications()" class="toggle-track active" role="switch" aria-label="Notificaciones"></div>
+          </div>
+        </div>
+        <!-- Consultar solicitudes -->
+        <button onclick="showToast('📋 No tienes solicitudes pendientes')"
+                class="w-full bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-black/5 dark:shadow-black/20 p-5 text-left hover:shadow-xl active:scale-[0.98] transition-all anim-fadeInUp delay-3 group">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
+            </div>
+            <div>
+              <p class="font-semibold text-sm">Consultar estado de solicitudes</p>
+              <p class="text-xs text-gray-400 dark:text-gray-500">Revisa tus solicitudes enviadas</p>
+            </div>
+            <svg class="w-5 h-5 text-gray-300 dark:text-gray-600 ml-auto" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg>
+          </div>
+        </button>
+        <!-- Feedback -->
+        <button onclick="showModal('modal-feedback')"
+                class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl shadow-md shadow-emerald-500/20 hover:shadow-emerald-500/40 active:scale-[0.98] transition-all text-sm anim-fadeInUp delay-4 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 0 1 1.037-.443 48.282 48.282 0 0 0 5.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"/></svg>
+          Enviar feedback
+        </button>
+      </div>
+    </div>
+
+    <!-- ─── ESTADÍSTICAS (Admin) ─── -->
+    <div id="screen-stats" class="screen hidden">
+      <div class="px-6 pt-10 pb-6 flex items-center gap-3">
+        <button onclick="showScreen('dashboard')" class="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+        </button>
+        <div>
+          <h2 class="text-xl font-extrabold anim-fadeInUp">Estadísticas</h2>
+          <p class="text-gray-400 dark:text-gray-500 text-sm mt-0.5 anim-fadeInUp delay-1">Ocupación por hora</p>
+        </div>
+      </div>
+      <div class="px-5">
+        <!-- Comedor selector -->
+        <div class="mb-4 anim-fadeInUp delay-1">
+          <select id="stats-comedor-select" onchange="renderChart(this.value)"
+                  class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-semibold focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all appearance-none cursor-pointer">
+          </select>
+        </div>
+        <!-- Chart -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-5 anim-fadeInUp delay-2">
+          <canvas id="stats-chart" height="260"></canvas>
+        </div>
+        <!-- Legend -->
+        <div class="flex items-center justify-center gap-5 mt-4 text-xs text-gray-400 dark:text-gray-500 anim-fadeInUp delay-3">
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500"></span> &lt; 50%</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-500"></span> 50-80%</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-red-500"></span> &gt; 80%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── CASOS ATÍPICOS (Admin) ─── -->
+    <div id="screen-atypical" class="screen hidden">
+      <div class="px-6 pt-10 pb-6 flex items-center gap-3">
+        <button onclick="showScreen('dashboard')" class="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+        </button>
+        <div>
+          <h2 class="text-xl font-extrabold anim-fadeInUp">Casos atípicos</h2>
+          <p class="text-gray-400 dark:text-gray-500 text-sm mt-0.5 anim-fadeInUp delay-1">Pendientes de revisión</p>
+        </div>
+      </div>
+      <div class="px-5 space-y-4" id="atypical-cases-list"></div>
+    </div>
+
+  </main>
+
+  <!-- ─── BOTTOM NAVIGATION ─── -->
+  <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-t border-gray-100 dark:border-gray-800 z-50 safe-area-bottom">
+    <div class="flex items-center justify-around px-2 py-1.5 max-w-lg mx-auto">
+      <!-- Dashboard -->
+      <button onclick="showScreen('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors text-emerald-600 dark:text-emerald-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+        <span class="text-[10px] font-semibold">Inicio</span>
+      </button>
+      <!-- Mapa -->
+      <button onclick="showScreen('map')" id="nav-map" class="nav-btn flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors text-gray-400 dark:text-gray-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"/></svg>
+        <span class="text-[10px] font-semibold">Mapa</span>
+      </button>
+      <!-- Comedores -->
+      <button onclick="showScreen('dining-info')" id="nav-dining-info" class="nav-btn flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors text-gray-400 dark:text-gray-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
+        <span class="text-[10px] font-semibold">Comedores</span>
+      </button>
+      <!-- Ajustes -->
+      <button onclick="showScreen('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors text-gray-400 dark:text-gray-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+        <span class="text-[10px] font-semibold">Ajustes</span>
+      </button>
+      <!-- Logout -->
+      <button onclick="logout()" id="nav-logout" class="nav-btn flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors text-gray-400 dark:text-gray-500">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"/></svg>
+        <span class="text-[10px] font-semibold">Salir</span>
+      </button>
+    </div>
+  </nav>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     3. MODALS
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="modal-overlay" class="hidden fixed inset-0 z-[60] flex items-end justify-center bg-black/40 backdrop-blur-sm" onclick="closeModalOutside(event)">
+
+  <!-- Reassignment Modal -->
+  <div id="modal-reassignment" class="modal-content hidden bg-white dark:bg-gray-800 w-full max-w-lg rounded-t-3xl p-6 pb-8 anim-slideUp">
+    <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-5"></div>
+    <h3 class="font-extrabold text-lg mb-1">Solicitar reasignación</h3>
+    <p class="text-xs text-gray-400 dark:text-gray-500 mb-5">Explícanos por qué necesitas cambiar de comedor</p>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Comedor preferido</label>
+        <select class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all">
+          <option>Yu Takeuchi</option>
+          <option>Comedor de Ciencias</option>
+          <option>Comedor Hemeroteca</option>
+          <option>Comedor de Ciencias Humanas</option>
+          <option>Comedor de Derecho</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Motivo</label>
+        <textarea rows="3" placeholder="Describe el motivo de tu solicitud..."
+                  class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all resize-none placeholder:text-gray-300 dark:placeholder:text-gray-500"></textarea>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button onclick="closeModal()" class="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-semibold rounded-xl text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Cancelar</button>
+        <button onclick="submitReassignment()" class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl text-sm shadow-md shadow-emerald-500/20 active:scale-[0.98] transition-all">Enviar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback Modal -->
+  <div id="modal-feedback" class="modal-content hidden bg-white dark:bg-gray-800 w-full max-w-lg rounded-t-3xl p-6 pb-8 anim-slideUp">
+    <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-5"></div>
+    <h3 class="font-extrabold text-lg mb-1">Enviar feedback</h3>
+    <p class="text-xs text-gray-400 dark:text-gray-500 mb-5">Tu opinión nos ayuda a mejorar Almuérzate</p>
+    <div class="space-y-4">
+      <textarea rows="4" placeholder="Cuéntanos tu experiencia, sugerencias o problemas..."
+                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all resize-none placeholder:text-gray-300 dark:placeholder:text-gray-500"></textarea>
+      <div class="flex gap-3 pt-2">
+        <button onclick="closeModal()" class="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-semibold rounded-xl text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Cancelar</button>
+        <button onclick="submitFeedback()" class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl text-sm shadow-md shadow-emerald-500/20 active:scale-[0.98] transition-all">Enviar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case Action Modal -->
+  <div id="modal-case-action" class="modal-content hidden bg-white dark:bg-gray-800 w-full max-w-lg rounded-t-3xl p-6 pb-8 anim-slideUp">
+    <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-5"></div>
+    <h3 class="font-extrabold text-lg mb-0.5" id="case-action-title">Aceptar caso</h3>
+    <p class="text-xs text-gray-400 dark:text-gray-500 mb-5" id="case-action-subtitle"></p>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wider">Comentarios</label>
+        <textarea id="case-comment" rows="3" placeholder="Deja un comentario sobre tu decisión..."
+                  class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-sm outline-none focus:ring-2 focus:ring-emerald-500 transition-all resize-none placeholder:text-gray-300 dark:placeholder:text-gray-500"></textarea>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button onclick="closeModal()" class="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-semibold rounded-xl text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Cancelar</button>
+        <button onclick="submitCaseAction()" id="case-action-btn" class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl text-sm shadow-md shadow-emerald-500/20 active:scale-[0.98] transition-all">Confirmar y enviar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     4. TOAST NOTIFICATION
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="toast" class="hidden fixed top-5 left-1/2 -translate-x-1/2 z-[70] px-5 py-3 rounded-xl bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm font-semibold shadow-xl anim-slideDown max-w-[90vw] text-center">
+  <span id="toast-message"></span>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     5. JAVASCRIPT
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+// ────────── STATE ──────────
+let currentScreen = 'dashboard';
+let userRole = 'beneficiario';
+let username = 'Usuario';
+let darkMode = false;
+let notificationsOn = true;
+let selectedRole = '';
+let statsChart = null;
+
+// ────────── DATA ──────────
+const dayNames = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+const weeklyAssignment = [
+  { day: 'Lunes',     comedor: 'Yu Takeuchi' },
+  { day: 'Martes',    comedor: 'Ciencias Humanas' },
+  { day: 'Miércoles', comedor: 'Yu Takeuchi' },
+  { day: 'Jueves',    comedor: 'Comedor de Ciencias' },
+  { day: 'Viernes',   comedor: 'Yu Takeuchi' },
+];
+
+const comedores = [
+  { name: 'Yu Takeuchi',               location: 'Zona de Ingeniería',         hours: '11:30 AM – 2:00 PM', occupancy: 85 },
+  { name: 'Comedor de Ciencias',        location: 'Facultad de Ciencias',       hours: '11:00 AM – 2:30 PM', occupancy: 55 },
+  { name: 'Comedor Hemeroteca',          location: 'Hemeroteca Nacional',        hours: '11:30 AM – 2:00 PM', occupancy: 40 },
+  { name: 'Comedor de Ciencias Humanas', location: 'Facultad de Ciencias Humanas', hours: '12:00 PM – 2:00 PM', occupancy: 72 },
+  { name: 'Comedor de Derecho',          location: 'Facultad de Derecho',        hours: '11:30 AM – 1:30 PM', occupancy: 28 },
+];
+
+const statsData = {
+  'Yu Takeuchi':               [20, 40, 75, 95, 85, 60, 30],
+  'Comedor de Ciencias':        [15, 25, 50, 70, 62, 45, 18],
+  'Comedor Hemeroteca':          [10, 18, 38, 52, 48, 32, 12],
+  'Comedor de Ciencias Humanas': [22, 38, 65, 82, 78, 55, 25],
+  'Comedor de Derecho':          [ 8, 14, 28, 42, 38, 22, 10],
+};
+
+const atypicalCases = [
+  {
+    id: 1, student: 'Carlos Martínez', code: '2023‑12345', issue: 'Conflicto de horario',
+    description: 'El estudiante tiene su última clase en el edificio de Ingeniería, pero fue asignado al comedor de Derecho. Solicita reasignación al comedor Yu Takeuchi por cercanía.',
+    date: '2026‑10‑04',
+  },
+  {
+    id: 2, student: 'Ana Rodríguez', code: '2021‑56789', issue: 'Movilidad reducida',
+    description: 'La estudiante requiere un comedor con acceso sin escaleras debido a una lesión temporal. Actualmente asignada al comedor de Ciencias, que tiene escaleras en la entrada principal.',
+    date: '2026‑10‑05',
+  },
+  {
+    id: 3, student: 'Miguel Torres', code: '2020‑98765', issue: 'Cambio de horario a mitad de semestre',
+    description: 'El estudiante modificó su horario académico: ya no tiene clases los viernes y su última clase de los jueves es ahora en Ciencias Humanas en vez de Ingeniería.',
+    date: '2026‑10‑06',
+  },
+];
+
+// ────────── ROLE SELECTION ──────────
+function selectRole(role) {
+  selectedRole = role;
+  document.querySelectorAll('.role-btn').forEach(btn => {
+    btn.classList.remove('border-emerald-500','bg-emerald-50','text-emerald-700','dark:bg-emerald-900/30','dark:text-emerald-400','dark:border-emerald-500');
+    btn.classList.add('border-gray-200','dark:border-gray-600','text-gray-400','dark:text-gray-500');
+  });
+  const el = document.getElementById('role-' + role);
+  el.classList.remove('border-gray-200','dark:border-gray-600','text-gray-400','dark:text-gray-500');
+  el.classList.add('border-emerald-500','bg-emerald-50','text-emerald-700','dark:bg-emerald-900/30','dark:text-emerald-400','dark:border-emerald-500');
+}
+
+// ────────── LOGIN / LOGOUT ──────────
+function login() {
+  const val = document.getElementById('input-username').value.trim();
+  username = val || 'Usuario';
+  userRole = selectedRole || 'beneficiario';
+
+  document.querySelectorAll('.display-username').forEach(el => el.textContent = username);
+
+  document.getElementById('screen-login').classList.add('hidden');
+  document.getElementById('app-shell').classList.remove('hidden');
+
+  setupDashboard();
+  showScreen('dashboard');
+}
+
+function logout() {
+  document.getElementById('app-shell').classList.add('hidden');
+  document.getElementById('screen-login').classList.remove('hidden');
+  document.getElementById('input-username').value = '';
+  document.getElementById('input-password').value = '';
+  selectedRole = '';
+  document.querySelectorAll('.role-btn').forEach(btn => {
+    btn.classList.remove('border-emerald-500','bg-emerald-50','text-emerald-700','dark:bg-emerald-900/30','dark:text-emerald-400','dark:border-emerald-500');
+    btn.classList.add('border-gray-200','dark:border-gray-600','text-gray-400','dark:text-gray-500');
+  });
+}
+
+// ────────── DASHBOARD SETUP ──────────
+function setupDashboard() {
+  document.getElementById('dashboard-beneficiario').classList.add('hidden');
+  document.getElementById('dashboard-no-beneficiario').classList.add('hidden');
+  document.getElementById('dashboard-admin').classList.add('hidden');
+
+  if (userRole === 'beneficiario') {
+    document.getElementById('dashboard-beneficiario').classList.remove('hidden');
+    setupBeneficiarioDash();
+  } else if (userRole === 'no_beneficiario') {
+    document.getElementById('dashboard-no-beneficiario').classList.remove('hidden');
+    renderDiningCards('nb-dining-cards');
+  } else {
+    document.getElementById('dashboard-admin').classList.remove('hidden');
+  }
+}
+
+function setupBeneficiarioDash() {
+  const dow = new Date().getDay();          // 0=Dom … 6=Sáb
+  let idx = dow - 1;                        // Mon=0 … Fri=4
+  if (idx < 0 || idx > 4) idx = 0;          // fines de semana → mostrar lunes
+
+  document.getElementById('today-comedor').textContent = weeklyAssignment[idx].comedor;
+
+  const cont = document.getElementById('weekly-schedule');
+  cont.innerHTML = weeklyAssignment.map((item, i) => {
+    const isToday = i === idx;
+    return `
+      <div class="flex items-center justify-between py-3 px-4 rounded-xl transition-all ${isToday ? 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800' : 'bg-gray-50 dark:bg-gray-700/30'}">
+        <div class="flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full ${isToday ? 'bg-emerald-500 anim-pulse-soft' : 'bg-transparent'}"></span>
+          <span class="font-medium text-sm ${isToday ? 'text-emerald-700 dark:text-emerald-400' : 'text-gray-700 dark:text-gray-300'}">${item.day}</span>
+          ${isToday ? '<span class="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full font-bold leading-none">Hoy</span>' : ''}
+        </div>
+        <span class="text-sm font-semibold ${isToday ? 'text-emerald-600 dark:text-emerald-300' : 'text-gray-500 dark:text-gray-400'}">${item.comedor}</span>
+      </div>`;
+  }).join('');
+}
+
+// ────────── DINING CARDS ──────────
+function renderDiningCards(containerId) {
+  const cont = document.getElementById(containerId);
+  cont.innerHTML = comedores.map((c, i) => {
+    const color = c.occupancy > 75 ? 'red' : c.occupancy > 45 ? 'amber' : 'emerald';
+    const barClass = c.occupancy > 75 ? 'occ-high' : c.occupancy > 45 ? 'occ-mid' : 'occ-low';
+    return `
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-black/5 dark:shadow-black/20 p-5 anim-fadeInUp delay-${i % 4 + 1}">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <h3 class="font-bold text-[15px] text-gray-800 dark:text-gray-100">${c.name}</h3>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 flex items-center gap-1">📍 ${c.location}</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-${color}-100 text-${color}-600 dark:bg-${color}-900/30 dark:text-${color}-400">${c.occupancy}% lleno</span>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
+          <span>🕐</span><span>${c.hours}</span>
+        </div>
+        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+          <div class="${barClass} h-1.5 rounded-full transition-all duration-700" style="width:${c.occupancy}%"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ────────── ATYPICAL CASES ──────────
+function renderAtypicalCases() {
+  const cont = document.getElementById('atypical-cases-list');
+  cont.innerHTML = atypicalCases.map((c, i) => `
+    <div id="case-${c.id}" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg shadow-black/5 dark:shadow-black/20 p-5 anim-fadeInUp delay-${i+1}" style="transition: opacity .3s, transform .3s;">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0 mt-0.5">
+          <span class="text-amber-600 dark:text-amber-400 font-extrabold text-sm">#${c.id}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <h4 class="font-bold text-sm text-gray-800 dark:text-gray-100">${c.student}</h4>
+          <p class="text-[11px] text-gray-400 dark:text-gray-500">Código: ${c.code} · ${c.date}</p>
+        </div>
+        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 shrink-0">${c.issue}</span>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-4">${c.description}</p>
+      <div class="flex gap-3">
+        <button onclick="handleCaseAction(${c.id},'reject')"
+                class="flex-1 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-semibold rounded-xl text-sm hover:bg-red-100 dark:hover:bg-red-900/40 active:scale-[0.98] transition-all">Rechazar</button>
+        <button onclick="handleCaseAction(${c.id},'accept')"
+                class="flex-1 py-2.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 font-semibold rounded-xl text-sm hover:bg-emerald-100 dark:hover:bg-emerald-900/40 active:scale-[0.98] transition-all">Aceptar</button>
+      </div>
+    </div>`).join('');
+}
+
+let currentCaseAction = { caseId: null, action: '' };
+function handleCaseAction(caseId, action) {
+  currentCaseAction = { caseId, action };
+  const c = atypicalCases.find(x => x.id === caseId);
+  document.getElementById('case-action-title').textContent = action === 'accept' ? '✅ Aceptar caso' : '❌ Rechazar caso';
+  document.getElementById('case-action-subtitle').textContent = `Caso #${caseId} — ${c.student}`;
+  const btn = document.getElementById('case-action-btn');
+  if (action === 'accept') {
+    btn.className = 'flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl text-sm shadow-md shadow-emerald-500/20 active:scale-[0.98] transition-all';
+  } else {
+    btn.className = 'flex-1 py-3 bg-gradient-to-r from-red-500 to-rose-500 text-white font-bold rounded-xl text-sm shadow-md shadow-red-500/20 active:scale-[0.98] transition-all';
+  }
+  showModal('modal-case-action');
+}
+
+function submitCaseAction() {
+  closeModal();
+  const el = document.getElementById('case-' + currentCaseAction.caseId);
+  if (el) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-100%)';
+    setTimeout(() => el.remove(), 350);
+  }
+  showToast(currentCaseAction.action === 'accept' ? '✅ Caso aceptado exitosamente' : '❌ Caso rechazado exitosamente');
+  document.getElementById('case-comment').value = '';
+}
+
+// ────────── STATS CHART ──────────
+function showStats() {
+  showScreen('stats');
+  const sel = document.getElementById('stats-comedor-select');
+  if (!sel.options.length) {
+    Object.keys(statsData).forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name; opt.textContent = name;
+      sel.appendChild(opt);
+    });
+  }
+  setTimeout(() => renderChart(sel.value), 100);
+}
+
+function renderChart(comedorName) {
+  const ctx = document.getElementById('stats-chart').getContext('2d');
+  if (statsChart) statsChart.destroy();
+
+  const data = statsData[comedorName];
+  const labels = ['11:00','11:30','12:00','12:30','1:00','1:30','2:00'];
+  const gridColor = darkMode ? 'rgba(75,85,99,0.25)' : 'rgba(209,213,219,0.5)';
+  const tickColor = darkMode ? '#9ca3af' : '#6b7280';
+
+  statsChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Ocupación (%)',
+        data,
+        backgroundColor: data.map(v => v > 80 ? 'rgba(239,68,68,.7)' : v > 50 ? 'rgba(245,158,11,.7)' : 'rgba(16,185,129,.7)'),
+        borderColor: data.map(v => v > 80 ? '#ef4444' : v > 50 ? '#f59e0b' : '#10b981'),
+        borderWidth: 2,
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%', color: tickColor, font: { size: 11, family: 'Inter' } }, grid: { color: gridColor } },
+        x: { ticks: { color: tickColor, font: { size: 11, family: 'Inter' } }, grid: { display: false } },
+      },
+    },
+  });
+}
+
+// ────────── SCREEN NAV ──────────
+function showScreen(screenId) {
+  currentScreen = screenId;
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  const target = document.getElementById('screen-' + screenId);
+  if (target) target.classList.remove('hidden');
+
+  // Nav highlight
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.classList.remove('text-emerald-600','dark:text-emerald-400');
+    btn.classList.add('text-gray-400','dark:text-gray-500');
+  });
+  const navBtn = document.getElementById('nav-' + screenId);
+  if (navBtn) {
+    navBtn.classList.remove('text-gray-400','dark:text-gray-500');
+    navBtn.classList.add('text-emerald-600','dark:text-emerald-400');
+  }
+
+  // Render dining info on first visit
+  if (screenId === 'dining-info' && !document.getElementById('dining-info-cards').children.length) {
+    renderDiningCards('dining-info-cards');
+  }
+  // Render atypical cases
+  if (screenId === 'atypical' && !document.getElementById('atypical-cases-list').children.length) {
+    renderAtypicalCases();
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ────────── DARK MODE ──────────
+function toggleDarkMode() {
+  darkMode = !darkMode;
+  document.documentElement.classList.toggle('dark', darkMode);
+  document.getElementById('toggle-darkmode').classList.toggle('active', darkMode);
+  // Re-render chart if visible
+  if (currentScreen === 'stats' && statsChart) {
+    renderChart(document.getElementById('stats-comedor-select').value);
+  }
+}
+
+function toggleNotifications() {
+  notificationsOn = !notificationsOn;
+  document.getElementById('toggle-notif').classList.toggle('active', notificationsOn);
+  showToast(notificationsOn ? '🔔 Notificaciones activadas' : '🔕 Notificaciones desactivadas');
+}
+
+// ────────── EXPLANATION TOGGLE ──────────
+function toggleExplanation() {
+  const card = document.getElementById('explanation-card');
+  card.classList.toggle('hidden');
+}
+
+// ────────── MODALS ──────────
+function showModal(modalId) {
+  document.getElementById('modal-overlay').classList.remove('hidden');
+  document.querySelectorAll('.modal-content').forEach(m => m.classList.add('hidden'));
+  document.getElementById(modalId).classList.remove('hidden');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function submitReassignment() {
+  closeModal();
+  showToast('✅ Solicitud de reasignación enviada exitosamente');
+}
+function submitFeedback() {
+  closeModal();
+  showToast('✅ ¡Gracias por tu feedback!');
+}
+
+// ────────── TOAST ──────────
+let toastTimeout = null;
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-message').textContent = message;
+  toast.classList.remove('hidden');
+  toast.classList.add('anim-slideDown');
+  if (toastTimeout) clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.classList.add('hidden');
+  }, 3000);
+}
+
+// ────────── INIT ──────────
+// Enter key on login
+document.getElementById('input-password').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+document.getElementById('input-username').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+</script>
+
+</body>
+</html>
