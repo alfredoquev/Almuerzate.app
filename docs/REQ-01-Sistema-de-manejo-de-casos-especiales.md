@@ -89,9 +89,9 @@ HOW TO USE THIS TEMPLATE
 
 ### 4.1 User Story
 
-> As a **[role]**,
-> I want **[capability]**,
-> so that **[value]**.
+> Como **administrativo**,
+> Quiero **ver un resumen de los casos inesperados en la asignación de comedores**,
+> Para que **los casos no manejados automáticamente por el sistema se puedan resolver fácilmente**.
 
 *Check yourself: is the "I want" describing the need, or already prescribing a solution?*
 
@@ -99,15 +99,35 @@ HOW TO USE THIS TEMPLATE
 
 *(At least two scenarios: one normal path, one alternative or exception.)*
 
-**Scenario 1 — [short name]**
-> **Given** [context]
-> **When** [event/stimulus]
-> **Then** [observable outcome]
+**Escenario 1 — Hay casos pendientes**
+> **Dado que** hay casos pendientes por resolver
+> **Cuando** el administrador abre el menú de "Manejo de casos atípicos"
+> **Entonces,** el botón de acceso al menú de "Manejo de casos atípicos" mostrará el número de casos pendientes; luego al hacer clic en el, se muestra una lista de los casos, donde cada uno incluye nombre del estudiante, código del caso, fecha, información provista por el estudiante y botones de aceptar o rechazar. 
 
-**Scenario 2 — [short name, alternative or exception]**
-> **Given** [context]
-> **When** [event/stimulus]
-> **Then** [observable outcome]
+**Escenario 2 — No hay casos pendientes**
+> **Dado que** no haya casos pendientes por resolver
+> **Cuando** el administrador abre el menú de "Manejo de casos atípicos"
+> **Entonces,** mostrar un mensaje que indique que no hay casos pendientes por resolver
+
+**Escenario 3 — Se acepta un caso**
+> **Dado que** se acepte un caso
+> **Cuando** el administrador se encuentre en el menú de "Manejo de casos atípicos"
+> **Entonces,** se muestra un menú que lista comedores sugeridos en orden de mejor a peor, al hacer clic en un comedor se habilita la opción de reasignar el comedor y resolver el caso
+
+**Escenario 4 — Se rechaza un caso**
+> **Dado que** se rechace un caso
+> **Cuando** el administrador se encuentre en el menú de "Manejo de casos atípicos"
+> **Entonces,** se muestra un menú con un campo de texto donde se deberá escribir la razón por la que se rechazó el caso y un botón para confirmar el rechazo del caso
+
+**Escenario 5 — Los comedores sugeridos están disponibles**
+> **Dado que** se pueda conseguir la lista de comedores sugeridos
+> **Cuando** el administrador acepte un caso
+> **Entonces,** se mostrará la lista de comedores sugeridos, organizados de mejor a peor
+
+**Escenario 6 — Los comedores sugeridos NO están disponibles**
+> **Dado que** no se pueda conseguir la lista de comedores sugeridos
+> **Cuando** el administrador acepte un caso
+> **Entonces,** se mostrará un mensaje de error informando que no se pudo obtener la lista de comedores
 
 ### 4.3 Use Case
 
