@@ -18,7 +18,7 @@ HOW TO USE THIS TEMPLATE
 | | |
 |---|---|
 | **Estado** | Validated  |
-| **Equipo / Autores** | Julian Londoño, Alfrredo Quevedo, Juan Pineda, Diego Gaviria, Santiago Amado|
+| **Equipo / Autores** | Julian Camilo Londoño Zarate, Jose Alfredo Quevedo Suarez, Juan Felipe Pineda Gonzalez, Diego Alejandro Gaviria Sabogal, Brayan Santiago Amado Mejia|
 | **Fecha** | 10-10-26|
 | **Historias de usuario anexadas / AC** | (Añadir cuando se completen las historias de usuario)|
 
