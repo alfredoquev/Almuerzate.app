@@ -13,34 +13,35 @@ HOW TO USE THIS TEMPLATE
    reference before you start.
 -->
 
-# [REQ-ID] — [Short Requirement Title]
+# [REQ-1] — [Sistema-de-manejo-de-casos-especiales]
 
 | | |
 |---|---|
-| **Status** |Draft / Validated / Open Question |
-| **Team / Author(s)** | |
-| **Date** | |
-| **Linked User Story / AC** | |
+| **Estado** | Validated  |
+| **Equipo / Autores** | Julian Camilo Londoño Zarate, Jose Alfredo Quevedo Suarez, Juan Felipe Pineda Gonzalez, Diego Alejandro Gaviria Sabogal, Brayan Santiago Amado Mejia|
+| **Fecha** | 10-10-26|
+| **Historias de usuario anexadas / AC** | (Añadir cuando se completen las historias de usuario)|
 
 ---
 
-## 1. Overview
+## 1. Vista general
 
-**Requirement Statement**
-> The system shall [capability/behavior] [under what condition, if applicable].
+**Declaracion del requerimiento**
+> El sistema debe permitir que los administradores del servicio de alimentación de la universidad asignen un comedor diferente a los estudiantes beneficiarios que por circunstancias excepcionales, requieran un cambio de comedor y hayan presentado la solicitud correspondiente a través de la plataforma.
 
-**Type:** Functional / Non-functional
-*(Classified using the Perfect Technology Filter from Class 8: imagine a perfect computer — infinite speed, unlimited memory, zero failures, zero cost. Would this requirement still matter? Yes → likely functional. The limitation disappears with perfect technology → likely non-functional.)*
+**Tipo:** Funcional (Filtro de tecnologia perfecta: Incluso con velocidad infinita, memoria ilimitada, cero fallos y coste cero, los estudiantes pueden necesitar un cambio repentino dado por condiciones externas al sitema, y los administradores deben tratar estos casos. Funcional.)
 
 **Source / Evidence**
-> Where did this come from? (stakeholder, interview, workshop, existing system, regulation — reference your Class 8 Discovery Sheet entry if you have one)
+> La ubicación, los horarios académicos y otras circunstancias personales pueden dificultar el acceso de los estudiantes al comedor asignado. Además, el proceso actual para solicitar cambios puede ser demorado.
 
 **Need**
-> What is the underlying need, stated as a goal — not a solution? (e.g. "know when my order will arrive," not "build a GPS map")
+
+> - Permitir que los estudiantes beneficiarios soliciten un cambio de comedor a través de la plataforma.
+> - Permitir que los administradores evalúen las solicitudes y determinen si procede realizar el cambio de comedor.
+> - Permitir que los administradores asignen un nuevo comedor a los estudiantes cuyas solicitudes hayan sido aprobadas.
 
 **Value / Rationale**
-> Why does this requirement matter? What becomes better for the user/business if it's satisfied? *(This is usually the same as the "so that" of your User Story below — write it once and reuse it, don't rewrite it from scratch.)*
-
+> Facilitar la gestión de cambios excepcionales y reducir los tiempos de respuesta a las necesidades de los estudiantes beneficiarios.
 ---
 
 ## 2. Contexto
@@ -138,19 +139,19 @@ Seguridad: el ADR-0002 la deja fuera de alcance, pero el panel de administració
 
 9.Backend: ¿las solicitudes pasan por la API en C++ o solo la sugerencia del árbol? Falta el ADR nuevo.
 
----
+# 3. Priority & Estimation
 
-## 3. Priority & Estimation
+**Priority model used:** MoSCoW *(Modelo alternativo considerado: Kano)*
 
-**Priority model used:** MoSCoW / Kano / RICE / WSJF / Value-Effort *(pick the one that fits the decision you're actually making — see Class 10's comparison if you need to decide which)*
+### Priority assigned: Must Have
 
-**Priority assigned:**
-> Because [the situation/signal from your project], we assigned [priority value], accepting the trade-off of [what you're giving up by not prioritizing it higher/lower]. We considered [alternative priority] and didn't use it because [reason].
+> **Justificación:** Debido a que la saturación de los comedores y las fallas en la asignación de cupos o turnos impactan directamente la continuidad de la operación diaria y la atención al usuario, asignamos la prioridad **Must Have**. Aceptamos el trade-off de destinar capacidad de desarrollo en las primeras iteraciones al diseño de herramientas de monitoreo y gestión administrativa en lugar de avanzar en funcionalidades secundarias. Consideramos la prioridad **Should Have** y la descartamos porque carecer de un mecanismo de contingencia desde el lanzamiento expondría al sistema a colapsos operativos no gestionables.
+>
+> *(Nota sobre la alternativa: Se evaluó la matriz **Kano**, pero fue descartada debido a que mide la satisfacción y el deleite del usuario en lugar de la criticidad operativa y el alcance del MVP, para lo cual **MoSCoW** resulta más efectivo).*
 
-**Estimate (confidence):** High / Medium / Low
-> How sure are we about the size and shape of this work? *(This is a confidence tag, not a technique-based number — named estimation techniques like story points are Ingeniería de Software II content, not this course.)*
+### Estimate (confidence): Medium
 
----
+> **Justificación:** Mantenemos un nivel de confianza **Medium** debido a que, mientras la captura del reporte por parte del usuario es un flujo estándar, la dimensión real del módulo administrativo dependerá del nivel de detalle en la consulta. Para facilitar una toma de decisiones rápida ante picos de saturación, las herramientas de consulta deberán incorporar filtros por comedor o sede, categoría del incidente (fallas de asignación vs. sobrecupo), nivel de severidad y rango temporal, sumado a vistas resumidas para la reasignación de aforos. La definición final de la interactividad de estos filtros determinará el esfuerzo exacto de desarrollo.
 
 ## 4. Representations — Requirement ≠ Representation
 
