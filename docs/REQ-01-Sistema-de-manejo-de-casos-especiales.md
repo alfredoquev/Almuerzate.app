@@ -13,20 +13,20 @@ HOW TO USE THIS TEMPLATE
    reference before you start.
 -->
 
-# [REQ-1] — [Sistema-de-manejo-de-casos-especiales]
+# REQ-1 — Sistema-de-manejo-de-casos-especiales
 
 | | |
 |---|---|
-| **Estado** | Validated  |
-| **Equipo / Autores** | Julian Camilo Londoño Zarate, Jose Alfredo Quevedo Suarez, Juan Felipe Pineda Gonzalez, Diego Alejandro Gaviria Sabogal, Brayan Santiago Amado Mejia|
-| **Fecha** | 10-10-26|
-| **Historias de usuario anexadas / AC** | (Añadir cuando se completen las historias de usuario)|
+| **Status** | Validated  |
+| **Team / Authors** | Julian Camilo Londoño Zarate, Jose Alfredo Quevedo Suarez, Juan Felipe Pineda Gonzalez, Diego Alejandro Gaviria Sabogal, Brayan Santiago Amado Mejia|
+| **Date** | 10-12-26|
+| **Linked User Story / AC** | US-01 a US-06 / AC-01 a AC-11|
 
 ---
 
-## 1. Vista general
+## 1. Overview
 
-**Declaracion del requerimiento**
+**Requirement Statement**
 > El sistema debe permitir que los administradores del servicio de alimentación de la universidad asignen un comedor diferente a los estudiantes beneficiarios que por circunstancias excepcionales, requieran un cambio de comedor y hayan presentado la solicitud correspondiente a través de la plataforma.
 
 **Tipo:** Funcional (Filtro de tecnologia perfecta: Incluso con velocidad infinita, memoria ilimitada, cero fallos y coste cero, los estudiantes pueden necesitar un cambio repentino dado por condiciones externas al sitema, y los administradores deben tratar estos casos. Funcional.)
@@ -44,9 +44,9 @@ HOW TO USE THIS TEMPLATE
 > Facilitar la gestión de cambios excepcionales y reducir los tiempos de respuesta a las necesidades de los estudiantes beneficiarios.
 ---
 
-## 2. Contexto
+## 2. Context 
 
-**Business Rule(s) / Reglas de Dominio**
+**Business Rules**
 R-1: El programa de bienestar universitario asigna a cada estudiante beneficiario un comedor donde recibe almuerzo, total o parcialmente gratis. Solo los estudiantes beneficiarios pueden solicitar cambio.
 
 R-2: No existe un catálogo cerrado de “circunstancias excepcionales”. El administrador evalúa cada caso según los argumentos del solicitante.
@@ -66,7 +66,7 @@ R-9: Cada decisión queda registrada (quién, cuándo, resultado y motivo).
 
 R-10: El estudiante es notificado de la decisión.
 
-**Constraint(s) / Limitaciones**
+**Constraints**
 
 *Del equipo y del contexto académico*
 
@@ -92,9 +92,9 @@ L7. Sin datos reales de ocupación: no hay sensores ni registros de ingreso a lo
 
 L8. Sin almacenamiento de archivos dedicado: el equipo solo dispone de PostgreSQL y un hosting gratuito. Los adjuntos de evidencia deben resolverse con esos recursos.
 
-L9. Notificaciones, no hay servicio de correo institucional. Solo notificación dentro de la app.
+L9. Las notificaciones se muestran solo dentro de la PWA.
 
-**Assumption(s) / Supuestos**
+**Assumptions**
 
 -La asignación base (R1 / Entrega 1) ya existe cuando se hacen solicitudes.
 
@@ -108,7 +108,7 @@ L9. Notificaciones, no hay servicio de correo institucional. Solo notificación 
 
 -Un cambio aprobado respeta almenos el 85 % del aforo, salvo excepción justificada (R-8).
 
-**Dependenc(ies) / Dependencias**
+**Dependencies**
 
 -R1 / Entrega 1: sin asignación previa no hay nada que cambiar.
 
@@ -124,7 +124,7 @@ L9. Notificaciones, no hay servicio de correo institucional. Solo notificación 
 
 -Reasignación periódica (Entrega 2): debe respetar los cambios manuales aprobados. Se deriva de BR-4, porque un cambio “permanente para el semestre” no puede ser pisado por el recálculo.
 
-**Risk(s) / Riesgos**
+**Risks**
 | Risk |	Likelihood | Impact |	Mitigation |
 |--- |--- |--- | ---|
 | La reasignación automática sobrescribe un cambio manual |	Medium |	High |Marcar la asignación como “manual” con precedencia sobre el recálculo |
@@ -143,17 +143,15 @@ L9. Notificaciones, no hay servicio de correo institucional. Solo notificación 
 
 3.Estimado de ocupación: ¿cómo se calcula y es dependencia dura de REQ-1?
 
-4.Notificación: ¿es solo in-app o también por correo?
+4.Reglas propuestas: R-5 a R-10 (plazo de 3 días, una solicitud pendiente, justificar rechazos) no están validadas.
 
-5.Reglas propuestas: BR-5 a BR-10 (plazo de 3 días, una solicitud pendiente, justificar rechazos) no están validadas.
+5.Almacenamiento: ¿dónde se guardan los archivos de evidencia, y con qué límites de tipo y tamaño?
 
-6.Almacenamiento: ¿dónde se guardan los archivos de evidencia, y con qué límites de tipo y tamaño?
+6.Interpretación del 80 %: asumí que es 80 % de la capacidad máxima real. ¿Es correcto?
 
-7.Interpretación del 80 %: asumí que es 80 % de la capacidad máxima real. ¿Es correcto?
+7.Validación: el estado dice Validated, pero no hay historias de usuario ni stakeholder confirmado. ¿Quién o qué lo validó?
 
-8.Validación: el estado dice Validated, pero no hay historias de usuario ni stakeholder confirmado. ¿Quién o qué lo validó?
-
-9.Backend: ¿las solicitudes pasan por la API en C++ o solo la sugerencia del árbol? Falta el ADR nuevo.
+8.Backend: ¿las solicitudes pasan por la API en C++ o solo la sugerencia del árbol? Falta el ADR nuevo.
 
 ## 3. Priority & Estimation
 **Priority model used:** MoSCoW *(Alternativa considerada: Kano)*
@@ -167,8 +165,6 @@ L9. Notificaciones, no hay servicio de correo institucional. Solo notificación 
 > Mantenemos un nivel de confianza **Medium** ya que, aunque la captura del reporte del usuario es un flujo estándar, la dimensión de la herramienta administrativa dependerá de la complejidad de los filtros requeridos (por sede, tipo de falla, severidad y rango temporal) para garantizar una consulta rápida y toma de decisiones eficiente.
 
 ## 4. Representations — Requirement ≠ Representation
-
-*(Class 9. Each representation reveals different information. Fill in all three below — for this capstone requirement, all three are required.)*
 
 ### 4.1 User Story
 
@@ -201,8 +197,6 @@ L9. Notificaciones, no hay servicio de correo institucional. Solo notificación 
 > Como **estudiante**,
 > Quiero **ser informado de cuando se resuelva mi caso atípico**,
 > Para **saber si se pudo reasignar mi comedor**.
-
-*Check yourself: is the "I want" describing the need, or already prescribing a solution?*
 
 ### 4.2 Acceptance Criteria
 
@@ -274,6 +268,7 @@ L9. Notificaciones, no hay servicio de correo institucional. Solo notificación 
 
 ### 4.3 Use Case
 
+**UC-1**
 | Field | |
 |---|---|
 | **Use Case name** | Consultar casos pendientes |
@@ -312,6 +307,7 @@ flowchart TD
     class E alt;
     class F exception;
 ```
+**UC-2**
 | Field | |
 |---|---|
 | **Use Case name** | Se acepta un caso pendiente |
@@ -323,7 +319,11 @@ flowchart TD
 **Main Flow**
 1. El administrador hace clic en "Aceptar" para un caso atípico
 2. Se muestra una lista de comedores sugeridos ordenados de mejor a peor
-
+3. El caso sigue pendiente y se da la opción de volver al menú anterior
+4. Se hace clic en alguno de los comedores de la lista
+5. Se hace clic en un botón para confirmar la reasignación del comedor
+6. Se reasigna el comedor y se notifica al estudiante
+   
 **Exception**
 > No esta disponible la lista de comedores sugeridos → Se muestra un código de error junto con su mensaje correspondiente
 
@@ -347,6 +347,7 @@ flowchart TD
     class B,G,H mainflow;
     class C exception;
 ```
+**UC-3**
 | Field | |
 |---|---|
 | **Use Case name** | Informar a un estudiante el rechazo de su caso |
@@ -362,7 +363,7 @@ flowchart TD
 4. Se muestra un mensaje informando que se envió la respuesta exitosamente
 
 **Exception**
-> No se pudo enviar la respuesta a la solicitud → Se guarda localmente el motivo de rechazo (como un borrador de un correo) y el caso se mantiene pendiente
+> No se pudo enviar la respuesta a la solicitud → Se guarda localmente el motivo de rechazo y el caso se mantiene pendiente
 
 **Postcondition**
 > Se notifica al estudiante del motivo del rechazo de su solicitud
@@ -386,6 +387,7 @@ flowchart TD
     class B,C,D,F mainflow;
     class G,H exception;
 ```
+**UC-4**
 | Field | |
 |---|---|
 | **Use Case name** | Se notifica el estado de un caso atípico |
@@ -437,6 +439,7 @@ flowchart TD
     class F,G,H alt;
     class I exception;
 ```
+**UC-5**
 | Field | |
 |---|---|
 | **Use Case name** | Se solicita reasignar un comedor |
@@ -480,24 +483,22 @@ flowchart TD
 
 ## 5. Traceability & Impact
 
-*(Class 10. Conceptual, not a formal matrix.)*
-
 **Backward — why does this requirement exist?**
 > Los estudiantes reportan que actualmente tienen dificultades para hacer llegar las solicitudes de cambio de comedor a los administrativos encargados, puesto que no hay canales claros ni accesibles para reportar sus casos, dependiendo de correos que se pierden o carecen de seguimiento → Necesidad: Gestionar de manera ágil los casos en los que la asignación base falla o perjudica al estudiante por circunstancias excepcionales → REQ-01.
 
 **Forward — what will this affect?**
-> REQ-01 → Diseño futuro (Formulario de solicitud in-app para el estudiante y Panel de administración para el administrativo) → Implementación (Frontend web PWA con Tailwind, lógica de sugerencias de comedores en el backend C++ y almacenamiento de estados/historial en PostgreSQL) → Pruebas (Validación mediante los criterios AC-01 a AC-11 y los 5 Casos de Uso definidos).
+> REQ-01 → Diseño futuro (Formulario de solicitud in-app para el estudiante y Panel de administración para el administrativo) → Implementación (Frontend web PWA con Tailwind, lógica de sugerencias de comedores en el backend C++ y almacenamiento de estados/historial en PostgreSQL) → Pruebas (Validación mediante los criterios AC-01 a AC-11 y los Casos de Uso definidos).
 
 **Impact Analysis — if this requirement changes, what else might need to change?**
-- [x ] Business Rules
-- [ x] Constraints
-- [ x] Dependencies
-- [x ] Risks
-- [ x] Acceptance Criteria
-- [x ] Estimate
+- [x] Business Rules
+- [x] Constraints
+- [x] Dependencies
+- [x] Risks
+- [x] Acceptance Criteria
+- [x] Estimate
 - [ ] Priority
-- [x ] Future Design
-- [x ] Future Tests
+- [x] Future Design
+- [x] Future Tests
 
 > Si el alcance de este requerimiento cambia (por ejemplo, si se decide que los casos atípicos se manejan fuera del sistema), las Reglas de Negocio (R-4, R-8) y la Dependencia del estimado de ocupación cambiarán radicalmente. Las Restricciones de infraestructura (L8 sobre adjuntos) y los Riesgos (la sobrescritura por reasignación automática) tendrían que ser reevaluados. Los Criterios de Aceptación, el Diseño futuro, las Pruebas y el Estimado (actualmente Medium por la complejidad de los filtros) se modificarían en proporción. La Prioridad (Must Have) es lo único que difícilmente cambiaría, pues la necesidad operativa se mantiene.
 
@@ -505,16 +506,12 @@ flowchart TD
 
 ## 6. Validation — Quality Gate
 
-*(Class 9 + Class 10. Self-audit before you commit this file. Check honestly — a "no" here means the requirement isn't ready yet, not that you should force a checkmark.)*
-
-- [x] **Valid?** Sí. Con la evidencia incluida, el requerimiento refleja una necesidad real y no inventada.
+- [x] **Valid?** Sí. Con la evidencia incluida, el requerimiento refleja una necesidad real y no inventada, a pesar de la ausencia de un stakeholder real.
 - [x] **Clear / Unambiguous?** Sí. Las reglas de dominio están descritas. Sin embargo, la interpretación del 80% de la capacidad máxima real sigue anotada como una pregunta abierta (Pregunta 7).
-- [ ] **Atomic?** No. El requerimiento agrupa múltiples acciones tanto de los estudiantes (solicitudes) como de los administrativos (revisión, aceptación y rechazo), abarcando más de una expectativa comprobable de forma independiente.
+- [ ] **Atomic?** No. El requerimiento agrupa múltiples acciones tanto de los estudiantes (solicitudes) como de los administrativos (reviasión, aceptación y rechazo), abarcando más de una expectativa comprobable de forma independiente. Este requerimiento nos lleva a re visitar la clase 9. 
 - [x] **Necessary?** Sí. Sin este mecanismo, los casos donde la asignación base falla quedarían sin resolución operativa.
 - [x] **Feasible?** Sí. Es viable implementarlo dadas las restricciones del equipo, usando el stack definido (PostgreSQL, JavaScript con Tailwind, y lógica en C++).
-- [x] **Verifiable?** Sí. El requerimiento cuenta con 11 Criterios de Aceptación verificables.
+- [x] **Verifiable?** Sí. El requerimiento cuenta con vaarios Criterios de Aceptación verificables, a pesar de no contar con stakeholder real.
 - [x] **Consistent?** Sí. No entra en conflicto con otros requerimientos y se declara correctamente como una dependencia de la asignación base (R1).
-- [ ] **Complete enough?** No. El documento detalla 9 "Open Questions" pendientes, incluyendo el cálculo del estimado de ocupación y los límites de almacenamiento para las evidencias.
+- [ ] **Complete enough?** No. El documento detalla varias "Open Questions" pendientes, incluyendo el cálculo del estimado de ocupación y los límites de almacenamiento para las evidencias.
 - [x] **Traceable?** Sí. El requerimiento se puede trazar desde la necesidad inicial documentada hasta el diseño futuro y las pruebas planificadas.
-
-> If any box is unchecked, say what's missing and whether it becomes an Open Question or sends you back to Class 8 (re-elicit) or Class 9 (re-specify).
