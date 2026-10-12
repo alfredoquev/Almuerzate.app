@@ -93,6 +93,10 @@ HOW TO USE THIS TEMPLATE
 > Quiero **ver un resumen de los casos inesperados en la asignación de comedores**,
 > Para que **los casos no manejados automáticamente por el sistema se puedan resolver fácilmente**.
 
+> Como **estudiante**,
+> Quiero **reportar un problema con la asignación de mi comedor**,
+> Para que **un administrativo lo resuelva y ser asignado un mejor comedor**.
+
 *Check yourself: is the "I want" describing the need, or already prescribing a solution?*
 
 ### 4.2 Acceptance Criteria
@@ -133,26 +137,22 @@ HOW TO USE THIS TEMPLATE
 
 | Field | |
 |---|---|
-| **Use Case name** | |
-| **Actor** | |
-| **Goal** | |
-| **Trigger** | |
-| **Precondition** | |
+| **Use Case name** | Consultar casos pendientes |
+| **Actor** | Administrativo |
+| **Goal** | Acceder a información sobre los casos pendientes de asignación de comedores |
+| **Trigger** | El administrador hace clic en "Manejo de casos atípicos" en el menú de inicio |
+| **Precondition** | Deberá haber una sesión abierta con rol de administrador |
 
 **Main Flow**
-1.
-2.
-3.
-4.
-
-**Alternative Flow**
-> [Condition] → [what happens instead]
+1. El administrador consulta los casos atípicos pendientes de resolver
+2. El sistema obtiene información sobre cada caso pendiente
+3. El sistema presenta los casos en una lista donde cada uno incluye nombre del estudiante, código del caso, fecha, información provista por el estudiante y botones de aceptar o rechazar.
 
 **Exception**
-> [Condition] → [what happens instead]
+> No está disponible la información sobre los casos pendientes → Se muestra un mensaje de error informando que no se pudo obtener los casos junto con el código del error (e.g. 4XX para errores en el cliente o 5XX para errores del servidor)
 
 **Postcondition**
->
+> Se muestra la lista de casos pendientes y se da la opción de aceptar o rechazar para cada uno
 
 **Flow Diagram**
 *(Replace the labels below with your own steps. Keep Main Flow, Alternative, and Exception visually distinct — delete whichever branch doesn't apply to your use case. This renders automatically on GitHub.)*
