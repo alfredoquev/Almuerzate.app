@@ -155,19 +155,16 @@ L9. Notificaciones, no hay servicio de correo institucional. Solo notificación 
 
 9.Backend: ¿las solicitudes pasan por la API en C++ o solo la sugerencia del árbol? Falta el ADR nuevo.
 
-# 3. Priority & Estimation
+## 3. Priority & Estimation
+**Priority model used:** MoSCoW *(Alternativa considerada: Kano)*
 
-**Priority model used:** MoSCoW *(Modelo alternativo considerado: Kano)*
+**Priority assigned:** Must Have
+> **Porque** la asignación inicial no contempla situaciones imprevistas como comedores saturados o fallas en el sistema; sin un canal para reportar inconformidades y una herramienta de consulta ágil para el administrador, el estudiante afectado queda atrapado en un comedor inoperativo y la administración pierde capacidad de respuesta. Aceptamos el trade-off de aplazar el desarrollo del **mapa interactivo de comedores** y la **personalización de interfaz (modo oscuro)**. Descartamos **Should Have** porque, sin este mecanismo de contingencia y consulta, los casos donde la asignación base falla quedan totalmente sin salida operativa.
 
-### Priority assigned: Must Have
+*(Elección del modelo: Se seleccionó **MoSCoW** porque el objetivo es definir el alcance del Producto Mínimo Viable (MVP). Se evaluó **Kano**, pero se descartó debido a que mide el deleite o la satisfacción del usuario frente a atributos deseables, lo cual no aplica para un requerimiento de contingencia y gestión operativa administrativa).*
 
-> **Justificación:** Debido a que la saturación de los comedores y las fallas en la asignación de cupos o turnos impactan directamente la continuidad de la operación diaria y la atención al usuario, asignamos la prioridad **Must Have**. Aceptamos el trade-off de destinar capacidad de desarrollo en las primeras iteraciones al diseño de herramientas de monitoreo y gestión administrativa en lugar de avanzar en funcionalidades secundarias. Consideramos la prioridad **Should Have** y la descartamos porque carecer de un mecanismo de contingencia desde el lanzamiento expondría al sistema a colapsos operativos no gestionables.
->
-> *(Nota sobre la alternativa: Se evaluó la matriz **Kano**, pero fue descartada debido a que mide la satisfacción y el deleite del usuario en lugar de la criticidad operativa y el alcance del MVP, para lo cual **MoSCoW** resulta más efectivo).*
-
-### Estimate (confidence): Medium
-
-> **Justificación:** Mantenemos un nivel de confianza **Medium** debido a que, mientras la captura del reporte por parte del usuario es un flujo estándar, la dimensión real del módulo administrativo dependerá del nivel de detalle en la consulta. Para facilitar una toma de decisiones rápida ante picos de saturación, las herramientas de consulta deberán incorporar filtros por comedor o sede, categoría del incidente (fallas de asignación vs. sobrecupo), nivel de severidad y rango temporal, sumado a vistas resumidas para la reasignación de aforos. La definición final de la interactividad de estos filtros determinará el esfuerzo exacto de desarrollo.
+**Estimate (confidence):** Medium
+> Mantenemos un nivel de confianza **Medium** ya que, aunque la captura del reporte del usuario es un flujo estándar, la dimensión de la herramienta administrativa dependerá de la complejidad de los filtros requeridos (por sede, tipo de falla, severidad y rango temporal) para garantizar una consulta rápida y toma de decisiones eficiente.
 
 ## 4. Representations — Requirement ≠ Representation
 
