@@ -208,10 +208,10 @@ flowchart TD
     A([Trigger: clic en Manejo de casos atípicos en el menú de inicio]) --> B["1. El administrador consulta los casos atípicos pendientes de resolver"]
     B --> C["2. El sistema obtiene información sobre cada caso pendiente"]
     C --> D{"Se pudo obtener información de los casos"}
-    D -- "Normal path" --> G["3. El sistema presenta los casos en una lista donde cada uno incluye nombre del estudiante, código del caso, fecha e información provista por el estudiante"]
-    G --> H(["Se muestra la lista de casos pendientes y se da la opción de aceptar o rechazar para cada uno"])
-    D -- "Exception condition" --> F["EXCEPTION: Se muestra un mensaje de error"]
-    F --> H
+    D -- "Si" --> G["3. El sistema presenta los casos en una lista donde cada uno incluye nombre del estudiante, código del caso, fecha e información provista por el estudiante"]
+    G --> H(["Se muestra la lista de casos pendientes"])
+    D -- "No" --> F["Se muestra un mensaje de error"]
+    F --> I(["Se da la opción de volver al menú anterior"])
 
     classDef mainflow fill:#1E2761,color:#ffffff,stroke:#1E2761;
     classDef alt fill:#F2A541,color:#1E2761,stroke:#F2A541;
