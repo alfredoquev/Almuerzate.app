@@ -68,17 +68,33 @@ R-10: El estudiante es notificado de la decisión.
 
 **Constraint(s) / Limitaciones**
 
-Roles: estudiante y administrador son un atributo de la cuenta de usuario, definido por el rol que la persona tiene en el sistema de la universidad. El demo debe simular esa fuente de roles.
+*Del equipo y del contexto académico*
 
-Arquitectura: la solicitud combina el backend en C++ (árbol de decisión, ADR-0004) con el criterio del administrador. El árbol sugiere alternativas y el administrador decide, priorizando la conveniencia del estudiante. El formato JSON y el ADR que reemplaza al ADR-0002 siguen POR CONFIRMAR.
+L1. Capacidad del equipo: hay 5 estudiantes de 5.º semestre con tiempo limitado por el semestre y otras materias. Solo caben soluciones simples y entregables.
 
-Datos: solo datos de prueba. Aun así, el adjunto de evidencia permanece en el demo (confirmado). Si el sistema se usara con datos reales, debe aplicar la Ley 1581 de 2012 (habeas data), porque la evidencia puede contener datos de salud.
+L2. Proyecto demostrativo: no hay usuarios ni operación reales. Disponibilidad, escalabilidad y carga real quedan fuera de alcance.
 
-Despliegue: Vercel, con qué parte va allí POR CONFIRMAR. Esto limita dónde se pueden guardar los archivos adjuntos.
+L3. Sin stakeholder real: no hay nadie del servicio de alimentación que valide reglas ni plazos. Las reglas de negocio quedan como supuestos hasta que alguien las valide.
 
-Seguridad: el ADR-0002 la deja fuera de alcance, pero el panel de administración debe al menos restringirse por rol.
+*De Software*
 
-**Assumption(s)**
+L4. Stack fijo por ADR: PostgreSQL, JavaScript con Tailwind y PWA, y lógica en C++ (ADR-0001, 0003 y 0004). Salirse del stack exige un ADR nuevo.
+
+L5. Despliegue limitado: Vercel es la plataforma elegida y según lo que se encuentra, C++ no es un runtime oficial de Vercel, así que el backend probablemente necesite otro servicio, con los límites de un plan gratuito.
+
+*De datos e integración*
+
+L6. Solo datos de prueba: nunca datos personales reales. Los adjuntos se quedan en el demo con contenido ficticio. Con datos reales aplicaría la Ley 1581 de 2012, porque la evidencia puede incluir datos de salud, de manera que al ser implementado en la realidad, todo puede cambiar al estar tratando datos reales.
+
+L7. Sin datos reales de ocupación: no hay sensores ni registros de ingreso a los comedores, se puede calcular con base en el aforo por comedor, y cantidad de estudiantes tanto ocupando el comedor como haciendo fila, al igual que franjas horarias con mayor afluencia. Sin embargo, estos son estimados que lejos de ser exactos representan una estimación.
+
+*De infraestructura*
+
+L8. Sin almacenamiento de archivos dedicado: el equipo solo dispone de PostgreSQL y un hosting gratuito. Los adjuntos de evidencia deben resolverse con esos recursos.
+
+L9. Notificaciones, no hay servicio de correo institucional. Solo notificación dentro de la app.
+
+**Assumption(s) / Supuestos**
 
 -La asignación base (R1 / Entrega 1) ya existe cuando se hacen solicitudes.
 
@@ -86,7 +102,7 @@ Seguridad: el ADR-0002 la deja fuera de alcance, pero el panel de administració
 
 -Los administradores revisan las solicitudes con regularidad.
 
--El estudiante accede a la PWA Progressive Web App con conexión.
+-El estudiante accede a la PWA (Progressive Web App) con conexión.
 
 -Para el demo, las cuentas y roles se simulan con datos de prueba.
 
