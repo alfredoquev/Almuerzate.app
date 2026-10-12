@@ -89,14 +89,32 @@ HOW TO USE THIS TEMPLATE
 
 ### 4.1 User Story
 
+**US-01**
 > Como **administrativo**,
 > Quiero **ver un resumen de los casos inesperados en la asignación de comedores**,
 > Para que **los casos no manejados automáticamente por el sistema se puedan resolver fácilmente**.
 
+**US-02**
+> Como **administrativo**,
+> Quiero **reasignar un comedor a un estudiante**,
+> Para **resolver su caso atípico el cual acepté**.
+
+**US-03**
+> Como **administrativo**,
+> Quiero **informar a un estudiante la razón de por qué su caso fue rechazado**,
+> Para **que el estudiante conozca como se manejó su caso**.
+
+**US-04**
+> Como **administrativo**,
+> Quiero **conocer los mejores comedores para reasignar a un estudiante**,
+> Para **brindar una solución satisfactoria a su caso atípico**.
+
+**US-05**
 > Como **estudiante**,
 > Quiero **reportar un problema con la asignación de mi comedor**,
 > Para que **un administrativo lo resuelva y ser asignado un mejor comedor**.
 
+**US-06**
 > Como **estudiante**,
 > Quiero **ser informado de cuando se resuelva mi caso atípico**,
 > Para **saber si se pudo reasignar mi comedor**.
@@ -106,36 +124,61 @@ HOW TO USE THIS TEMPLATE
 ### 4.2 Acceptance Criteria
 
 *(At least two scenarios: one normal path, one alternative or exception.)*
-
+**AC-01**
 **Escenario 1 — Hay casos pendientes**
 > **Dado que** hay casos pendientes por resolver
 > **Cuando** el administrador abre el menú de "Manejo de casos atípicos"
-> **Entonces,** el botón de acceso al menú de "Manejo de casos atípicos" mostrará el número de casos pendientes; luego al hacer clic en el, se muestra una lista de los casos, donde cada uno incluye nombre del estudiante, código del caso, fecha, información provista por el estudiante y botones de aceptar o rechazar. 
-
+> **Entonces,** se muestra una lista de los casos, donde cada uno incluye nombre del estudiante, código del caso, fecha, información provista por el estudiante y botones de aceptar o rechazar. 
+**AC-02**
 **Escenario 2 — No hay casos pendientes**
 > **Dado que** no haya casos pendientes por resolver
 > **Cuando** el administrador abre el menú de "Manejo de casos atípicos"
 > **Entonces,** mostrar un mensaje que indique que no hay casos pendientes por resolver
-
+**AC-03**
 **Escenario 3 — Se acepta un caso**
 > **Dado que** se acepte un caso
 > **Cuando** el administrador se encuentre en el menú de "Manejo de casos atípicos"
-> **Entonces,** se muestra un menú que lista comedores sugeridos en orden de mejor a peor, al hacer clic en un comedor se habilita la opción de reasignar el comedor y resolver el caso
-
-**Escenario 4 — Se rechaza un caso**
+> **Entonces,** se muestra un menú que lista comedores sugeridos en orden de mejor a peor
+**AC-04**
+**Escenario 4 — Se reasigna un comedor**
+> **Dado que** se seleccione un comedor para reasignar
+> **Cuando** el administrador acepte un caso atípico
+> **Entonces,** se habilita la opción de resolver el caso
+**AC-05**
+**Escenario 5 — Se rechaza un caso**
 > **Dado que** se rechace un caso
 > **Cuando** el administrador se encuentre en el menú de "Manejo de casos atípicos"
 > **Entonces,** se muestra un menú con un campo de texto donde se deberá escribir la razón por la que se rechazó el caso y un botón para confirmar el rechazo del caso
-
-**Escenario 5 — Los comedores sugeridos están disponibles**
+**AC-06**
+**Escenario 6 — Los comedores sugeridos están disponibles**
 > **Dado que** se pueda conseguir la lista de comedores sugeridos
 > **Cuando** el administrador acepte un caso
 > **Entonces,** se mostrará la lista de comedores sugeridos, organizados de mejor a peor
-
-**Escenario 6 — Los comedores sugeridos NO están disponibles**
+**AC-07**
+**Escenario 7 — Los comedores sugeridos NO están disponibles**
 > **Dado que** no se pueda conseguir la lista de comedores sugeridos
 > **Cuando** el administrador acepte un caso
 > **Entonces,** se mostrará un mensaje de error informando que no se pudo obtener la lista de comedores
+**AC-08**
+**Escenario 8 — Se notifica a un estudiante de que se resolvió su caso**
+> **Dado que** se haya aceptado/rechazado un caso
+> **Cuando** el estudiante lo haya reportado
+> **Entonces,** se notifica al estudiante acerca de la decisión tomada para su caso
+**AC-09**
+**Escenario 9 — El sistema pudo enviar un reporte**
+> **Dado que** el sistema envía un reporte
+> **Cuando** un estudiante reporte su caso atípico
+> **Entonces,** se muestra un mensaje indicando que se envió el reporte exitosamente
+**AC-10**
+**Escenario 10 — El sistema NO pudo enviar un reporte**
+> **Dado que** el sistema no pueda enviar un reporte
+> **Cuando** un estudiante reporta su caso atípico
+> **Entonces,** se muestra un código de error junto con un mensaje y se guarda la solicitud localmente
+**AC-11**
+**Escenario 11 — No se pudo obtener informacion de las solicitudes**
+> **Dado que** no se pudo obtener información sobre las solicitudes realizadas
+> **Cuando** un estudiante consulta el estado de sus casos atípicos
+> **Entonces,** se muestra un código de error junto con un mensaje
 
 ### 4.3 Use Case
 
@@ -159,7 +202,6 @@ HOW TO USE THIS TEMPLATE
 > Se muestra la lista de casos pendientes y se da la opción de aceptar o rechazar para cada uno
 
 **Flow Diagram**
-*(Replace the labels below with your own steps. Keep Main Flow, Alternative, and Exception visually distinct — delete whichever branch doesn't apply to your use case. This renders automatically on GitHub.)*
 
 ```mermaid
 flowchart TD
@@ -180,43 +222,167 @@ flowchart TD
 ```
 | Field | |
 |---|---|
-| **Use Case name** | Decidir sobre un caso pendiente |
+| **Use Case name** | Se acepta un caso pendiente |
 | **Actor** | Administrativo |
-| **Goal** | Resolver casos atípicos en la asignación de comedores |
-| **Trigger** | El administrador hace clic en "Aceptar" o "Rechazar" en un caso de la lista de casos pendientes |
+| **Goal** | reasignar el comedor de un estudiante cuyo caso atípico fue aceptado |
+| **Trigger** | El administrador hace clic en "Aceptar" en un caso de la lista de casos pendientes |
 | **Precondition** | Acceder a la lista de casos pendientes a través del botón de "Manejo de casos atípicos" |
 
 **Main Flow**
 1. El administrador hace clic en "Aceptar" para un caso atípico
 2. Se muestra una lista de comedores sugeridos ordenados de mejor a peor
 
-**Alternative**
-> El administrador hace clic en "Rechazar" para un caso atípico
-
 **Exception**
-> No esta disponible la lista de comedores sugeridos
+> No esta disponible la lista de comedores sugeridos → Se muestra un código de error junto con su mensaje correspondiente
 
 **Postcondition**
 > Se muestra junto a la lista un botón para confirmar la reasignación de comedor, y otro para retroceder al menú anterior
 
 **Flow Diagram**
-*(Replace the labels below with your own steps. Keep Main Flow, Alternative, and Exception visually distinct — delete whichever branch doesn't apply to your use case. This renders automatically on GitHub.)*
 
 ```mermaid
 flowchart TD
-    A{Trigger: clic en 'Aceptar' o 'Rechazar' en un caso} -- "Aceptar" --> B["Se muestra una lista de comedores sugeridos ordenados de mejor a peor"]
-    A -- "Rechazar" --> C["Se muestra un menú con una caja de texto donde se debe escribir la razón por la que se rechaza la reasignación de comedor"]
-    A -- "Los comedores sugeridos no están disponibles" --> D["Se muestra un mensaje de error"]
-    B --> E(["Se habilita un botón para volver al menú anterior"])
-    C --> E
-    D --> E
+    A([Trigger: clic en 'Aceptar' en un caso]) --- F{"Se pudo obtener la información de los comedores disponibles"}
+    F -- "Ruta normal" --> B["Se muestra una lista de comedores sugeridos ordenados de mejor a peor"]
+    F -- "Excepción" --> C["Se muestra un código de error junto con su mensaje correspondiente"]
+    C --> D(["El caso sigue pendiente y se da la opción de volver al menú anterior"])
+    B --> G["Se hace clic en alguno de los comedores de la lista"]
+    G --> H["Se hace clic en un botón para confirmar la reasignación del comedor"]
+    H --> E(["Se reasigna el comedor y se notifica al estudiante"])
+
+    classDef mainflow fill:#1E2761,color:#ffffff,stroke:#1E2761;
+    classDef exception fill:#B3261E,color:#ffffff,stroke:#B3261E;
+    class B,G,H mainflow;
+    class C exception;
+```
+| Field | |
+|---|---|
+| **Use Case name** | Informar a un estudiante el rechazo de su caso |
+| **Actor** | Administrativo |
+| **Goal** | Dar a conocer el motivo del rechazo de un caso atípico |
+| **Trigger** | El administrador hace clic en "Rechazar" en un caso de la lista de casos pendientes |
+| **Precondition** | Acceder a la lista de casos pendientes a través del botón de "Manejo de casos atípicos" |
+
+**Main Flow**
+1. El administrador hace clic en "Rechazar" para un caso atípico
+2. Se muestra una caja de texto donde se debe escribir el motivo del rechazo
+3. Se hace clic en "Confirmar y enviar"
+4. Se muestra un mensaje informando que se envió la respuesta exitosamente
+
+**Exception**
+> No se pudo enviar la respuesta a la solicitud → Se guarda localmente el motivo de rechazo (como un borrador de un correo) y el caso se mantiene pendiente
+
+**Postcondition**
+> Se notifica al estudiante del motivo del rechazo de su solicitud
+
+**Flow Diagram**
+
+```mermaid
+flowchart TD
+    A([El administrador hace clic en 'Rechazar' en un caso de la lista de casos pendientes]) --> B["Se muestra una caja de texto"]
+    B --> C["Se escribe el motivo del rechazo del caso en la caja de texto"]
+    C --> D["Se hace click en 'Confirmar y enviar'"]
+    D --- E{"Se pudo enviar la respuesta a la solicitud"}
+    E -- "si" --> F["Se muestra un mensaje indicando que la respuesta fue enviada"]
+    E -- "no" --> G["Se guarda localmente la respuesta como borrador"]
+    G --> H["Se muestra un mensaje indicando que no se pudo enviar la solicitud y que se guardo como borrador"]
+    H --> I([El caso se mantiene pendiente])
+    F --> J([El caso se rechaza y se notifica el motivo al estudiante])
+
+    classDef mainflow fill:#1E2761,color:#ffffff,stroke:#1E2761;
+    classDef exception fill:#B3261E,color:#ffffff,stroke:#B3261E;
+    class B,C,D,F mainflow;
+    class G,H exception;
+```
+| Field | |
+|---|---|
+| **Use Case name** | Se notifica el estado de un caso atípico |
+| **Actor** | Estudiante |
+| **Goal** | Conocer el estado de un caso reportado |
+| **Trigger** | El estudiante hace clic en "Consultar Solicitudes" en el menú de inicio |
+| **Precondition** | Iniciar sesión como estudiante en el sistema |
+
+**Main Flow**
+1. El estudiante hace clic en "Consultar Solicitudes"
+2. Se muestra una lista con las solicitudes realizadas
+3. Se hace clic en una solicitud
+
+**Exception**
+> No se obtuvo información sobre solicitudes realizadas → Se muestra un código de error junto con un mensaje
+
+**Alternative**
+> La solicitud sigue pendiente de respuesta
+**Postcondition**
+> Se muestra un mensaje indicando que la solicitud aún no ha sido respondida
+
+**Alternative**
+> La solicitud fue rechazada
+**Postcondition**
+> Se muestra el motivo del rechazo
+
+**Alternative**
+> La solicitud fue aceptada
+**Postcondition**
+> Se muestra el comedor al que se reasignó
+
+**Flow Diagram**
+
+```mermaid
+flowchart TD
+    A([Trigger: estudiante hace clic en 'Consultar Solicitudes']) --- B{"Se pudo obtener información de las solicitudes"}
+    B  -- "Si" --> C["Se muestra una lista con las solicitudes realizadas"]
+    C  --> D["Se hace clic en una solicitud"]
+    D --> E{Estado de la solicitud}
+    E -- "Pendiente" --> F([Se muestra un mensaje indicando que la solicitud aún no ha sido respondida])
+    E -- "Rechazada" --> G([Se muestra el motivo del rechazo de la solicitud])
+    E -- "Aceptada" --> H([Se muestra el comedor al que se reasignó])
+    B -- "No" --> I["Se muestra un código de error junto con un mensaje"] --> J([Se da la opción de volver al menú anterior])
 
     classDef mainflow fill:#1E2761,color:#ffffff,stroke:#1E2761;
     classDef alt fill:#F2A541,color:#1E2761,stroke:#F2A541;
     classDef exception fill:#B3261E,color:#ffffff,stroke:#B3261E;
-    class B mainflow;
-    class C alt;
-    class D exception;
+    class C,D mainflow;
+    class F,G,H alt;
+    class I exception;
+```
+| Field | |
+|---|---|
+| **Use Case name** | Se solicita reasignar un comedor |
+| **Actor** | Estudiante |
+| **Goal** | Solicitar que se reasigne un comedor debido a alguna situación fuera del alcance del sistema |
+| **Trigger** | El estudiante hace clic en "Solicitar reasignación de comedor" en el menú de inicio |
+| **Precondition** | Iniciar sesión como estudiante en el sistema |
+
+**Main Flow**
+1. El estudiante hace clic en "Solicitar reasignación de comedor"
+2. Se muestra un formulario
+3. Se selecciona el día en el que se quiere cambiar el comedor
+4. Se selecciona el comedor preferido
+5. Se hace clic en "Enviar"
+
+**Exception**
+> No se pudo enviar la solicitud → Se guarda la solicitud localmente y se muestra un código de error junto con un mensaje
+
+**Postcondition**
+> Se envía la solicitud y se muestra un mensaje que lo indica
+
+**Flow Diagram**
+
+```mermaid
+flowchart TD
+    A(["Trigger: El estudiante hace clic en 'Solicitar reasignación de comedor'"]) --> B["Se muestra un formulario"]
+    B --> C["Se selecciona el día en el que se quiere cambiar el comedor"]
+    C --> D["Se selecciona el comedor preferido"]
+    D --> E["Se hace clic en 'Enviar'"] --- F{Se pudo enviar la solicitud}
+    F -- "Si" --> G["Se muestra un mensaje indicando que la solicitud fue enviada con éxito"]
+    F -- "No" --> H["Se guarda la solicitud localmente"] --> I["Se muestra un código y mensaje de error"] --> J(["No se envía la solicitud"])
+    G --> K(["Se envía la solicitud para que la vean los administradores"])
+
+    classDef mainflow fill:#1E2761,color:#ffffff,stroke:#1E2761;
+    classDef alt fill:#F2A541,color:#1E2761,stroke:#F2A541;
+    classDef exception fill:#B3261E,color:#ffffff,stroke:#B3261E;
+    class B,C,D,E,G mainflow;
+    class H,I exception;
 ```
 ---
 
