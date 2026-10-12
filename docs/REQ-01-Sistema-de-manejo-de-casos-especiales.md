@@ -123,57 +123,66 @@ HOW TO USE THIS TEMPLATE
 
 ### 4.2 Acceptance Criteria
 
-*(At least two scenarios: one normal path, one alternative or exception.)*
 **AC-01**
 **Escenario 1 — Hay casos pendientes**
 > **Dado que** hay casos pendientes por resolver
 > **Cuando** el administrador abre el menú de "Manejo de casos atípicos"
-> **Entonces,** se muestra una lista de los casos, donde cada uno incluye nombre del estudiante, código del caso, fecha, información provista por el estudiante y botones de aceptar o rechazar. 
+> **Entonces,** se muestra una lista de los casos, donde cada uno incluye nombre del estudiante, código del caso, fecha, información provista por el estudiante y botones de aceptar o rechazar.
+
 **AC-02**
 **Escenario 2 — No hay casos pendientes**
 > **Dado que** no haya casos pendientes por resolver
 > **Cuando** el administrador abre el menú de "Manejo de casos atípicos"
 > **Entonces,** mostrar un mensaje que indique que no hay casos pendientes por resolver
+
 **AC-03**
 **Escenario 3 — Se acepta un caso**
 > **Dado que** se acepte un caso
 > **Cuando** el administrador se encuentre en el menú de "Manejo de casos atípicos"
 > **Entonces,** se muestra un menú que lista comedores sugeridos en orden de mejor a peor
+
 **AC-04**
 **Escenario 4 — Se reasigna un comedor**
 > **Dado que** se seleccione un comedor para reasignar
 > **Cuando** el administrador acepte un caso atípico
 > **Entonces,** se habilita la opción de resolver el caso
+
 **AC-05**
 **Escenario 5 — Se rechaza un caso**
 > **Dado que** se rechace un caso
 > **Cuando** el administrador se encuentre en el menú de "Manejo de casos atípicos"
 > **Entonces,** se muestra un menú con un campo de texto donde se deberá escribir la razón por la que se rechazó el caso y un botón para confirmar el rechazo del caso
+
 **AC-06**
 **Escenario 6 — Los comedores sugeridos están disponibles**
 > **Dado que** se pueda conseguir la lista de comedores sugeridos
 > **Cuando** el administrador acepte un caso
 > **Entonces,** se mostrará la lista de comedores sugeridos, organizados de mejor a peor
+
 **AC-07**
 **Escenario 7 — Los comedores sugeridos NO están disponibles**
 > **Dado que** no se pueda conseguir la lista de comedores sugeridos
 > **Cuando** el administrador acepte un caso
 > **Entonces,** se mostrará un mensaje de error informando que no se pudo obtener la lista de comedores
+
 **AC-08**
 **Escenario 8 — Se notifica a un estudiante de que se resolvió su caso**
 > **Dado que** se haya aceptado/rechazado un caso
 > **Cuando** el estudiante lo haya reportado
 > **Entonces,** se notifica al estudiante acerca de la decisión tomada para su caso
+
 **AC-09**
 **Escenario 9 — El sistema pudo enviar un reporte**
 > **Dado que** el sistema envía un reporte
 > **Cuando** un estudiante reporte su caso atípico
 > **Entonces,** se muestra un mensaje indicando que se envió el reporte exitosamente
+
 **AC-10**
 **Escenario 10 — El sistema NO pudo enviar un reporte**
 > **Dado que** el sistema no pueda enviar un reporte
 > **Cuando** un estudiante reporta su caso atípico
 > **Entonces,** se muestra un código de error junto con un mensaje y se guarda la solicitud localmente
+
 **AC-11**
 **Escenario 11 — No se pudo obtener informacion de las solicitudes**
 > **Dado que** no se pudo obtener información sobre las solicitudes realizadas
