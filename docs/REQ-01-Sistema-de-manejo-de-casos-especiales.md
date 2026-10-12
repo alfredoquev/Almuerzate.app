@@ -483,23 +483,23 @@ flowchart TD
 *(Class 10. Conceptual, not a formal matrix.)*
 
 **Backward — why does this requirement exist?**
-> Evidence → Need → Requirement. Point to the specific evidence/need entries that justify this requirement (from your Discovery Sheet).
+> Los estudiantes reportan que actualmente tienen dificultades para hacer llegar las solicitudes de cambio de comedor a los administrativos encargados, puesto que no hay canales claros ni accesibles para reportar sus casos, dependiendo de correos que se pierden o carecen de seguimiento → Necesidad: Gestionar de manera ágil los casos en los que la asignación base falla o perjudica al estudiante por circunstancias excepcionales → REQ-01.
 
 **Forward — what will this affect?**
-> Requirement → future Design → Implementation → Tests. *(It's fine if Design hasn't happened yet — note what you expect this to touch once it does, and update this section once Class 11 work begins.)*
+> REQ-01 → Diseño futuro (Formulario de solicitud in-app para el estudiante y Panel de administración para el administrativo) → Implementación (Frontend web PWA con Tailwind, lógica de sugerencias de comedores en el backend C++ y almacenamiento de estados/historial en PostgreSQL) → Pruebas (Validación mediante los criterios AC-01 a AC-11 y los 5 Casos de Uso definidos).
 
 **Impact Analysis — if this requirement changes, what else might need to change?**
-- [ ] Business Rules
-- [ ] Constraints
-- [ ] Dependencies
-- [ ] Risks
-- [ ] Acceptance Criteria
-- [ ] Estimate
+- [x ] Business Rules
+- [ x] Constraints
+- [ x] Dependencies
+- [x ] Risks
+- [ x] Acceptance Criteria
+- [x ] Estimate
 - [ ] Priority
-- [ ] Future Design
-- [ ] Future Tests
+- [x ] Future Design
+- [x ] Future Tests
 
-> Briefly note which of the above are actually likely to be affected, and why.
+> Si el alcance de este requerimiento cambia (por ejemplo, si se decide que los casos atípicos se manejan fuera del sistema), las Reglas de Negocio (R-4, R-8) y la Dependencia del estimado de ocupación cambiarán radicalmente. Las Restricciones de infraestructura (L8 sobre adjuntos) y los Riesgos (la sobrescritura por reasignación automática) tendrían que ser reevaluados. Los Criterios de Aceptación, el Diseño futuro, las Pruebas y el Estimado (actualmente Medium por la complejidad de los filtros) se modificarían en proporción. La Prioridad (Must Have) es lo único que difícilmente cambiaría, pues la necesidad operativa se mantiene.
 
 ---
 
@@ -507,14 +507,14 @@ flowchart TD
 
 *(Class 9 + Class 10. Self-audit before you commit this file. Check honestly — a "no" here means the requirement isn't ready yet, not that you should force a checkmark.)*
 
-- [ ] **Valid?** Does it reflect a real, evidenced need — not an invented one?
-- [ ] **Clear / Unambiguous?** Is there only one reasonable interpretation?
-- [ ] **Atomic?** Is this one independently testable expectation, not several bundled together?
-- [ ] **Necessary?** Does removing it actually break something real?
-- [ ] **Feasible?** Can this realistically be built with what the team has?
-- [ ] **Verifiable?** Can you demonstrate, concretely, whether it's satisfied?
-- [ ] **Consistent?** Does it conflict with any other requirement in your set?
-- [ ] **Complete enough?** Are there important functions or constraints still missing?
-- [ ] **Traceable?** Can every part of this document be traced back to real evidence — not invented to fill a section?
+- [x] **Valid?** Sí. Con la evidencia incluida, el requerimiento refleja una necesidad real y no inventada.
+- [x] **Clear / Unambiguous?** Sí. Las reglas de dominio están descritas. Sin embargo, la interpretación del 80% de la capacidad máxima real sigue anotada como una pregunta abierta (Pregunta 7).
+- [ ] **Atomic?** No. El requerimiento agrupa múltiples acciones tanto de los estudiantes (solicitudes) como de los administrativos (revisión, aceptación y rechazo), abarcando más de una expectativa comprobable de forma independiente.
+- [x] **Necessary?** Sí. Sin este mecanismo, los casos donde la asignación base falla quedarían sin resolución operativa.
+- [x] **Feasible?** Sí. Es viable implementarlo dadas las restricciones del equipo, usando el stack definido (PostgreSQL, JavaScript con Tailwind, y lógica en C++).
+- [x] **Verifiable?** Sí. El requerimiento cuenta con 11 Criterios de Aceptación verificables.
+- [x] **Consistent?** Sí. No entra en conflicto con otros requerimientos y se declara correctamente como una dependencia de la asignación base (R1).
+- [ ] **Complete enough?** No. El documento detalla 9 "Open Questions" pendientes, incluyendo el cálculo del estimado de ocupación y los límites de almacenamiento para las evidencias.
+- [x] **Traceable?** Sí. El requerimiento se puede trazar desde la necesidad inicial documentada hasta el diseño futuro y las pruebas planificadas.
 
 > If any box is unchecked, say what's missing and whether it becomes an Open Question or sends you back to Class 8 (re-elicit) or Class 9 (re-specify).
