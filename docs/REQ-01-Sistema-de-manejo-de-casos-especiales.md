@@ -44,31 +44,116 @@ HOW TO USE THIS TEMPLATE
 > Facilitar la gestión de cambios excepcionales y reducir los tiempos de respuesta a las necesidades de los estudiantes beneficiarios.
 ---
 
-## 2. Context — A Requirement Rarely Stands Alone
+## 2. Contexto
 
-*(Class 10. Fill honestly — "N/A — none identified" is a valid, expected answer for several of these.)*
+**Business Rule(s) / Reglas de Dominio**
+R-1: El programa de bienestar universitario asigna a cada estudiante beneficiario un comedor donde recibe almuerzo, total o parcialmente gratis. Solo los estudiantes beneficiarios pueden solicitar cambio.
 
-**Business Rule(s)**
-> What rule(s) exist in the business/domain, independent of software, that this requirement supports or enforces? Remember: Business Rule ≠ Software Requirement — not every rule needs one.
+R-2: No existe un catálogo cerrado de “circunstancias excepcionales”. El administrador evalúa cada caso según los argumentos del solicitante.
+R-3: Cada comedor tiene un aforo operativo del 80 % de su capacidad máxima real, para mantenerlo subsaturado y balancear la carga entre comedores.
 
-**Constraint(s)**
-> What limits how this requirement can be solved (regulation, existing technology, contract, interoperability, organizational policy)? A constraint reduces the available design space — it doesn't describe what must be satisfied, it describes what limits the solution.
+R-4: Un cambio aprobado es permanente durante el semestre, y puede modificarse con una nueva solicitud.
 
-**Assumption(s)**
-> What are we currently treating as true, without full verification, to keep moving? (Assumption ≠ Fact.)
+R-5: Toda solicitud debe incluir una justificación escrita. La evidencia adjunta es opcional.
 
-**Dependenc(ies)**
-> What does this requirement rely on to be satisfied (another requirement, an external system/API, a data source, a third party, an organizational process)?
+R-6: Un estudiante puede tener una sola solicitud pendiente a la vez. Si le rechazan una, puede volver a solicitar aportando argumentos nuevos.
 
-**Risk(s)**
-> What uncertain event or condition could negatively affect this requirement or its delivery? For each risk, note a rough Likelihood and Impact (High / Medium / Low) and, if you have one, a brief mitigation note.
+R-7 (propuesta): El administrador responde en un máximo de 3 días hábiles. Todo rechazo debe incluir el motivo.
 
-| Risk | Likelihood | Impact | Mitigation (optional) |
-|---|---|---|---|
-| | | | |
+R-8 (propuesta): El comedor destino no debería superar el 85 % de aforo de ser posible. Si el administrador decide excederlo, debe dejar justificación escrita, y nunca puede superar la capacidad máxima real.
+
+R-9: Cada decisión queda registrada (quién, cuándo, resultado y motivo).
+
+R-10: El estudiante es notificado de la decisión.
+
+**Constraint(s) / Limitaciones**
+
+*Del equipo y del contexto académico*
+
+L1. Capacidad del equipo: hay 5 estudiantes de 5.º semestre con tiempo limitado por el semestre y otras materias. Solo caben soluciones simples y entregables.
+
+L2. Proyecto demostrativo: no hay usuarios ni operación reales. Disponibilidad, escalabilidad y carga real quedan fuera de alcance.
+
+L3. Sin stakeholder real: no hay nadie del servicio de alimentación que valide reglas ni plazos. Las reglas de negocio quedan como supuestos hasta que alguien las valide.
+
+*De Software*
+
+L4. Stack fijo por ADR: PostgreSQL, JavaScript con Tailwind y PWA, y lógica en C++ (ADR-0001, 0003 y 0004). Salirse del stack exige un ADR nuevo.
+
+L5. Despliegue limitado: Vercel es la plataforma elegida y según lo que se encuentra, C++ no es un runtime oficial de Vercel, así que el backend probablemente necesite otro servicio, con los límites de un plan gratuito.
+
+*De datos e integración*
+
+L6. Solo datos de prueba: nunca datos personales reales. Los adjuntos se quedan en el demo con contenido ficticio. Con datos reales aplicaría la Ley 1581 de 2012, porque la evidencia puede incluir datos de salud, de manera que al ser implementado en la realidad, todo puede cambiar al estar tratando datos reales.
+
+L7. Sin datos reales de ocupación: no hay sensores ni registros de ingreso a los comedores, se puede calcular con base en el aforo por comedor, y cantidad de estudiantes tanto ocupando el comedor como haciendo fila, al igual que franjas horarias con mayor afluencia. Sin embargo, estos son estimados que lejos de ser exactos representan una estimación.
+
+*De infraestructura*
+
+L8. Sin almacenamiento de archivos dedicado: el equipo solo dispone de PostgreSQL y un hosting gratuito. Los adjuntos de evidencia deben resolverse con esos recursos.
+
+L9. Notificaciones, no hay servicio de correo institucional. Solo notificación dentro de la app.
+
+**Assumption(s) / Supuestos**
+
+-La asignación base (R1 / Entrega 1) ya existe cuando se hacen solicitudes.
+
+-Siempre existe al menos un comedor alternativo con cupo disponible.
+
+-Los administradores revisan las solicitudes con regularidad.
+
+-El estudiante accede a la PWA (Progressive Web App) con conexión.
+
+-Para el demo, las cuentas y roles se simulan con datos de prueba.
+
+-Un cambio aprobado respeta almenos el 85 % del aforo, salvo excepción justificada (R-8).
+
+**Dependenc(ies) / Dependencias**
+
+-R1 / Entrega 1: sin asignación previa no hay nada que cambiar.
+
+-Backend C++ (árbol de decisión): sugiere comedores alternativos al administrador.
+
+-PostgreSQL: guarda solicitudes, decisiones, historial y asignaciones.
+
+-Cuentas y roles: vienen del sistema de usuarios de la universidad (simulado en el demo).
+
+-Estimado de ocupación (POR CONFIRMAR): sin él, el administrador no ve la ocupación proyectada al decidir.
+
+-Notificación al estudiante: mecanismo mínimo propuesto, in-app.
+
+-Reasignación periódica (Entrega 2): debe respetar los cambios manuales aprobados. Se deriva de BR-4, porque un cambio “permanente para el semestre” no puede ser pisado por el recálculo.
+
+**Risk(s) / Riesgos**
+| Risk |	Likelihood | Impact |	Mitigation |
+|--- |--- |--- | ---|
+| La reasignación automática sobrescribe un cambio manual |	Medium |	High |Marcar la asignación como “manual” con precedencia sobre el recálculo |
+|Se acumulan solicitudes y el administrador no da abasto |	Medium |	High |	Plazo de respuesta (R-7) y vista de pendientes ordenada por antigüedad |
+|Se aprueban cambios que dejan un comedor sobre el 85 % |	Medium |	Medium |	Mostrar ocupación proyectada al decidir y exigir justificación si se excede |
+|Uso indebido o criterio arbitrario por falta de reglas de excepcionalidad |	Medium |	Medium |	Justificación obligatoria, registro de decisiones y una solicitud pendiente por estudiante |
+|El estimado de ocupación no está definido y el administrador decide a ciegas |	High |	Medium |	Definirlo antes de la entrega del panel, o usar un conteo simple de asignados por comedor |
+|El almacenamiento de archivos adjuntos no encaja con el despliegue en Vercel |	Medium |	Medium |	Decidir dónde se guardan antes de implementar; limitar tipo y tamaño |
+| No hay un stakeholder real que valide las reglas |	High |	Medium |	Tratar las reglas como supuestos y validarlas con el profesor o un stakeholder simulado |
 
 **Open Questions**
-> Anything still unresolved — ambiguity, a question no stakeholder has answered yet, a missing piece of evidence. List it here instead of guessing.
+
+1.Alcance por día: R1 asigna comedor por día, pero el cambio es “permanente para el semestre”. ¿El cambio reemplaza toda la asignación semanal o puede pedirse solo para días concretos?
+
+2.Entrega: el RFC ubica el panel de administración y la reasignación de emergencia en la entrega final, pero REQ-1 es Must Have. ¿Qué parte de REQ-1 entra en cada entrega?
+
+3.Estimado de ocupación: ¿cómo se calcula y es dependencia dura de REQ-1?
+
+4.Notificación: ¿es solo in-app o también por correo?
+
+5.Reglas propuestas: BR-5 a BR-10 (plazo de 3 días, una solicitud pendiente, justificar rechazos) no están validadas.
+
+6.Almacenamiento: ¿dónde se guardan los archivos de evidencia, y con qué límites de tipo y tamaño?
+
+7.Interpretación del 80 %: asumí que es 80 % de la capacidad máxima real. ¿Es correcto?
+
+8.Validación: el estado dice Validated, pero no hay historias de usuario ni stakeholder confirmado. ¿Quién o qué lo validó?
+
+9.Backend: ¿las solicitudes pasan por la API en C++ o solo la sugerencia del árbol? Falta el ADR nuevo.
 
 # 3. Priority & Estimation
 
