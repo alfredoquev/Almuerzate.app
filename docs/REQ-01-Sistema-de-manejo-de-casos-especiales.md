@@ -97,6 +97,10 @@ HOW TO USE THIS TEMPLATE
 > Quiero **reportar un problema con la asignación de mi comedor**,
 > Para que **un administrativo lo resuelva y ser asignado un mejor comedor**.
 
+> Como **estudiante**,
+> Quiero **ser informado de cuando se resuelva mi caso atípico**,
+> Para **saber si se pudo reasignar mi comedor**.
+
 *Check yourself: is the "I want" describing the need, or already prescribing a solution?*
 
 ### 4.2 Acceptance Criteria
@@ -159,14 +163,12 @@ HOW TO USE THIS TEMPLATE
 
 ```mermaid
 flowchart TD
-    A([Trigger: what starts this use case]) --> B["1. Main flow step"]
-    B --> C["2. Main flow step"]
-    C --> D{"Decision point, if any"}
-    D -- "Normal path" --> G["3. Main flow step"]
-    G --> H(["Postcondition / goal reached"])
-    D -- "Alternative condition" --> E["ALTERNATIVE: what happens instead"]
-    E --> H
-    D -- "Exception condition" --> F["EXCEPTION: what happens instead"]
+    A([Trigger: clic en Manejo de casos atípicos en el menú de inicio]) --> B["1. El administrador consulta los casos atípicos pendientes de resolver"]
+    B --> C["2. El sistema obtiene información sobre cada caso pendiente"]
+    C --> D{"Se pudo obtener información de los casos"}
+    D -- "Normal path" --> G["3. El sistema presenta los casos en una lista donde cada uno incluye nombre del estudiante, código del caso, fecha e información provista por el estudiante"]
+    G --> H(["Se muestra la lista de casos pendientes y se da la opción de aceptar o rechazar para cada uno"])
+    D -- "Exception condition" --> F["EXCEPTION: Se muestra un mensaje de error"]
     F --> H
 
     classDef mainflow fill:#1E2761,color:#ffffff,stroke:#1E2761;
@@ -176,7 +178,46 @@ flowchart TD
     class E alt;
     class F exception;
 ```
+| Field | |
+|---|---|
+| **Use Case name** | Decidir sobre un caso pendiente |
+| **Actor** | Administrativo |
+| **Goal** | Resolver casos atípicos en la asignación de comedores |
+| **Trigger** | El administrador hace clic en "Aceptar" o "Rechazar" en un caso de la lista de casos pendientes |
+| **Precondition** | Acceder a la lista de casos pendientes a través del botón de "Manejo de casos atípicos" |
 
+**Main Flow**
+1. El administrador hace clic en "Aceptar" para un caso atípico
+2. Se muestra una lista de comedores sugeridos ordenados de mejor a peor
+
+**Alternative**
+> El administrador hace clic en "Rechazar" para un caso atípico
+
+**Exception**
+> No esta disponible la lista de comedores sugeridos
+
+**Postcondition**
+> Se muestra junto a la lista un botón para confirmar la reasignación de comedor, y otro para retroceder al menú anterior
+
+**Flow Diagram**
+*(Replace the labels below with your own steps. Keep Main Flow, Alternative, and Exception visually distinct — delete whichever branch doesn't apply to your use case. This renders automatically on GitHub.)*
+
+```mermaid
+flowchart TD
+    A{Trigger: clic en 'Aceptar' o 'Rechazar' en un caso} -- "Aceptar" --> B["Se muestra una lista de comedores sugeridos ordenados de mejor a peor"]
+    A -- "Rechazar" --> C["Se muestra un menú con una caja de texto donde se debe escribir la razón por la que se rechaza la reasignación de comedor"]
+    A -- "Los comedores sugeridos no están disponibles" --> D["Se muestra un mensaje de error"]
+    B --> E(["Se habilita un botón para volver al menú anterior"])
+    C --> E
+    D --> E
+
+    classDef mainflow fill:#1E2761,color:#ffffff,stroke:#1E2761;
+    classDef alt fill:#F2A541,color:#1E2761,stroke:#F2A541;
+    classDef exception fill:#B3261E,color:#ffffff,stroke:#B3261E;
+    class B mainflow;
+    class C alt;
+    class D exception;
+```
 ---
 
 ## 5. Traceability & Impact
