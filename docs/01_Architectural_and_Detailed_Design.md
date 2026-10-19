@@ -127,18 +127,6 @@ classDiagram
         CANCELADA
     }
 
-    class DecisionSolicitud {
-        <<enumeration>>
-        APROBAR
-        RECHAZAR
-    }
-
-    class ErrorSolicitud {
-        <<enumeration>>
-        NO_EXISTE
-        INFORMACION_INCOMPLETA
-    }
-
     class Resultado {
         <<generic>>
         Solicitud valor
@@ -147,11 +135,8 @@ classDiagram
 
     ManejoSolicitudes ..> RepositorioSolicitudes : depende de
     ManejoSolicitudes ..> Solicitud : coordina
-    ManejoSolicitudes ..> DecisionSolicitud : interpreta
     ManejoSolicitudes ..> Resultado : devuelve
     Resultado ..> Solicitud : contiene si tiene éxito
-    Resultado ..> ErrorSolicitud : contiene si falla
-    Solicitud "1" --> "1" EstadoSolicitud : posee
 
 ```
 
@@ -162,12 +147,11 @@ classDiagram
 | Class | Component | Responsibility | Key collaborators |
 |---|---|---|---|
 | `ManejoSolicitudes` | Manejo de solicitudes | Coordina la gestión de las solicitudes, permite consultar su información y facilita que el administrador las evalúe y registre una decisión. También gestiona la eliminación de solicitudes correspondientes a períodos finalizados y el manejo de errores en las consultas. | `Solicitud`, `RepositorioSolicitudes`, `DecisionSolicitud`, `Resultado` |
-| `Solicitud` | Solicitud de restitución | Representa una solicitud realizada por un estudiante. Mantiene su información, estado y respuesta administrativa, y controla las transiciones válidas entre estados. | `EstadoSolicitud` |
+| `Solicitud` | Solicitud de restitución | Representa una solicitud realizada por un estudiante. Mantiene su información, estado y respuesta administrativa, y controla las transiciones válidas entre estados. | `ManejoSolicitudes` |
 | `RepositorioSolicitudes` | Manejo de solicitudes | Define las operaciones para almacenar, consultar y eliminar solicitudes, permitiendo mantener los datos persistentes sin acoplar la lógica del sistema a una implementación concreta de almacenamiento. | `Solicitud` |
-| `EstadoSolicitud` | Solicitud de restitución | Define los estados válidos de una solicitud y permite identificar su situación dentro del proceso, como pendiente, aprobada, rechazada o cancelada. | `Solicitud` |
 | `DecisionSolicitud` | Manejo de solicitudes | Representa las decisiones que puede tomar el administrador al evaluar una solicitud, como aprobarla o rechazarla. | `ManejoSolicitudes` |
-| `Resultado` | Manejo de solicitudes | Representa el resultado de una operación, permitiendo devolver una solicitud o una lista de solicitudes cuando la operación es exitosa, o un error cuando no puede completarse. | `Solicitud`, `ErrorSolicitud`, `ManejoSolicitudes` |
-| `ErrorSolicitud` | Manejo de solicitudes | Define los errores que pueden presentarse durante las operaciones relacionadas con las solicitudes, como la inexistencia de una solicitud o la presencia de información incompleta. | `Resultado`, `ManejoSolicitudes` |
+| `Resultado` | Manejo de solicitudes | Representa el resultado de una operación, permitiendo devolver una solicitud o una lista de solicitudes cuando la operación es exitosa, o un error cuando no puede completarse. | `Solicitud`, `ManejoSolicitudes` |
+
 
 
 ### 3.4 Behavior of one key operation
