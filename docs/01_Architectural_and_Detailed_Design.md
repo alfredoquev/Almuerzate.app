@@ -10,7 +10,7 @@ system and YOUR own project. Use this for level of detail and for how the sectio
 | | |
 |---|---|
 | **Team** | Equipo Almuerzate |
-| **Members** | Brayan Santiago Amado Mejia, Diego Alejandro Gaviria Sabogal, Julian Camilo Londoño Zarate, Juan Felipe Pineda Gonzales, Jose ALfredo Quevedo Suarez.   |
+| **Members** | Brayan Santiago Amado Mejia, Diego Alejandro Gaviria Sabogal, Julian Camilo Londoño Zarate, Juan Felipe Pineda Gonzales, Jose Alfredo Quevedo Suarez.   |
 | **Status** | Ready for review |
 | **Date** | 2026-10-19 |
 | **Inputs** | `docs/REQ-01-Sistema-de-manejo-de-casos-especiales.md` |
