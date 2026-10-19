@@ -9,11 +9,11 @@ system and YOUR own project. Use this for level of detail and for how the sectio
 
 | | |
 |---|---|
-| **Team** | Example Team |
-| **Members** | (names) |
+| **Team** | Equipo Almuerzate |
+| **Members** | Brayan Santiago Amado Mejia, Diego Alejandro Gaviria Sabogal, Julian Camilo Londoño Zarate, Juan Felipe Pineda Gonzales, Jose ALfredo Quevedo Suarez.   |
 | **Status** | Ready for review |
-| **Date** | 2026-10-12 |
-| **Inputs** | `docs/requirements/REQ-07.md`, Architectural Hypothesis v0.1, Detailed Design v0.1 |
+| **Date** | 2026-10-19 |
+| **Inputs** | `docs/REQ-01-Sistema-de-manejo-de-casos-especiales.md` |
 
 ---
 
