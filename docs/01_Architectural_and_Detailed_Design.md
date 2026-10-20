@@ -5,7 +5,7 @@ only (REQ-07, REQ-12, REQ-13) so it stays readable. Your deliverable must cover 
 system and YOUR own project. Use this for level of detail and for how the sections connect.
 -->
 
-# Food Delivery System — Architectural & Detailed Design v1.0
+# Sistema de manejo de casos especiales — Architectural & Detailed Design v1.0
 
 | | |
 |---|---|
@@ -77,91 +77,89 @@ flowchart LR
 
 | Component | Why it was selected |
 |---|---|
-| Tracking Integration | Highest risk: depends on an external provider and must handle three outcomes (valid data, stale data, no response) |
-| Order Management | Carries business rule BR-01. A mistake here breaks the cancellation behavior directly |
+| Solicitud de restitucion | Considerando la R-01 es relevante garantizar que los estudiantes beneficiarios puedan realizar solicitudes, en la que estos tengan en cuanta la R-05 |
+| Manejo de solicitudes  | Los administradores del servicio deben realizar una evaluación de las solicitudes considerando la R-07. Para posteriormente notificar al estudiante beneficiario que realizo la solicitud de la decisión siguiendo a las R-09 y R-10 |
+
 
 ### 3.2 Class Diagram
 
 ```mermaid
+
+
 classDiagram
-    class EstimateResolver {
-        +resolveEstimate(orderId : OrderId) DisplayEstimate
-    }
-    class TrackingIntegration {
-        +getEstimatedArrival(orderId : OrderId) EtaResult
-    }
-    class RequestHandler {
-        +fetch(orderId : OrderId) RawTrackingResponse
-    }
-    class ResponseParser {
-        +parse(raw : RawTrackingResponse) TrackingData
-    }
-    class FallbackHandler {
-        +unavailable(reason : String) EtaResult
-    }
-    class EtaResult {
-        -available : Boolean
-        -eta : Timestamp
-        -reason : String
-        +isAvailable() Boolean
-    }
-    class OrderManagement {
-        +cancelOrder(orderId : OrderId) CancellationResult
-    }
-    class Order {
-        -orderId : OrderId
-        -status : OrderStatus
-        +isCancellable() Boolean
-        +cancel()
-    }
-    class OrderItem {
-        -menuItemId : Integer
-        -quantity : Integer
-    }
-    class OrderRepository {
-        <<interface>>
-        +findById(orderId : OrderId) Order
-        +save(order : Order)
+    class ManejoSolicitudes {
+        -repositorio: RepositorioSolicitudes
+        +realizarSolicitud(motivo: String, idEstudiante: IdEstudiante) Solicitud
+        +consultarSolicitud(idSolicitud: IdSolicitud) Resultado
+        +consultarSolicitudes(idEstudiante: IdEstudiante) Resultado
+        +responderSolicitud(idSolicitud: IdSolicitud, decision: DecisionSolicitud, mensaje: String, idAdministrador: IdAdministrador) Solicitud
+        +cancelarSolicitud(idSolicitud: IdSolicitud, idEstudiante: IdEstudiante) Solicitud
+        +eliminarSolicitudesPeriodo(periodo: Periodo) int
     }
 
-    EstimateResolver --> TrackingIntegration : asks for estimate
-    TrackingIntegration --> RequestHandler : uses
-    TrackingIntegration --> ResponseParser : uses
-    TrackingIntegration --> FallbackHandler : uses
-    TrackingIntegration ..> EtaResult : returns
-    OrderManagement --> Order : applies rule on
-    OrderManagement ..> OrderRepository : depends on
-    Order "1" *-- "1..*" OrderItem : contains
+    class Solicitud {
+        -idSolicitud: IdSolicitud
+        -idEstudiante: IdEstudiante
+        #motivo: String
+        #fechaCreacion: Fecha
+        -periodo: Periodo
+        #estado: EstadoSolicitud
+        #respuesta: String
+        -idAdministrador: IdAdministrador
+        +aprobar(mensaje: String, idAdministrador: IdAdministrador) void
+        +rechazar(mensaje: String, idAdministrador: IdAdministrador) void
+        +cancelar(idEstudiante: IdEstudiante) void
+    }
+
+    class RepositorioSolicitudes {
+        <<interface>>
+        +guardar(solicitud: Solicitud) void
+        +buscarPorId(id: IdSolicitud) Solicitud
+        +buscarPorEstudiante(idEstudiante: IdEstudiante) List~Solicitud~
+        +eliminarPorPeriodo(periodo: Periodo) int
+    }
+
+    class Resultado {
+        -solicitud: Solicitud
+        -errorSolicitud: ErrorSolicitud
+    }
+
+    ManejoSolicitudes ..> RepositorioSolicitudes : depende de
+    ManejoSolicitudes ..> Solicitud : coordina
+    ManejoSolicitudes ..> Resultado : devuelve
+    Resultado ..> Solicitud : contiene si tiene éxito
+
 ```
 
-*(`Order` and `OrderItem` use composition: an item has no meaning outside its order. No generalization is used because nothing in this design is a specialized type of something else.)*
+*(Tanto EstadoSolicitud como DecisionSolicitud son ennumeaciones. Sin embargo, una se enfoca en la solicitud y la otra en la desicion tomada)*
 
 ### 3.3 Class Responsibilities
 
 | Class | Component | Responsibility | Key collaborators |
 |---|---|---|---|
-| EstimateResolver | Estimate Resolver | Turns an estimate result into what the customer should see | TrackingIntegration |
-| TrackingIntegration | Tracking Integration | Coordinates the steps needed to produce an estimate or Unavailable | RequestHandler, ResponseParser, FallbackHandler |
-| RequestHandler | Tracking Integration | Sends the request to the provider and returns the raw response | (provider) |
-| ResponseParser | Tracking Integration | Validates the provider's response and converts it to data our system understands | none |
-| FallbackHandler | Tracking Integration | Builds a consistent "unavailable" result with a reason | none |
-| EtaResult | Tracking Integration | Carries either an ETA or an unavailable reason | none |
-| OrderManagement | Order Management | Applies BR-01 and coordinates cancellation | Order, OrderRepository |
-| Order | Order Management | Knows its status and whether it can still be cancelled | OrderItem |
-| OrderItem | Order Management | Represents one menu item and quantity inside an order | none |
-| OrderRepository | Order Records | Stores and retrieves orders (contract only, storage details hidden) | Order |
+| `ManejoSolicitudes` | Manejo de solicitudes | Coordina la gestión de las solicitudes, permite consultar su información y facilita que el administrador las evalúe y registre una decisión. También gestiona la eliminación de solicitudes correspondientes a períodos finalizados y el manejo de errores en las consultas. | `Solicitud`, `RepositorioSolicitudes`, `DecisionSolicitud`, `Resultado` |
+| `Solicitud` | Solicitud de restitución | Representa una solicitud realizada por un estudiante. Mantiene su información, estado y respuesta administrativa, y controla las transiciones válidas entre estados. | `ManejoSolicitudes` |
+| `RepositorioSolicitudes` | Manejo de solicitudes | Define las operaciones para almacenar, consultar y eliminar solicitudes, permitiendo mantener los datos persistentes sin acoplar la lógica del sistema a una implementación concreta de almacenamiento. | `Solicitud` |
+| `DecisionSolicitud` | Manejo de solicitudes | Representa las decisiones que puede tomar el administrador al evaluar una solicitud, como aprobarla o rechazarla. | `ManejoSolicitudes` |
+| `Resultado` | Manejo de solicitudes | Representa el resultado de una operación, permitiendo devolver una solicitud o una lista de solicitudes cuando la operación es exitosa, o un error cuando no puede completarse. | `Solicitud`, `ManejoSolicitudes` |
+
+
 
 ### 3.4 Behavior of one key operation
 
 ```text
-getEstimatedArrival(orderId):
-    raw = RequestHandler.fetch(orderId)
-    IF raw is missing:
-        RETURN FallbackHandler.unavailable("provider did not respond")
-    data = ResponseParser.parse(raw)
-    IF data is incomplete OR older than the freshness limit:
-        RETURN FallbackHandler.unavailable("tracking data not usable")
-    RETURN EtaResult(available, computeEta(data))
+
++consultarSolicitud(idSolicitud: IdSolicitud): Resultado<Solicitud, ErrorSolicitud>
+    solicitud = RepositorioSolicitudes.buscarPorId(idSolicitud)
+
+    Si solicitud no existe:
+        Retornar Resultado<NULL,ErrorSolicitud.NO_EXISTE>
+
+    Si solicitud.motivo está vacío O solicitud.idEstudiante está vacío:
+        Retornar Resultado<NULL,ErrorSolicitud.INFORMACION_INCOMPLETA>
+
+    Retornar Resultado<solicitud,NULL>
+
 ```
 
 ---
@@ -170,12 +168,13 @@ getEstimatedArrival(orderId):
 
 | Question | Your answer, with evidence from your design |
 |---|---|
-| **Cohesion** | `TrackingIntegration` only coordinates. Fetching, parsing and building the unavailable result each live in their own class. `Order` holds only status and eligibility. |
-| **Coupling** | The strongest dependency is on the provider's response format, and it is contained in `ResponseParser`. `EstimateResolver` depends only on `EtaResult`. A provider change reaches one class. |
-| **Information hiding** | The raw provider response, the freshness check and the storage details behind `OrderRepository` stay internal. Other components see only `EtaResult` and the repository contract. |
+| **Cohesion** | `Solicitud de restitución` permite a los estudiantes beneficiarios generar y consultar solicitudes de cambio de comedor, mientras que `Manejo de solicitudes` coordina su evaluación y resolución por parte del administrador. La clase `Solicitud` contiene la información y el estado de cada solicitud, y `RepositorioSolicitudes` gestiona las operaciones de almacenamiento y consulta. |
+| **Coupling** | `ManejoSolicitudes` utiliza la interfaz `RepositorioSolicitudes` para acceder a los registros sin depender de una implementación específica de almacenamiento. La clase `Solicitud` mantiene su información y estado sin asumir responsabilidades relacionadas con la persistencia ni con la coordinación del proceso administrativo. |
+| **Information hiding** | `Solicitud` mantiene privados ciertos atributos que no son necesarios exponer. El administrador consulta únicamente la información necesaria para evaluar cada solicitud mediante las operaciones del sistema, sin acceder directamente a la estructura interna de los datos ni a los detalles de almacenamiento. |
 
 **Real findings and what we changed**
-> The first draft had `EstimateResolver` reading the provider's timestamp format to decide whether data was stale (coupling). We moved parsing and freshness checks into `ResponseParser`. The first draft also had `Order` formatting the cancellation message for the customer (cohesion). We moved the wording to Order Status Display.
+
+> Inicialmente, se pensaba gestionar todas las solicitudes directamente desde la clase `Solicitudes`. Sin embargo, se decidió incorporar `ManejoSolicitudes` para separar la información propia de cada solicitud de las operaciones relacionadas con su administración, favoreciendo la cohesión. Además, los estados se asociaron directamente a `Solicitud`, mientras que la validación y resolución se centralizaron en `ManejoSolicitudes`, manteniendo una relación clara entre la gestión administrativa y las solicitudes. Estos cambios buscan reducir el acoplamiento entre responsabilidades y mejorar la organización de los componentes del sistema.
 
 ---
 
