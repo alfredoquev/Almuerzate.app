@@ -21,7 +21,7 @@ system and YOUR own project. Use this for level of detail and for how the sectio
 
 **Proposito del requerimiento**
 
-Permitir a los administradores del servicio asignar un comedor diferente a los estudiantes beneficiarios, bajo razones de fuerza mayor que requieran un cambio de comedor y hayan presentado una solicitud valida a través de la plataforma.
+Permitir a los administradores del servicio asignar un comedor diferente a los estudiantes beneficiarios, y a los estudiantes beneficiarios hacer una solicitud de cambio de comedor, bajo razones de fuerza mayor que requieran un cambio de comedor y hayan presentado una solicitud valida a través de la plataforma.
 
 | Requirement / Use Case ID | Why it shapes the structure | Quality attribute, constraint or business rule involved |
 |---|---|---|
