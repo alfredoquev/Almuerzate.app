@@ -10,7 +10,7 @@ system and YOUR own project. Use this for level of detail and for how the sectio
 | | |
 |---|---|
 | **Team** | Equipo Almuerzate |
-| **Members** | Brayan Santiago Amado Mejia, Diego Alejandro Gaviria Sabogal, Julian Camilo Londoño Zarate, Juan Felipe Pineda Gonzales, Jose Alfredo Quevedo Suarez.   |
+| **Members** | Brayan Santiago Amado Mejia, Diego Alejandro Gaviria Sabogal, Julian Camilo Londoño Zarate, Juan Felipe Pineda Gonzalez, Jose Alfredo Quevedo Suarez.   |
 | **Status** | Ready for review |
 | **Date** | 2026-10-19 |
 | **Inputs** | `docs/REQ-01-Sistema-de-manejo-de-casos-especiales.md` |
@@ -19,15 +19,18 @@ system and YOUR own project. Use this for level of detail and for how the sectio
 
 ## 1. System Overview & Design Drivers
 
-**System purpose**
-> Let customers place food orders and follow them until delivery, reducing the uncertainty of waiting and avoiding wasted orders.
+**Proposito del requerimiento**
+
+Permitir a los administradores del servicio asignar un comedor diferente a los estudiantes beneficiarios, y a los estudiantes beneficiarios hacer una solicitud de cambio de comedor, bajo razones de fuerza mayor que requieran un cambio de comedor y hayan presentado una solicitud valida a través de la plataforma.
 
 | Requirement / Use Case ID | Why it shapes the structure | Quality attribute, constraint or business rule involved |
 |---|---|---|
-| REQ-07 / Track Order | Needs data from a provider we do not control and must keep working when that data is missing | Constraint: integrate with the existing tracking provider. Quality: availability of the customer experience |
-| REQ-12 / Cancel Order | Order state changes must be controlled in one place | Business Rule BR-01: an order can be cancelled only before preparation begins |
-| REQ-13 / Cancel Order (rejection) | Same rule, opposite outcome, must stay consistent with REQ-12 | BR-01 |
+| REQ-01 / UC-2 |	Un cambio aprobado debe sobrevivir a la reasignación periódica del RFC (Entrega 2). El recálculo y REQ-01 escriben sobre las mismas asignaciones, así que cada una registra su origen (automática o manual). El recálculo no modifica las manuales y las cuenta en la ocupación de cada comedor. Esa regla vive en el Servicio de asignación y casos, no en el cliente. | Regla de dominio: R-4 y R-3. Atributo de calidad: integridad de datos. Dependencia: R1 / Entrega 2. |
+| REQ-1 / UC-3 y UC-5 | Si falla un envío, la solicitud del estudiante (UC-5) y el motivo de rechazo del administrador (UC-3) se guardan en el Cliente PWA. Este es el único responsable de recuperarlos y reintentar mediante una cola de sincronización. La interfaz solo encola y no decide cuándo reintentar. Cada envío lleva un identificador generado en el cliente para que un reintento no duplique la solicitud. En UC-3 (caso administrador) el reenvío lo confirma el administrador. | Regla de dominio: R-6. Atributo de calidad: fiabilidad (no perder lo que el usuario escribió) y cohesión del cliente. Restricción: PWA (Progressive Web App) (L4) | 
+| REQ-01 / UC-1 a UC-5 | Dos roles (estudiante y administrador) con operaciones distintas sobre los mismos datos. Un único control de acceso en el Servicio de asignación y casos verifica en cada operación el rol, tomado de la cuenta guardada en el servidor y no de lo que envía el cliente. También verifica la propiedad del dato en las consultas del estudiante (UC-4). | Regla de dominio: R-1. Dependencia: cuentas y roles simulados. Atributos de calidad: control de acceso. |
+| REQ-01 / UC-2, UC-3 y UC-4  | Toda decisión se guarda en un historial interno (quién, cuándo, resultado, motivo). El estudiante no lee ese historial. UC-4 consulta el estado de su caso (estado, motivo, comedor asignado), que el servicio entrega con un contrato JSON estable. Así el historial puede cambiar por auditoría sin romper la vista del estudiante. Como las notificaciones son solo dentro de la PWA (L9), no hay envío: el estudiante consulta. | Regla de negocio: R-9 y R-10. Restricción: L9. Calidad: auditabilidad y ocultamiento de información. |
 
+ 
 ---
 
 ## 2. Architectural Design
@@ -244,9 +247,11 @@ classDiagram
 
 | Requirement ID | Use Case | Component(s) | Class(es) |
 |---|---|---|---|
-| REQ-07 | Track Order | Order Status Display, Estimate Resolver, Tracking Integration | EstimateResolver, TrackingIntegration, RequestHandler, ResponseParser, FallbackHandler, EtaResult |
-| REQ-12 | Cancel Order | Order Status Display, Order Management, Order Records | OrderManagement, Order, OrderItem, OrderRepository |
-| REQ-13 | Cancel Order | Order Status Display, Order Management | OrderManagement, Order |
+| REQ-01 | UC-1 Consultar casos pendientes | Manejo de solicitudes, Interfaz de Solicitudes del Estudiante, Panel de Casos Atipicos y Registros | ManejoSolicitudes (consultarSolicitudes), RepositorioSolicitudes (buscarPorEstudiante), Solicitud, EstadoSolicitud, Resultado |
+| REQ-01 |	UC-2 Se acepta un caso pendiente | Manejo de solicitudes y Interfaz de Solicitudes del Estudiante | solicitudes, Solicitud de restitución. ManejoSolicitudes (responderSolicitud), Solicitud (aprobar), DecisionSolicitud, EstadoSolicitud, RepositorioSolicitudes (buscarPorId, guardar), Resultado |
+| REQ-01 |	UC-3 Informar a un estudiante el rechazo de su caso | Manejo de solicitudes, Interfaz de Solicitudes del Estudiante y Registros | ManejoSolicitudes (responderSolicitud), Solicitud (rechazar), DecisionSolicitud, EstadoSolicitud, RepositorioSolicitudes (buscarPorId, guardar), Resultado |
+| REQ-01 |		UC-4 Se notifica el estado de un caso atípico | Panel de casos atipicos e Interfaz de Solicitudes del Estudiante | ManejoSolicitudes (consultarSolicitudes, consultarSolicitud), RepositorioSolicitudes (buscarPorEstudiante, buscarPorId), Solicitud, EstadoSolicitud, Resultado |
+| REQ-01 |			UC-5 Se solicita reasignar un comedor | Interfaz de Solicitudes del Estudiante, Manejo de solicitudes y Registros | ManejoSolicitudes (realizarSolicitud), Solicitud, EstadoSolicitud, RepositorioSolicitudes (guardar), Resultado |
 
 ---
 
