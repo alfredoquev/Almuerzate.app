@@ -120,9 +120,8 @@ classDiagram
     }
 
     class Resultado {
-        <<generic>>
-        Solicitud valor
-        ErrorSolicitud error
+        -solicitud: Solicitud
+        -errorSolicitud: ErrorSolicitud
     }
 
     ManejoSolicitudes ..> RepositorioSolicitudes : depende de
