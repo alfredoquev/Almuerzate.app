@@ -49,22 +49,26 @@ flowchart TB
     Estudiante([Estudiante beneficiario])
     Usuarios[("Sistema de usuarios de la universidad")]
     Admin([Administrador])
- 
+
     subgraph SIS["Almuérzate — Manejo de casos atípicos"]
         IES["Interfaz de Solicitudes del Estudiante"]
         PCA["Panel de Casos Atípicos"]
-        GC["Gestión de Casos"]
+
+        subgraph MS["Manejo de solicitudes"]
+            GC["Gestión de Casos"]
+            NE["Notificaciones al Estudiante"]
+            GA["Gestión de Asignaciones"]
+        end
+
         SC["Sugerencia de Comedores"]
-        NE["Notificaciones al Estudiante"]
-        GA["Gestión de Asignaciones"]
         REG["Registros"]
     end
- 
+
     Estudiante --> IES
     Admin --> PCA
     Usuarios -.->|"verificar usuario y rol"| IES
     Usuarios -.->|"verificar usuario y rol"| PCA
- 
+
     IES -->|"enviar / seguir solicitudes"| GC
     IES -->|"consultar mis decisiones"| NE
     PCA -->|"listar / aceptar / rechazar casos"| GC
@@ -75,13 +79,15 @@ flowchart TB
     GC -->|"guardar / buscar"| REG
     GA -->|"guardar / buscar"| REG
     NE -->|"guardar / buscar"| REG
- 
+
     classDef comp fill:#f4f4f4,stroke:#555555,color:#222222;
     classDef actor fill:#ffffff,stroke:#555555,color:#222222;
     classDef ext fill:#ffffff,stroke:#555555,stroke-dasharray:4 3,color:#222222;
     class IES,PCA,GC,SC,NE,GA,REG comp;
     class Estudiante,Admin actor;
     class Usuarios ext;
+    style SIS fill:#ffffff,stroke:#555555,color:#222222
+    style MS fill:#fafafa,stroke:#888888,stroke-dasharray:4 3,color:#222222
 ```
  
 | Component | Main responsibility | Requirements / use cases supported | Provided capabilities | Required capabilities | Main dependencies |
