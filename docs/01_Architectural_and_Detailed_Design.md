@@ -31,43 +31,79 @@ system and YOUR own project. Use this for level of detail and for how the sectio
 ---
 
 ## 2. Architectural Design
-
+ 
 ### 2.1 System Context & Boundary
-
+ 
 | Outside the system | Type | How the system interacts with it |
 |---|---|---|
-| Customer | Actor | Opens order status, requests cancellation |
-| Delivery Tracking Provider | External system | We request tracking data for an order. We do not control its availability or format |
-
+| Estudiante beneficiario | Actor | Reporta un caso atípico, consulta el estado de sus solicitudes y ve la decisión tomada |
+| Administrador del servicio de alimentación | Actor | Revisa los casos pendientes, acepta o rechaza cada uno y elige el comedor de reasignación |
+| Sistema de usuarios de la universidad | External system (simulado con datos de prueba en el demo) | Le pedimos confirmar quién es el usuario y qué rol tiene. No controlamos su disponibilidad ni su formato |
+ 
+*(La asignación base de comedores (R1 / Entrega 1) vive dentro del sistema, pero su cálculo con el árbol de decisión no se detalla aquí: REQ-01 solo necesita leerla y modificarla.)*
+ 
 ### 2.2 Components, Responsibilities & Capabilities
-
+ 
 ```mermaid
-flowchart LR
-    Customer([Customer])
-    subgraph SYS["Food Delivery System"]
-        OSD["Order Status Display"]
-        ER["Estimate Resolver"]
-        TI["Tracking Integration"]
-        OM["Order Management"]
-        OR["Order Records"]
+flowchart TB
+    Estudiante([Estudiante beneficiario])
+    Usuarios[("Sistema de usuarios de la universidad")]
+    Admin([Administrador])
+
+    subgraph SIS["Almuérzate — Manejo de casos atípicos"]
+        IES["Interfaz de Solicitudes del Estudiante"]
+        PCA["Panel de Casos Atípicos"]
+
+        subgraph MS["Manejo de solicitudes"]
+            GC["Gestión de Casos"]
+            NE["Notificaciones al Estudiante"]
+            GA["Gestión de Asignaciones"]
+        end
+
+        SC["Sugerencia de Comedores"]
+        REG["Registros"]
     end
-    TP[("Delivery Tracking Provider")]
 
-    Customer --> OSD
-    OSD -->|"resolve estimate"| ER
-    ER -->|"get estimated arrival"| TI
-    TI -->|"request tracking data"| TP
-    OSD -->|"cancel order / get status"| OM
-    OM -->|"find / save order"| OR
+    Estudiante --> IES
+    Admin --> PCA
+    Usuarios -.->|"verificar usuario y rol"| IES
+    Usuarios -.->|"verificar usuario y rol"| PCA
+
+    IES -->|"enviar / seguir solicitudes"| GC
+    IES -->|"consultar mis decisiones"| NE
+    PCA -->|"listar / aceptar / rechazar casos"| GC
+    PCA -->|"obtener comedores sugeridos"| SC
+    SC -->|"obtener carga asignada"| GA
+    GC -->|"reasignar / obtener asignación"| GA
+    GC -->|"notificar decisión"| NE
+    GC -->|"guardar / buscar"| REG
+    GA -->|"guardar / buscar"| REG
+    NE -->|"guardar / buscar"| REG
+
+    classDef comp fill:#f4f4f4,stroke:#555555,color:#222222;
+    classDef actor fill:#ffffff,stroke:#555555,color:#222222;
+    classDef ext fill:#ffffff,stroke:#555555,stroke-dasharray:4 3,color:#222222;
+    class IES,PCA,GC,SC,NE,GA,REG comp;
+    class Estudiante,Admin actor;
+    class Usuarios ext;
+    style SIS fill:#ffffff,stroke:#555555,color:#222222
+    style MS fill:#fafafa,stroke:#888888,stroke-dasharray:4 3,color:#222222
 ```
-
+ 
 | Component | Main responsibility | Requirements / use cases supported | Provided capabilities | Required capabilities | Main dependencies |
 |---|---|---|---|---|---|
-| Order Status Display | Presents order status and the estimate, and forwards customer actions | REQ-07, REQ-12, REQ-13 | Show status and estimate to the customer | Resolve estimate, cancel order, get order status | Estimate Resolver, Order Management |
-| Estimate Resolver | Decides what estimate information the customer should see, including when no estimate exists | REQ-07 | Resolve estimate for an order | Get estimated arrival, get order status | Tracking Integration, Order Management |
-| Tracking Integration | Isolates all communication with the tracking provider and returns an estimate or an explicit "unavailable" | REQ-07 | Get estimated arrival | Request tracking data (external) | Delivery Tracking Provider |
-| Order Management | Applies the cancellation rules and controls order state changes | REQ-12, REQ-13 | Cancel order, get order status | Find order, save order | Order Records |
-| Order Records | Persists and retrieves orders | REQ-12, REQ-13 | Find order, save order | none | none |
+| Interfaz de Solicitudes del Estudiante | Muestra al estudiante el formulario de solicitud, el estado de sus casos y la decisión, y reenvía sus acciones | REQ-01: US-05, US-06, UC-4, UC-5, AC-09, AC-10, AC-11 | Reportar un caso, consultar mis solicitudes y su decisión | Verificar usuario y rol (externo), enviar solicitud, consultar mis solicitudes, obtener opciones de solicitud, consultar mis decisiones | Gestión de Casos, Notificaciones al Estudiante, Sistema de usuarios |
+| Panel de Casos Atípicos | Muestra al administrador los casos pendientes y la lista de comedores sugeridos, y reenvía su decisión | REQ-01: US-01 a US-04, UC-1, UC-2, UC-3, AC-01 a AC-07 | Mostrar y resolver casos pendientes | Verificar usuario y rol (externo), listar casos pendientes, aceptar caso, rechazar caso, obtener comedores sugeridos | Gestión de Casos, Sugerencia de Comedores, Sistema de usuarios |
+| Gestión de Casos | Aplica las reglas de las solicitudes (justificación obligatoria, una pendiente por estudiante, motivo en todo rechazo, decisión registrada) y controla el estado de cada caso | REQ-01: US-01, US-02, US-03, US-05, UC-1 a UC-5, AC-01, AC-02, AC-04, AC-05, AC-09, AC-10; R-5, R-6, R-7, R-9 | Enviar solicitud, consultar mis solicitudes, obtener opciones de solicitud, listar casos pendientes, aceptar caso, rechazar caso | Reasignar estudiante, obtener asignación del estudiante, notificar decisión, buscar / guardar casos y decisiones | Gestión de Asignaciones, Notificaciones al Estudiante, Registros |
+| Sugerencia de Comedores | Ordena los comedores alternativos de mejor a peor según la ocupación proyectada, o responde explícitamente que no pudo hacerlo (árbol de decisión en el backend, ADR-0004) | REQ-01: US-04, UC-2, AC-03, AC-06, AC-07; R-3, R-8 | Obtener comedores sugeridos | Obtener carga asignada por comedor | Gestión de Asignaciones |
+| Gestión de Asignaciones | Entrega la asignación vigente de un estudiante, aplica la reasignación y la marca como manual para que ningún recálculo la pise | REQ-01: US-02, UC-2, UC-5, AC-04; R-4 | Obtener asignación del estudiante, reasignar estudiante, obtener carga asignada por comedor | Buscar / guardar asignaciones, obtener capacidades | Registros |
+| Notificaciones al Estudiante | Deja disponible dentro de la PWA la decisión de cada caso (aceptado con nuevo comedor, o rechazado con motivo) | REQ-01: US-06, UC-2, UC-3, UC-4, AC-08; R-10, L9 | Notificar decisión, consultar mis decisiones | Buscar / guardar notificaciones | Registros |
+| Registros | Guarda y entrega casos, decisiones, asignaciones, capacidades de los comedores y notificaciones | REQ-01: todos los anteriores; R-9 | Buscar / guardar casos y decisiones, buscar / guardar asignaciones, obtener capacidades, buscar / guardar notificaciones | none | none |
+ 
+**Pendientes que afectan este diseño** (vienen de las *Open Questions* del REQ-01):
+- La definición del estimado de ocupación (pregunta 3) no está cerrada. Mientras tanto, `Sugerencia de Comedores` usa lo que `Gestión de Asignaciones` le entrega (estudiantes asignados por comedor frente a su capacidad).
+- No se decidió dónde se guardan los adjuntos de evidencia (pregunta 5), así que no hay un componente para ellos.
+- Falta el ADR nuevo que defina qué parte pasa por la API en C++ (pregunta 8).
 
 ---
 
