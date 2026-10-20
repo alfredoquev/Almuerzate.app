@@ -100,11 +100,11 @@ classDiagram
     class Solicitud {
         -idSolicitud: IdSolicitud
         -idEstudiante: IdEstudiante
-        -motivo: String
-        -fechaCreacion: Fecha
+        #motivo: String
+        #fechaCreacion: Fecha
         -periodo: Periodo
-        -estado: EstadoSolicitud
-        -respuesta: String
+        #estado: EstadoSolicitud
+        #respuesta: String
         -idAdministrador: IdAdministrador
         +aprobar(mensaje: String, idAdministrador: IdAdministrador) void
         +rechazar(mensaje: String, idAdministrador: IdAdministrador) void
@@ -154,12 +154,12 @@ classDiagram
     solicitud = RepositorioSolicitudes.buscarPorId(idSolicitud)
 
     Si solicitud no existe:
-        Retornar ErrorSolicitud.NO_EXISTE
+        Retornar Resultado<NULL,ErrorSolicitud.NO_EXISTE>
 
     Si solicitud.motivo está vacío O solicitud.idEstudiante está vacío:
-        Retornar ErrorSolicitud.INFORMACION_INCOMPLETA
+        Retornar Resultado<NULL,ErrorSolicitud.INFORMACION_INCOMPLETA>
 
-    Retornar solicitud
+    Retornar Resultado<solicitud,NULL>
 
 ```
 
