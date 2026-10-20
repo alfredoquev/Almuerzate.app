@@ -258,7 +258,11 @@ classDiagram
 ## 7. Optional — AI-Assisted Design Reflection
 
 > An AI assistant suggested adding a separate Notification component to tell customers when an estimate changes. We rejected it: no requirement in our set supports it, and it would add a component without a responsibility we can trace.
+> - **Aceptado: Alineación de nombres entre componentes y diseño detallado.** Se ajustaron los nombres de las clases y responsabilidades en la Sección 3 para que guarden una correspondencia lógica y nominal transparente con los componentes definidos en la Sección 2.2, garantizando que el lector y la tabla de trazabilidad identifiquen claramente a qué componente pertenece cada clase.
+> - **Aceptado: `Notificaciones al Estudiante`.** Tiene requisitos que lo respaldan (US-06, AC-08, R-10) y una restricción clara (L9: solo dentro de la PWA).
 
+> - **Descartado: un componente separado de estimación de ocupación.** Su cálculo sigue por confirmar (pregunta abierta 3). Por ahora vive dentro de `Sugerencia de Comedores`, y se separará cuando la regla esté definida.
+> - **Descartado: notificaciones por correo o push.** L9 limita las notificaciones a la PWA, y no hay requisito que pida otro canal.
 ---
 
 ## 8. Consistency Checklist
