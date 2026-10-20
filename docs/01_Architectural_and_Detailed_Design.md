@@ -116,7 +116,7 @@ flowchart TB
 
 | Component | Why it was selected |
 |---|---|
-| Solicitud de restitucion | Considerando la R-01 es relevante garantizar que los estudiantes beneficiarios puedan realizar solicitudes, en la que estos tengan en cuanta la R-05 |
+| Interfaz de Solicitudes del Estudiante | Considerando la R-01 es relevante garantizar que los estudiantes beneficiarios puedan realizar solicitudes, en la que estos tengan en cuanta la R-05 |
 | Manejo de solicitudes  | Los administradores del servicio deben realizar una evaluación de las solicitudes considerando la R-07. Para posteriormente notificar al estudiante beneficiario que realizo la solicitud de la decisión siguiendo a las R-09 y R-10 |
 
 
@@ -177,7 +177,7 @@ classDiagram
 | Class | Component | Responsibility | Key collaborators |
 |---|---|---|---|
 | `ManejoSolicitudes` | Manejo de solicitudes | Coordina la gestión de las solicitudes, permite consultar su información y facilita que el administrador las evalúe y registre una decisión. También gestiona la eliminación de solicitudes correspondientes a períodos finalizados y el manejo de errores en las consultas. | `Solicitud`, `RepositorioSolicitudes`, `DecisionSolicitud`, `Resultado` |
-| `Solicitud` | Solicitud de restitución | Representa una solicitud realizada por un estudiante. Mantiene su información, estado y respuesta administrativa, y controla las transiciones válidas entre estados. | `ManejoSolicitudes` |
+| `Solicitud` | Interfaz de Solicitudes del Estudiante | Representa una solicitud realizada por un estudiante. Mantiene su información, estado y respuesta administrativa, y controla las transiciones válidas entre estados. | `ManejoSolicitudes` |
 | `RepositorioSolicitudes` | Manejo de solicitudes | Define las operaciones para almacenar, consultar y eliminar solicitudes, permitiendo mantener los datos persistentes sin acoplar la lógica del sistema a una implementación concreta de almacenamiento. | `Solicitud` |
 | `DecisionSolicitud` | Manejo de solicitudes | Representa las decisiones que puede tomar el administrador al evaluar una solicitud, como aprobarla o rechazarla. | `ManejoSolicitudes` |
 | `Resultado` | Manejo de solicitudes | Representa el resultado de una operación, permitiendo devolver una solicitud o una lista de solicitudes cuando la operación es exitosa, o un error cuando no puede completarse. | `Solicitud`, `ManejoSolicitudes` |
@@ -207,7 +207,7 @@ classDiagram
 
 | Question | Your answer, with evidence from your design |
 |---|---|
-| **Cohesion** | `Solicitud de restitución` permite a los estudiantes beneficiarios generar y consultar solicitudes de cambio de comedor, mientras que `Manejo de solicitudes` coordina su evaluación y resolución por parte del administrador. La clase `Solicitud` contiene la información y el estado de cada solicitud, y `RepositorioSolicitudes` gestiona las operaciones de almacenamiento y consulta. |
+| **Cohesion** | `Interfaz de Solicitudes del Estudiante` permite a los estudiantes beneficiarios generar y consultar solicitudes de cambio de comedor, mientras que `Manejo de solicitudes` coordina su evaluación y resolución por parte del administrador. La clase `Solicitud` contiene la información y el estado de cada solicitud, y `RepositorioSolicitudes` gestiona las operaciones de almacenamiento y consulta. |
 | **Coupling** | `ManejoSolicitudes` utiliza la interfaz `RepositorioSolicitudes` para acceder a los registros sin depender de una implementación específica de almacenamiento. La clase `Solicitud` mantiene su información y estado sin asumir responsabilidades relacionadas con la persistencia ni con la coordinación del proceso administrativo. |
 | **Information hiding** | `Solicitud` mantiene privados ciertos atributos que no son necesarios exponer. El administrador consulta únicamente la información necesaria para evaluar cada solicitud mediante las operaciones del sistema, sin acceder directamente a la estructura interna de los datos ni a los detalles de almacenamiento. |
 
@@ -248,7 +248,7 @@ classDiagram
 | Requirement ID | Use Case | Component(s) | Class(es) |
 |---|---|---|---|
 | REQ-01 | UC-1 Consultar casos pendientes | Manejo de solicitudes, Interfaz de Solicitudes del Estudiante, Panel de Casos Atipicos y Registros | ManejoSolicitudes (consultarSolicitudes), RepositorioSolicitudes (buscarPorEstudiante), Solicitud, EstadoSolicitud, Resultado |
-| REQ-01 |	UC-2 Se acepta un caso pendiente | Manejo de solicitudes y Interfaz de Solicitudes del Estudiante | solicitudes, Solicitud de restitución. ManejoSolicitudes (responderSolicitud), Solicitud (aprobar), DecisionSolicitud, EstadoSolicitud, RepositorioSolicitudes (buscarPorId, guardar), Resultado |
+| REQ-01 |	UC-2 Se acepta un caso pendiente | Manejo de solicitudes y Interfaz de Solicitudes del Estudiante | solicitudes, Interfaz de Solicitudes del Estudiante. ManejoSolicitudes (responderSolicitud), Solicitud (aprobar), DecisionSolicitud, EstadoSolicitud, RepositorioSolicitudes (buscarPorId, guardar), Resultado |
 | REQ-01 |	UC-3 Informar a un estudiante el rechazo de su caso | Manejo de solicitudes, Interfaz de Solicitudes del Estudiante y Registros | ManejoSolicitudes (responderSolicitud), Solicitud (rechazar), DecisionSolicitud, EstadoSolicitud, RepositorioSolicitudes (buscarPorId, guardar), Resultado |
 | REQ-01 |		UC-4 Se notifica el estado de un caso atípico | Panel de casos atipicos e Interfaz de Solicitudes del Estudiante | ManejoSolicitudes (consultarSolicitudes, consultarSolicitud), RepositorioSolicitudes (buscarPorEstudiante, buscarPorId), Solicitud, EstadoSolicitud, Resultado |
 | REQ-01 |			UC-5 Se solicita reasignar un comedor | Interfaz de Solicitudes del Estudiante, Manejo de solicitudes y Registros | ManejoSolicitudes (realizarSolicitud), Solicitud, EstadoSolicitud, RepositorioSolicitudes (guardar), Resultado |
