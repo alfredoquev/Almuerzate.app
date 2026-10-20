@@ -189,19 +189,19 @@ classDiagram
 
 | | |
 |---|---|
-| **Context** | REQ-07 depends on an external provider we do not control (Constraint). Its availability and format can change. |
-| **Decision** | All communication with the tracking provider goes through Tracking Integration. No other component calls the provider or sees its format. |
-| **Rationale** | A provider failure or format change stays contained, and the customer can still see the order status when no estimate exists. |
-| **Trade-off accepted** | One extra hop between the customer's screen and the provider, so slightly more latency. We rejected letting the display call the provider directly because every provider change would then reach the user interface. |
+| **Context** | Al obtener información a través de una query, el patrón de recibir una respuesta con dicha información o un código de error es un patrón que se puede repetir a lo largo del desarrollo de la aplicación |
+| **Decision** | Se usará una clase genérica (Resultado) para encapsular la información de una query o su código de error|
+| **Rationale** | La firma de función de los métodos que devuelvan el resultado de una query podrán devolver solo un tipo (e.g. Resultado o Error) pero no dos al tiempo, por lo cual al tener una clase que encapsule tanto datos de queries como tipos de errores se maneja esta limitación |
+| **Trade-off accepted** | Se hace necesario hacer validación adicional según el tipo de respuesta que se espera (e.g Al buscar solicitudes, la información esperada es la de una solicitud, y a su vez este tipo de query tendrá sus tipos de error que pueden ser distintos a los de otras queries) |
 
 ### Decision B — Detailed design
 
 | | |
 |---|---|
-| **Context** | The provider can answer with usable, stale, incomplete data, or not answer at all. Those outcomes were being handled in different places. |
-| **Decision** | `TrackingIntegration` always returns an `EtaResult`, and "unavailable" is a normal result with a reason, never an exception that propagates. |
-| **Rationale** | Callers handle one result type. The unavailable path (REQ-07 alternative and exception flows) is designed instead of accidental. |
-| **Trade-off accepted** | Callers must check `isAvailable()` explicitly, and a forgotten check shows an empty estimate instead of failing loudly. |
+| **Context** | Se necesita realizar operaciones de manejo de solicitudes según REQ-01 y también hacer queries en la base de datos donde residan la información de las solicitudes |
+| **Decision** | La clase ManejoSolicitudes usa la interfaz RepositorioSolicitudes para acceder a los registros sin depender de una implementación de almacenamiento |
+| **Rationale** | Separar operaciones que hacen parte de la funcionalidad de la aplicación de búsquedas en una base de datos de solicitudes |
+| **Trade-off accepted** | Hay algunas funciones de ManejoSolicitudes que cumplen la misma funcionalidad que funciones en RepositorioSolicitudes, puesto que una query común (obtener solicitudes) también puede ser una funcionalidad disponible a un adiministrador. Como consecuencia, puede haber funciones de ManejoSolicitudes que solo existan con el propósito de llamar otra función en RepositorioSolicitudes |
 
 ### ADR
 
