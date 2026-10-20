@@ -116,7 +116,7 @@ flowchart TB
 
 | Component | Why it was selected |
 |---|---|
-| Solicitud de restitucion | Considerando la R-01 es relevante garantizar que los estudiantes beneficiarios puedan realizar solicitudes, en la que estos tengan en cuanta la R-05 |
+| Interfaz de Solicitudes del Estudiante | Considerando la R-01 es relevante garantizar que los estudiantes beneficiarios puedan realizar solicitudes, en la que estos tengan en cuanta la R-05 |
 | Manejo de solicitudes  | Los administradores del servicio deben realizar una evaluación de las solicitudes considerando la R-07. Para posteriormente notificar al estudiante beneficiario que realizo la solicitud de la decisión siguiendo a las R-09 y R-10 |
 
 
