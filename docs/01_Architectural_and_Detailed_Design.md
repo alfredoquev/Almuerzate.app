@@ -25,10 +25,11 @@ Permitir a los administradores del servicio asignar un comedor diferente a los e
 
 | Requirement / Use Case ID | Why it shapes the structure | Quality attribute, constraint or business rule involved |
 |---|---|---|
-| REQ-01 / UC-2 | Al aprobar un cambio este debe sobrevivir una posible reasignacion periodica (Entrega 2). El recálculo y REQ-01 deciden sobre las mismas asignaciones manuales, así que cada asignación debe registrar su origen (automática o manual) y el recálculo debe respetar las manuales. | Regla de dominio: R-4. Atributo de calidad: integridad de datos. Dependencia: R1 / Entrega 2. |
-| REQ-1 / UC-3 y UC-5 | Si algun envío falla, la solicitud del estudiante (UC-5) y/o el motivo de rechazo del administrador (UC-3) se guardan localmente. La PWA necesita persistencia propia en el cliente, recuperar y reintentar por medio de una cola de sincronización posteriormente. | Restricción: PWA (Progressive Web App) (L4). Calidad: fiabilidad, no perder lo que el usuario escribió. | 
-| REQ-01 / UC-1 a UC-5 | Dos roles (estudiante y administrador) con operaciones distintas sobre los mismos datos. Un único control de acceso en el backend verifica en cada operación el rol, tomado de la cuenta en el servidor, y la propiedad del dato en las consultas del estudiante.| Regla de dominio: R-1. Dependencia: cuentas y roles simulados. Atributos de calidad: control de acceso. |
-| REQ-01 / UC-2, UC-3 y UC-4  | Toda decisión se registra (quién, cuándo, resultado, motivo) y se avisa al estudiante. Como las notificaciones son solo dentro de la PWA (L9), la notificación es un registro guardado que el estudiante consulta, no un envío. | Regla de negocio: R-9 y R-10. Restricción: L9. Calidad: auditabilidad. |
+| REQ-01 / UC-2 |	Un cambio aprobado debe sobrevivir a la reasignación periódica del RFC (Entrega 2). El recálculo y REQ-01 escriben sobre las mismas asignaciones, así que cada una registra su origen (automática o manual). El recálculo no modifica las manuales y las cuenta en la ocupación de cada comedor. Esa regla vive en el Servicio de asignación y casos, no en el cliente. | Regla de dominio: R-4 y R-3. Atributo de calidad: integridad de datos. Dependencia: R1 / Entrega 2. |
+| REQ-1 / UC-3 y UC-5 | Si falla un envío, la solicitud del estudiante (UC-5) y el motivo de rechazo del administrador (UC-3) se guardan en el Cliente PWA. Este es el único responsable de recuperarlos y reintentar mediante una cola de sincronización. La interfaz solo encola y no decide cuándo reintentar. Cada envío lleva un identificador generado en el cliente para que un reintento no duplique la solicitud. En UC-3 (caso administrador) el reenvío lo confirma el administrador. | Regla de dominio: R-6. Atributo de calidad: fiabilidad (no perder lo que el usuario escribió) y cohesión del cliente. Restricción: PWA (Progressive Web App) (L4) | 
+| REQ-01 / UC-1 a UC-5 | Dos roles (estudiante y administrador) con operaciones distintas sobre los mismos datos. Un único control de acceso en el Servicio de asignación y casos verifica en cada operación el rol, tomado de la cuenta guardada en el servidor y no de lo que envía el cliente. También verifica la propiedad del dato en las consultas del estudiante (UC-4). | Regla de dominio: R-1. Dependencia: cuentas y roles simulados. Atributos de calidad: control de acceso. |
+| REQ-01 / UC-2, UC-3 y UC-4  | Toda decisión se guarda en un historial interno (quién, cuándo, resultado, motivo). El estudiante no lee ese historial. UC-4 consulta el estado de su caso (estado, motivo, comedor asignado), que el servicio entrega con un contrato JSON estable. Así el historial puede cambiar por auditoría sin romper la vista del estudiante. Como las notificaciones son solo dentro de la PWA (L9), no hay envío: el estudiante consulta. | Regla de negocio: R-9 y R-10. Restricción: L9. Calidad: auditabilidad y ocultamiento de información. |
+
  
 ---
 
@@ -211,7 +212,11 @@ getEstimatedArrival(orderId):
 
 | Requirement ID | Use Case | Component(s) | Class(es) |
 |---|---|---|---|
-| REQ-01 | UC-1 Consultar casos pendientes |  | EstimateResolver, TrackingIntegration, RequestHandler, ResponseParser, FallbackHandler, EtaResult |
+| REQ-01 | UC-1 Consultar casos pendientes | Manejo de solicitudes, Solicitud de restitución  | ManejoSolicitudes (consultarSolicitudes), RepositorioSolicitudes (buscarPorEstudiante), Solicitud, EstadoSolicitud, Resultado |
+| REQ-01 |	UC-2 Se acepta un caso pendiente | Manejo de solicitudes, Solicitud de restitución.  Árbol de decisión | solicitudes, Solicitud de restitución. Externo: árbol de decisión (R1)	ManejoSolicitudes (responderSolicitud), Solicitud (aprobar), DecisionSolicitud, EstadoSolicitud, RepositorioSolicitudes (buscarPorId, guardar), Resultado |
+| REQ-01 |	UC-3 Informar a un estudiante el rechazo de su caso | Manejo de solicitudes, Solicitud de restitución | ManejoSolicitudes (responderSolicitud), Solicitud (rechazar), DecisionSolicitud, EstadoSolicitud, RepositorioSolicitudes (buscarPorId, guardar), Resultado |
+| REQ-01 |		UC-4 Se notifica el estado de un caso atípico | Solicitud de restitución, Manejo de solicitudes | ManejoSolicitudes (consultarSolicitudes, consultarSolicitud), RepositorioSolicitudes (buscarPorEstudiante, buscarPorId), Solicitud, EstadoSolicitud, Resultado |
+| REQ-01 |			UC-5 Se solicita reasignar un comedor | Solicitud de restitución, Manejo de solicitudes | ManejoSolicitudes (realizarSolicitud), Solicitud, EstadoSolicitud, RepositorioSolicitudes (guardar), Resultado |
 
 ---
 
