@@ -77,8 +77,8 @@ flowchart LR
 
 | Component | Why it was selected |
 |---|---|
-| Solicitud de restitucion | Considerando la BR-01 es relevante garantizar que los estudiantes beneficiarios puedan realizar solicitudes, en la que estos tengan en cuanta la BR-05 |
-| Manejo de solicitudes  | Los administradores del servicio deben realizar una evaluación de las solicitudes considerando la BR-07. Para posteriormente notificar al estudiante beneficiario que realizo la solicitud de la decisión siguiendo a las BR-09 y BR-10 |
+| Solicitud de restitucion | Considerando la R-01 es relevante garantizar que los estudiantes beneficiarios puedan realizar solicitudes, en la que estos tengan en cuanta la R-05 |
+| Manejo de solicitudes  | Los administradores del servicio deben realizar una evaluación de las solicitudes considerando la R-07. Para posteriormente notificar al estudiante beneficiario que realizo la solicitud de la decisión siguiendo a las R-09 y R-10 |
 
 
 ### 3.2 Class Diagram
@@ -170,7 +170,7 @@ classDiagram
 |---|---|
 | **Cohesion** | `Solicitud de restitución` permite a los estudiantes beneficiarios generar y consultar solicitudes de cambio de comedor, mientras que `Manejo de solicitudes` coordina su evaluación y resolución por parte del administrador. La clase `Solicitud` contiene la información y el estado de cada solicitud, y `RepositorioSolicitudes` gestiona las operaciones de almacenamiento y consulta. |
 | **Coupling** | `ManejoSolicitudes` utiliza la interfaz `RepositorioSolicitudes` para acceder a los registros sin depender de una implementación específica de almacenamiento. La clase `Solicitud` mantiene su información y estado sin asumir responsabilidades relacionadas con la persistencia ni con la coordinación del proceso administrativo. |
-| **Information hiding** | `Solicitud` mantiene privados sus atributos, incluidos el motivo, el estudiante, el estado y la respuesta administrativa. El administrador consulta la información necesaria para evaluar cada solicitud mediante las operaciones del sistema, sin acceder directamente a la estructura interna de los datos ni a los detalles de almacenamiento. |
+| **Information hiding** | `Solicitud` mantiene privados ciertos atributos que no son necesarios exponer. El administrador consulta únicamente la información necesaria para evaluar cada solicitud mediante las operaciones del sistema, sin acceder directamente a la estructura interna de los datos ni a los detalles de almacenamiento. |
 
 **Real findings and what we changed**
 
