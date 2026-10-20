@@ -47,10 +47,12 @@ HOW TO USE THIS TEMPLATE
 ## 2. Context 
 
 **Business Rules**
+
 R-1: El programa de bienestar universitario asigna a cada estudiante beneficiario un comedor donde recibe almuerzo, total o parcialmente gratis. Solo los estudiantes beneficiarios pueden solicitar cambio.
 
 R-2: No existe un catálogo cerrado de “circunstancias excepcionales”. El administrador evalúa cada caso según los argumentos del solicitante.
-R-3: Cada comedor tiene un aforo operativo del 80 % de su capacidad máxima real, para mantenerlo subsaturado y balancear la carga entre comedores.
+
+R-3: Cada comedor tiene un aforo operativo del ~80 % de su capacidad máxima real, para mantenerlo subsaturado y balancear la carga entre comedores.
 
 R-4: Un cambio aprobado es permanente durante el semestre, y puede modificarse con una nueva solicitud.
 
@@ -60,7 +62,7 @@ R-6: Un estudiante puede tener una sola solicitud pendiente a la vez. Si le rech
 
 R-7 (propuesta): El administrador responde en un máximo de 3 días hábiles. Todo rechazo debe incluir el motivo.
 
-R-8 (propuesta): El comedor destino no debería superar el 85 % de aforo de ser posible. Si el administrador decide excederlo, debe dejar justificación escrita, y nunca puede superar la capacidad máxima real.
+R-8 (propuesta): El comedor destino no debería superar el 80 % de aforo de ser posible. Si el administrador decide excederlo, debe dejar justificación escrita, y nunca puede superar la capacidad máxima real.
 
 R-9: Cada decisión queda registrada (quién, cuándo, resultado y motivo).
 
@@ -106,7 +108,7 @@ L9. Las notificaciones se muestran solo dentro de la PWA.
 
 -Para el demo, las cuentas y roles se simulan con datos de prueba.
 
--Un cambio aprobado respeta almenos el 85 % del aforo, salvo excepción justificada (R-8).
+-Un cambio aprobado respeta almenos el 80 % del aforo, salvo excepción justificada (R-8).
 
 **Dependencies**
 
@@ -129,7 +131,7 @@ L9. Las notificaciones se muestran solo dentro de la PWA.
 |--- |--- |--- | ---|
 | La reasignación automática sobrescribe un cambio manual |	Medium |	High |Marcar la asignación como “manual” con precedencia sobre el recálculo |
 |Se acumulan solicitudes y el administrador no da abasto |	Medium |	High |	Plazo de respuesta (R-7) y vista de pendientes ordenada por antigüedad |
-|Se aprueban cambios que dejan un comedor sobre el 85 % |	Medium |	Medium |	Mostrar ocupación proyectada al decidir y exigir justificación si se excede |
+|Se aprueban cambios que dejan un comedor sobre el 80 % |	Medium |	Medium |	Mostrar ocupación proyectada al decidir y exigir justificación si se excede |
 |Uso indebido o criterio arbitrario por falta de reglas de excepcionalidad |	Medium |	Medium |	Justificación obligatoria, registro de decisiones y una solicitud pendiente por estudiante |
 |El estimado de ocupación no está definido y el administrador decide a ciegas |	High |	Medium |	Definirlo antes de la entrega del panel, o usar un conteo simple de asignados por comedor |
 |El almacenamiento de archivos adjuntos no encaja con el despliegue en Vercel |	Medium |	Medium |	Decidir dónde se guardan antes de implementar; limitar tipo y tamaño |
