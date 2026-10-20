@@ -119,14 +119,6 @@ classDiagram
         +eliminarPorPeriodo(periodo: Periodo) int
     }
 
-    class EstadoSolicitud {
-        <<enumeration>>
-        PENDIENTE
-        APROBADA
-        RECHAZADA
-        CANCELADA
-    }
-
     class Resultado {
         <<generic>>
         Solicitud valor
