@@ -214,9 +214,9 @@ getEstimatedArrival(orderId):
 |---|---|---|---|
 | REQ-01 | UC-1 Consultar casos pendientes | Manejo de solicitudes, Interfaz de Solicitudes del Estudiante, Panel de Casos Atipicos y Registros | ManejoSolicitudes (consultarSolicitudes), RepositorioSolicitudes (buscarPorEstudiante), Solicitud, EstadoSolicitud, Resultado |
 | REQ-01 |	UC-2 Se acepta un caso pendiente | Manejo de solicitudes, Interfaz de Solicitudes del Estudiante y Árbol de decisión | solicitudes, Solicitud de restitución. Externo: árbol de decisión (R1)	ManejoSolicitudes (responderSolicitud), Solicitud (aprobar), DecisionSolicitud, EstadoSolicitud, RepositorioSolicitudes (buscarPorId, guardar), Resultado |
-| REQ-01 |	UC-3 Informar a un estudiante el rechazo de su caso | Manejo de solicitudes, Interfaz de Solicitudes del Estudiante | ManejoSolicitudes (responderSolicitud), Solicitud (rechazar), DecisionSolicitud, EstadoSolicitud, RepositorioSolicitudes (buscarPorId, guardar), Resultado |
-| REQ-01 |		UC-4 Se notifica el estado de un caso atípico | Solicitud de restitución, Interfaz de Solicitudes del Estudiante | ManejoSolicitudes (consultarSolicitudes, consultarSolicitud), RepositorioSolicitudes (buscarPorEstudiante, buscarPorId), Solicitud, EstadoSolicitud, Resultado |
-| REQ-01 |			UC-5 Se solicita reasignar un comedor | Interfaz de Solicitudes del Estudiante, Manejo de solicitudes | ManejoSolicitudes (realizarSolicitud), Solicitud, EstadoSolicitud, RepositorioSolicitudes (guardar), Resultado |
+| REQ-01 |	UC-3 Informar a un estudiante el rechazo de su caso | Manejo de solicitudes, Interfaz de Solicitudes del Estudiante, Registros | ManejoSolicitudes (responderSolicitud), Solicitud (rechazar), DecisionSolicitud, EstadoSolicitud, RepositorioSolicitudes (buscarPorId, guardar), Resultado |
+| REQ-01 |		UC-4 Se notifica el estado de un caso atípico | Panel de casos atipicos, Interfaz de Solicitudes del Estudiante | ManejoSolicitudes (consultarSolicitudes, consultarSolicitud), RepositorioSolicitudes (buscarPorEstudiante, buscarPorId), Solicitud, EstadoSolicitud, Resultado |
+| REQ-01 |			UC-5 Se solicita reasignar un comedor | Interfaz de Solicitudes del Estudiante, Manejo de solicitudes, Registros | ManejoSolicitudes (realizarSolicitud), Solicitud, EstadoSolicitud, RepositorioSolicitudes (guardar), Resultado |
 
 ---
 
