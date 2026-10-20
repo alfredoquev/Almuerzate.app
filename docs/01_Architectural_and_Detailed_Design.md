@@ -154,14 +154,18 @@ classDiagram
 ### 3.4 Behavior of one key operation
 
 ```text
-getEstimatedArrival(orderId):
-    raw = RequestHandler.fetch(orderId)
-    IF raw is missing:
-        RETURN FallbackHandler.unavailable("provider did not respond")
-    data = ResponseParser.parse(raw)
-    IF data is incomplete OR older than the freshness limit:
-        RETURN FallbackHandler.unavailable("tracking data not usable")
-    RETURN EtaResult(available, computeEta(data))
++consultarSolicitud(idSolicitud: IdSolicitud): Resultado<Solicitud, ErrorSolicitud>
+    solicitud = RepositorioSolicitudes.buscarPorId(idSolicitud)
+
+    Si solicitud no existe:
+        ret = New Resultado<Solicitud,ErrorSolicitud>(NULL,ErrorSolicitud.NO_EXISTE)
+        Retornar ret
+
+    Si solicitud.motivo está vacío O solicitud.idEstudiante está vacío:
+        ret = New Resultado<Solicitud,ErrorSolicitud>(NULL,ErrorSolicitud.INFORMACION_INCOMPLETA)
+        Retornar ret
+
+    Retornar Resultado<solicitud,NULL>
 ```
 
 ---
