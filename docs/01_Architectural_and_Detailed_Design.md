@@ -20,12 +20,13 @@ system and YOUR own project. Use this for level of detail and for how the sectio
 ## 1. System Overview & Design Drivers
 
 **Proposito del requerimiento**
-> Permitir a los administradores del servicio asignar un comedor diferente a los estudiantes beneficiarios, bajo razones de fuerza mayor que requieran un cambio de comedor y hayan presentado una solicitud valida a través de la plataforma.
+
+Permitir a los administradores del servicio asignar un comedor diferente a los estudiantes beneficiarios, bajo razones de fuerza mayor que requieran un cambio de comedor y hayan presentado una solicitud valida a través de la plataforma.
 
 | Requirement / Use Case ID | Why it shapes the structure | Quality attribute, constraint or business rule involved |
 |---|---|---|
 | REQ-01 / UC-2 | Al aprobar un cambio este debe sobrevivir una posible reasignacion periodica (Entrega 2). El recálculo y REQ-01 deciden sobre las mismas asignaciones manuales, así que cada asignación debe registrar su origen (automática o manual) y el recálculo debe respetar las manuales. | Regla de dominio: R-4. Atributo de calidad: integridad de datos. Dependencia: R1 / Entrega 2. |
-| REQ-1 / UC-3 y UC-5 | Si algun envío falla, la solicitud del estudiante (UC-5) y/o el motivo de rechazo del administrador (UC-3) se guardan localmente. La PWA necesita persistencia propia en el cliente, recuperar y reenviar posteriormente. | Restricción: PWA (Progressive Web App) (L4). Calidad: fiabilidad, no perder lo que el usuario escribió. | 
+| REQ-1 / UC-3 y UC-5 | Si algun envío falla, la solicitud del estudiante (UC-5) y/o el motivo de rechazo del administrador (UC-3) se guardan localmente. La PWA necesita persistencia propia en el cliente, recuperar y reintentar por medio de una cola de sincronización posteriormente. | Restricción: PWA (Progressive Web App) (L4). Calidad: fiabilidad, no perder lo que el usuario escribió. | 
 | REQ-01 / UC-1 a UC-5 | Dos roles (estudiante y administrador) con operaciones distintas sobre los mismos datos. Un único control de acceso en el backend verifica en cada operación el rol, tomado de la cuenta en el servidor, y la propiedad del dato en las consultas del estudiante.| Regla de dominio: R-1. Dependencia: cuentas y roles simulados. Atributos de calidad: control de acceso. |
 | REQ-01 / UC-2, UC-3 y UC-4  | Toda decisión se registra (quién, cuándo, resultado, motivo) y se avisa al estudiante. Como las notificaciones son solo dentro de la PWA (L9), la notificación es un registro guardado que el estudiante consulta, no un envío. | Regla de negocio: R-9 y R-10. Restricción: L9. Calidad: auditabilidad. |
  
@@ -210,7 +211,7 @@ getEstimatedArrival(orderId):
 
 | Requirement ID | Use Case | Component(s) | Class(es) |
 |---|---|---|---|
-| REQ-01 | Track Order | Order Status Display, Estimate Resolver, Tracking Integration | EstimateResolver, TrackingIntegration, RequestHandler, ResponseParser, FallbackHandler, EtaResult |
+| REQ-01 | UC-1 Consultar casos pendientes |  | EstimateResolver, TrackingIntegration, RequestHandler, ResponseParser, FallbackHandler, EtaResult |
 
 ---
 
