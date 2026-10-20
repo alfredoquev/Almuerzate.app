@@ -108,7 +108,7 @@ L9. Las notificaciones se muestran solo dentro de la PWA.
 
 -Para el demo, las cuentas y roles se simulan con datos de prueba.
 
--Un cambio aprobado respeta almenos el 85 % del aforo, salvo excepción justificada (R-8).
+-Un cambio aprobado respeta almenos el 80 % del aforo, salvo excepción justificada (R-8).
 
 **Dependencies**
 
