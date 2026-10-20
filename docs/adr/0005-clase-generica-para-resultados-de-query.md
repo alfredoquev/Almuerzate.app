@@ -1,4 +1,4 @@
-# ADR-000X: Título corto de la decisión
+# ADR-0005: Uso de clase genérica para devolver resultados de queries
  
 <!--
 Nombra el archivo con el número consecutivo y un slug corto, por ejemplo:
@@ -9,10 +9,12 @@ decisión cambia, escribes un ADR nuevo y marcas este como reemplazado
 (ver "Estado"). Así el repositorio queda como una bitácora histórica de
 por qué el sistema es como es.
 -->
+
+Se decidió usar una clase con dos tipos genéricos para encapsular la información devuelta por una query y sus posibles códigos de error.
  
 Autores:
- - @githubusername
-Fecha: AAAA-MM-DD
+ - @amadodev07, @juanfpg1, @xedroc422, @alfredoquev y @julondono07
+Fecha: 2026-09-12
  
 ## Estado
  
@@ -22,8 +24,7 @@ Un ADR "Propuesto" está en discusión. Una vez el equipo decide, pasa a
 "Aceptado" (o "Rechazado" si se descarta la propuesta) y ya no se
 modifica su contenido de fondo.
 -->
- 
-Propuesto
+Aceptado
  
 ## Contexto
  
@@ -35,6 +36,7 @@ Ejemplos de fuerzas en juego: requisitos no funcionales (rendimiento,
 seguridad, escalabilidad), restricciones de equipo o de tiempo,
 deuda técnica existente, compatibilidad con sistemas ya construidos.
 -->
+Al obtener información requerida para una operación en la aplicación a través de una query, el patrón de recibir una respuesta con dicha información o un código de error es un patrón que se puede repetir a lo largo del desarrollo de la aplicación. Además, la firma de función de los métodos que devuelvan el resultado de una query podrán devolver solo un tipo (e.g. Resultado o Error) pero no dos al tiempo, por lo cual al tener una clase que encapsule tanto datos de queries como tipos de errores se maneja esta limitación.
  
 ## Decisión
  
@@ -45,7 +47,8 @@ un ADR no es un RFC, no necesita convencer a nadie aquí — la
 justificación ya quedó en "Contexto" y las alternativas descartadas
 van abajo.
 -->
- 
+Se usará una clase genérica (Resultado<U,V>) para encapsular la información de una query o su código de error, en la cual los tipos corresponderán a la información devuelta y el tipo de error devuelto.
+
 ## Alternativas consideradas
  
 <!--
@@ -54,6 +57,7 @@ falta un análisis exhaustivo, basta con dejar constancia de que se
 consideraron y el motivo del descarte (costo, madurez, curva de
 aprendizaje, no cumple un requisito, etc.).
 -->
+Manejar el retorno de tipos de error directamente en las funciones que requieran información de una query, y que las funciones que realizen una query directamente devuelvan NULL al no poder consultar información en una base de datos
  
 ## Consecuencias
  
@@ -63,23 +67,4 @@ Incluye efectos positivos y negativos por igual — un ADR honesto
 también documenta el costo que se está aceptando (deuda técnica
 introducida, dependencia nueva, curva de aprendizaje del equipo).
 -->
- 
----
- 
-### Diferencia con un RFC (referencia rápida)
- 
-<!--
-Elimina esta sección en el ADR final; queda aquí solo como recordatorio
-para quien usa la plantilla.
-- Un RFC se escribe ANTES de decidir, para abrir discusión y llegar a
-  consenso; es un documento "vivo" mientras dura la deliberación.
-- Un ADR registra una decisión YA tomada (o que se está formalizando);
-  una vez aceptado, es casi inmutable — si cambia, se escribe un ADR
-  nuevo que reemplaza al anterior, no se edita el viejo.
-- El RFC suele ser más largo (motivación, métricas, riesgos, preguntas
-  abiertas); el ADR es deliberadamente corto: Contexto, Decisión,
-  Consecuencias.
-- En equipos que usan ambos: el RFC es el proceso de deliberación,
-  y al cerrarlo se destila un ADR corto como registro histórico de lo
-  que finalmente se decidió.
--->
+Se hace necesario hacer validación adicional según el tipo de respuesta que se espera (e.g Al buscar solicitudes, la información esperada es la de una solicitud, y a su vez este tipo de query tendrá sus tipos de error que pueden ser distintos a los de otras queries).
