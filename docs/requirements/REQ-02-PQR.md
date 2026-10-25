@@ -13,13 +13,13 @@ HOW TO USE THIS TEMPLATE
    reference before you start.
 -->
 
-# [REQ-ID] — [Short Requirement Title]
+# REQ-02 — PQR
 
 | | |
 |---|---|
-| **Status** | Draft / Validated / Open Question |
-| **Team / Author(s)** | |
-| **Date** | |
+| **Status** | Draft |
+| **Team / Author(s)** | Julian Camilo Londoño Zarate, Jose Alfredo Quevedo Suarez, Juan Felipe Pineda Gonzalez, Diego Alejandro Gaviria Sabogal, Brayan Santiago Amado Mejia|
+| **Date** | 10-23-26 |
 | **Linked User Story / AC** | |
 
 ---
