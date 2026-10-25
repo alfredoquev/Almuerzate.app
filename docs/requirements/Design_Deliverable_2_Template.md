@@ -227,26 +227,28 @@ erDiagram
 
 ## 3. Interface Contract
 
-Select **one** important interaction from your sequence diagrams and specify the agreement between the two components. Technology (REST, JSON, OpenAPI) is not required.
-
-**Interaction chosen** (from diagram 1.X, message `...`):
->
+**Interaction chosen** (del diagrama 1.1, mensaje `aceptarCaso` de *Panel de Casos Atípicos* a *Gestión de Casos*): flujo principal de UC-2, "Se acepta un caso pendiente". Cuando la operación se ejecuta correctamente, el caso queda aceptado.
+> El administrador acepta un caso pendiente y asigna al estudiante el comedor elegido.
 
 | Element | Specification |
 |---|---|
-| **Operation and purpose** | |
-| **Input** (parameters and types) | |
-| **Output** (successful result and data structure) | |
-| **Preconditions** (what the caller must satisfy before invoking) | |
-| **Postconditions** (what is guaranteed on successful completion) | |
-| **Failure outcomes** (each failure, and what state is left after it) | |
-| **Invariants and side effects** (what must stay true, what may change) | |
+| **Operation and purpose** | `aceptarCaso(idCaso, idComedor)`: recibe el identificador del caso y el del comedor al que se cambiará al estudiante. Reasigna el comedor del estudiante beneficiario, guarda la decisión en `Registros` (R-9) y deja la notificación disponible para el estudiante dentro de la PWA (R-10). |
+| **Input** | `idCaso`: identificador no vacío de un caso existente. <br> `idComedor`: identificador no vacío de un comedor existente. |
+| **Output** | **Éxito:** confirmación de la resolución del caso (`Caso reasignado`). <br> **Error:** mensaje descriptivo según el tipo de fallo, por ejemplo `409: caso ya resuelto` cuando la solicitud ya fue aprobada o rechazada. |
+| **Preconditions** | - El llamante es un usuario con rol de **administrador**. <br> - Se indican `idCaso` e `idComedor`. <br> - El caso existe y está en estado **pendiente**. |
+| **Postconditions** | **Caso favorable:** el caso queda como aceptado, la asignación manual del estudiante apunta al nuevo comedor, la decisión queda registrada (quién, cuándo, resultado) y la notificación queda disponible para el estudiante en la aplicación. <br> **Caso no favorable:** no se modifica ninguna asignación ni el estado del caso, y se devuelve un mensaje de error que explica lo ocurrido. |
+| **Failure outcomes** (flujos alternos de UC-2) | 1. **Parámetros erróneos:** faltan, están vacíos o no existen en la base de datos. Se devuelve un mensaje indicándolo. <br> 2. **Solicitud ya revisada:** el caso ya fue resuelto. Se detiene la ejecución y se informa al administrador (`409`). <br> 3. **Excepción inesperada:** falla durante la ejecución. Se devuelve un mensaje indicativo junto con la sugerencia de reintentar. |
+| **Invariants and side effects**  | **Invariantes:** los identificadores del caso y del comedor no cambian; una asignación manual aprobada no es sobrescrita por el recálculo automático (R-4). <br> **Efectos secundarios:** cambia el comedor asignado al estudiante y el estado del caso, y se crean un registro de la decisión y una notificación. |
 
 **Testable examples** *(optional but recommended: concrete values make guarantees checkable)*
 
 | Case | Before | Request | Expected |
 |---|---|---|---|
-| | | | |
+| Datos correctos | Caso pendiente existente; comedor existente | `aceptarCaso(idCaso, idComedor)` | `Caso reasignado`; asignación del estudiante actualizada al nuevo comedor, decisión registrada y notificación disponible |
+| Datos no identificados | `idCaso` o `idComedor` no existen en los registros | `aceptarCaso(idCaso, idComedor)` | Error: `datos no concordantes` |
+| Datos incompletos | `idCaso` o `idComedor` no definidos | `aceptarCaso(idCaso, -)` o `aceptarCaso(-, idComedor)` o `aceptarCaso(-, -)`| Error: `algún dato no fue definido` |
+| Caso ya resuelto | El caso ya fue aceptado o rechazado | `aceptarCaso(idCaso, idComedor)` | Error `409`: `caso ya resuelto`; sin cambios en la asignación |
+| Excepción / Timeout | El servicio no responde o falla durante la ejecución | `aceptarCaso(idCaso, idComedor)` | Error: `no se pudo ejecutar la operación, intente de nuevo` |
 
 ---
 
