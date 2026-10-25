@@ -16,52 +16,90 @@ HOW TO USE THIS TEMPLATE
 7. Read Design_Deliverable_2_Example.md for the expected level of detail. Do not copy it.
 -->
 
-# [Project Name] — Interaction & Data Design v1.0
+# Almuérzate — Interaction & Data Design v1.0
 
 | | |
 |---|---|
-| **Team** | |
-| **Members** | |
-| **Status** | Draft / Ready for review |
-| **Date** | |
-| **Inputs** | `docs/design/01_Architectural_and_Detailed_Design.md`, Use Cases in `docs/requirements/`, Interaction & Contracts Design v0.1 (Class 13) |
+| **Team** | Equipo Almuérzate |
+| **Members** | Brayan Santiago Amado Mejia, Diego Alejandro Gaviria Sabogal, Julian Camilo Londoño Zarate, Juan Felipe Pineda Gonzalez, Jose Alfredo Quevedo Suarez. |
+| **Status** | Draft |
+| **Date** | 2026-10-24 |
+| **Inputs** | `docs/design/01_Architectural_and_Detailed_Design.md`, Casos de `docs/requirements/REQ-01-Sistema-de-manejo-de-casos-especiales.md`, Interaction & Contracts Design v0.1 (Class 13) |
 
 ---
 
 ## 1. Behavior — Selected Use Cases
 
-Select **two** important use cases from your own project that involve meaningful interaction between components. One of them should be the use case of your capstone requirement.
+Se seleccionan los casos UC-2 y UC-5. UC-2 representa nuestro caso base (capstone) de REQ-01 debido a que aquí es donde el sistema de casos especiales modifica la asignacion base de R1 ligado a la regla de dominio R-4, recorre 6 de 7 componentes con cambios de escrituras y sustenta 3 de las 4 filas de design drivers (Architectural & Detailed Design v1.0) y es Must Have en US-02, US-04.
+Por otro lado UC-5 lo complementa, origina el caso, usa 'Interfaz de Solicitudes del Estudiante' (unico componente que no concierne UC-2) y además cubre el fallo de envio con guardado local AC-10.
 
-### 1.1 [Use Case name] — from requirement [REQ-XX]
+### 1.1 UC-2 (Se acepta un caso pendiente) — from requirement REQ-01
 
 ```mermaid
 sequenceDiagram
-    actor User
-    participant A as Component A
-    participant B as Component B
+    autonumber
+    actor Admin as Administrador
+    participant PCA as Panel de Casos Atípicos
+    participant SC as Sugerencia de Comedores
+    participant GC as Gestión de Casos
+    participant GA as Gestión de Asignaciones
+    participant NE as Notificaciones al Estudiante
+    participant REG as Registros
 
-    User->>A: operation(param)
-    A->>B: operation(param)
-    alt normal condition
-        B-->>A: result
-        A-->>User: outcome
-    else alternative or failure condition
-        B-->>A: failure outcome
-        A-->>User: outcome
+    Admin->>PCA: clic en Aceptar(idCaso)
+    PCA->>SC: obtener comedores sugeridos(dia)
+    SC->>GA: obtener carga asignada por comedor(dia)
+    GA->>REG: buscar asignaciones(dia)
+    alt Registros devuelve los datos de ocupación
+        REG-->>GA: asignaciones del día
+        GA->>REG: obtener capacidades()
+        REG-->>GA: capacidad por comedor
+        GA-->>SC: estudiantes asignados y capacidad por comedor
+        SC-->>PCA: comedores ordenados de mejor a peor
+        PCA-->>Admin: muestra la lista sugerida, el caso sigue pendiente
+        Admin->>PCA: elige un comedor y confirma(idCaso, idComedor)
+        PCA->>GC: aceptar caso(idCaso, idComedor)
+        GC->>REG: buscar caso(idCaso)
+        REG-->>GC: caso con estado, estudiante y día
+        alt el caso sigue pendiente
+            GC->>GA: reasignar estudiante(idEstudiante, dia, idComedor)
+            GA->>REG: guardar asignación con origen manual
+            REG-->>GA: guardada
+            GA-->>GC: reasignación aplicada
+            GC->>REG: guardar caso aceptado y decisión
+            REG-->>GC: guardado
+            GC->>NE: notificar decisión(idCaso, aceptado, idComedor)
+            NE->>REG: guardar notificación
+            REG-->>NE: guardada
+            NE-->>GC: notificación disponible
+            GC-->>PCA: caso reasignado
+            PCA-->>Admin: confirma la reasignación
+        else el caso ya fue resuelto
+            GC-->>PCA: error 409, caso ya resuelto
+            PCA-->>Admin: muestra el error
+        end
+    else Registros no responde o faltan datos
+        REG-->>GA: error
+        GA-->>SC: error
+        SC-->>PCA: lista no disponible con código y mensaje
+        PCA-->>Admin: muestra código y mensaje, el caso sigue pendiente
     end
 ```
 
-*(Participants are actors, components or external systems from Deliverable 1. Show the main successful flow and at least one alternative or exception flow with `alt` / `else` or `opt`. Avoid semicolons inside message text. Activation bars (`activate` / `deactivate`) are optional: use them only if you keep them balanced.)*
-
 | Use Case step or flow | Message(s) in the diagram | Information exchanged | Operation defined in (Deliverable 1) |
 |---|---|---|---|
-| Main flow, step 1 | | | |
-| Alternative flow | | | |
-| Exception | | | |
+| Main flow, paso 1 | 1 | idCaso, tomado de la lista de UC-1 | Panel de Casos Atípicos: «Mostrar y resolver casos pendientes» (2.2) |
+| Main flow, paso 2 | 2 a 9 | Va el día del caso. Vuelven estudiantes asignados y capacidad por comedor, y la lista ordenada de mejor a peor | Sugerencia de Comedores: «obtener comedores sugeridos». Gestión de Asignaciones: «obtener carga asignada por comedor». Registros: «buscar / guardar asignaciones» y «obtener capacidades» (2.2). Sin clase en 3.2 |
+| Main flow, paso 3 | 10 | Lista sugerida. No se escribe nada: el caso sigue pendiente | Panel de Casos Atípicos (2.2) |
+| Main flow, pasos 4 y 5 | 11 y 12 | idCaso e idComedor | «aceptar caso» (2.2) = ManejoSolicitudes.responderSolicitud(idSolicitud, decision, mensaje, idAdministrador) (3.2). Falta el comedor destino |
+| Main flow, paso 6 (validar y reasignar) | 13 a 18 | Caso con estado, estudiante y día. Luego estudiante, día y comedor, y la asignación guardada con origen manual (R-4) | RepositorioSolicitudes.buscarPorId (3.2). «reasignar estudiante» (2.2), sin clase |
+| Main flow, paso 6 (registrar y notificar) | 19 a 24 | Caso aceptado con la decisión (quién, cuándo, resultado, comedor; R-9). Luego idCaso, resultado y comedor | Solicitud.aprobar (se ejecuta dentro de Gestión de Casos antes del mensaje 19) y RepositorioSolicitudes.guardar (3.2). «notificar decisión» (2.2), sin clase |
+| Main flow, paso 6 (respuesta) | 25 y 26 | Caso reasignado y confirmación al administrador | Resultado (3.2) |
+| Alternative flow (propuesta, no está en UC-2) | 25 y 26 | Caso reasignado y confirmación al administrador | Solicitud controla las transiciones válidas (3.3). Falta YA_RESUELTA en ErrorSolicitud |
+| Exception (AC-07) | 29 a 32 | El error sube de Registros al administrador con código y mensaje | Sugerencia de Comedores «responde explícitamente que no pudo» (2.2). Resultado con error (Decision A) |
 
-*Check each message: does it have a purpose? Is the order correct? Is every important response shown? Are the relevant failure paths covered? Does the interaction satisfy the use case?*
 
-### 1.2 [Second Use Case name] — from requirement [REQ-YY]
+### 1.2 UC-5 (Se solicita reasignar un comedor) — from requirement REQ-01
 
 *(Same structure as 1.1.)*
 
