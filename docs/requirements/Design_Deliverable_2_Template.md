@@ -101,7 +101,52 @@ sequenceDiagram
 
 ### 1.2 UC-5 (Se solicita reasignar un comedor) — from requirement REQ-01
 
-*(Same structure as 1.1.)*
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Est as Estudiante beneficiario
+    participant IES as Interfaz de Solicitudes del Estudiante
+    participant GC as Gestión de Casos
+    participant GA as Gestión de Asignaciones
+    participant REG as Registros
+
+    Est->>IES: clic en Solicitar reasignación de comedor
+    IES->>GC: obtener opciones de solicitud()
+    GC->>GA: obtener asignación del estudiante()
+    GA->>REG: buscar asignaciones del estudiante
+    REG-->>GA: asignaciones por día
+    GA-->>GC: día y comedor actual de cada asignación
+    GC-->>IES: opciones de solicitud
+    IES-->>Est: muestra el formulario
+    Est->>IES: elige día y comedor, escribe la justificación y envía
+    IES->>GC: enviar solicitud(dia, idComedorPreferido, justificacion, idEnvio)
+    alt el envío llega y Gestión de Casos responde
+        GC->>REG: buscar solicitud pendiente del estudiante
+        REG-->>GC: solicitudes del estudiante
+        alt cumple R-5 y R-6
+            GC->>REG: guardar solicitud en estado pendiente
+            REG-->>GC: guardada con código de caso
+            GC-->>IES: solicitud registrada con código de caso
+            IES-->>Est: mensaje de envío exitoso
+        else incumple R-5 o R-6
+            GC-->>IES: rechazo 4XX con el motivo
+            IES-->>Est: muestra el motivo
+        end
+    else sin respuesta o error 5XX
+        IES->>IES: guardar la solicitud localmente
+        IES-->>Est: código y mensaje de error
+    end
+```
+| Use Case step or flow | Message(s) in the diagram | Information exchanged | Operation defined in (Deliverable 1) |
+|---|---|---|---|
+| Main flow, paso 1 | 1 | Clic del estudiante con sesión abierta. | Interfaz de Solicitudes del Estudiante: «Reportar un caso» (2.2) |
+| Main flow, paso 2 | 2 a 8 | Se piden las opciones. Vuelven día y comedor actual de cada asignación, y se muestra el formulario. | «obtener opciones de solicitud», «obtener asignación del estudiante», «buscar / guardar asignaciones» (2.2). Sin clase en 3.2 |
+| Main flow, paso 3 a 5 (captura) | 9 | Día, comedor preferido y justificación (R-5). | «Reportar un caso» (2.2) |
+| Main flow, paso 5 (envio) | 10 | dia, idComedorPreferido, justificacion, idEnvio | «enviar solicitud» (2.2) = ManejoSolicitudes.realizarSolicitud(motivo, idEstudiante) (3.2). Faltan día, comedor e idEnvio |
+| Main flow, poscondición | 11 a 16 | Solicitudes del estudiante. Solicitud en estado pendiente. Código del caso y mensaje de éxito. | RepositorioSolicitudes.buscarPorEstudiante y guardar (3.2), EstadoSolicitud |
+| Alternative flow (propuesta, no está en UC-5) | 17 y 18 | 4XX con el motivo (R-5 o R-6) | Resultado con ErrorSolicitud (3.2). Faltan JUSTIFICACION_VACIA y YA_HAY_PENDIENTE |
+| Exception (AC-10) | 19 y 20 | Solicitud completa con idEnvio, guardada en el cliente. Código y mensaje de error | No existe como capacidad de la interfaz en 2.2 (driver de la cola de sincronización) |
+
 
 ---
 
