@@ -240,8 +240,6 @@ erDiagram
 | **Failure outcomes** (flujos alternos de UC-2) | 1. **Parámetros erróneos:** faltan, están vacíos o no existen en la base de datos. Se devuelve un mensaje indicándolo. <br> 2. **Solicitud ya revisada:** el caso ya fue resuelto. Se detiene la ejecución y se informa al administrador (`409`). <br> 3. **Excepción inesperada:** falla durante la ejecución. Se devuelve un mensaje indicativo junto con la sugerencia de reintentar. |
 | **Invariants and side effects**  | **Invariantes:** los identificadores del caso y del comedor no cambian; una asignación manual aprobada no es sobrescrita por el recálculo automático (R-4). <br> **Efectos secundarios:** cambia el comedor asignado al estudiante y el estado del caso, y se crean un registro de la decisión y una notificación. |
 
-**Testable examples** *(optional but recommended: concrete values make guarantees checkable)*
-
 | Case | Before | Request | Expected |
 |---|---|---|---|
 | Datos correctos | Caso pendiente existente; comedor existente | `aceptarCaso(idCaso, idComedor)` | `Caso reasignado`; asignación del estudiante actualizada al nuevo comedor, decisión registrada y notificación disponible |
