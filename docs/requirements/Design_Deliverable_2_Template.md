@@ -156,60 +156,88 @@ sequenceDiagram
 
 | Information | Needed by (use cases) | Persisted? | Why (or why not) |
 |---|---|---|---|
-| | | Yes / No | |
+| Usuario y clave de usuario | UC-1; UC-4 | Yes | Las credenciales de usuario deben persistir para poder realizar autenticación varias veces. |
+| Estado y Justificación de solicitudes de reasignación | UC-1; UC-4; UC-5 | Yes | Una o varias solicitudes pueden ser consultadas varias veces en un periodo arbitrario de tiempo por un administrador o estudiante. Además, al crearse una solicitud, un administrador debe poder revisarla después. |
+| Asignaciones de comedores | UC-2; UC-4 | Yes | Un usuario administrativo puede reasignar un comedor y el sistema luego notificará al estudiante; estas notificaciones deben ser guardadas en un historial |
+| Capacidad y ubicación de comedores | UC-2 | Yes | Este dato no se puede inferir a partir de otros, está relacionado a los comedores y es utilizado al recomendar comedores |
+| Distancia del comedor al estudiante | UC-2 | No | Este dato se calcula a partir de la capacidad del comedor y depende también del horario del estudiante. Al haber tantos escenarios posibles que resulten en distintas distancias, es necesario calcular este dato dinámicamente en vez de guardarlo en un registro |
+
 
 *(Data owned by an external system, or recomputable on demand, is often better not persisted. If that is your decision, say so.)*
 
 ### 2.2 Data model
-
-Choose the representation that fits your persistence approach and **justify it in one or two sentences**:
->
-
-**Option A — Relational:** an Entity-Relationship diagram with entities, relevant attributes, primary identifiers, relationships, cardinalities and constraints.
+**Justificación del modelo de datos elegido:** Acorde a [ADR-0001](docs/adr/0001-Usar-postgresql-como-base-de-datos-principal.md), se acordó usar un tipo de almacenamiento relacional, además las relaciones son el centro del dominio (solicitudes enviadas por estudiantes y evaluadas por un administrativo). Por esto, conviene usar un diagrama ER.
 
 ```mermaid
 erDiagram
-    ENTITY_A ||--o{ ENTITY_B : "relationship"
-    ENTITY_A {
-        int entity_a_id PK
-        string attribute
+    Administrativo |o--o{ Usuario : "tiene rol"
+    Estudiante_Beneficiario |o--o{ Usuario : "tiene rol"
+    Estudiante_Beneficiario ||--o{ Solicitud: "realiza"
+    Administrativo ||--o{ Asignacion: "toma"
+    Solicitud ||--|| Comedor: "sugiere"
+    Solicitud o{--|| EstadoSolicitud: "tiene"
+    Estudiante_Beneficiario ||--o{ Notificacion: "recibe"
+    Usuario{
+        int id_usuario PK
+        varchar(32) correo UK
+        varchar(32) clave UK
+        int id_rol FK
     }
-    ENTITY_B {
-        int entity_b_id PK
-        int entity_a_id FK
-        string attribute
+    Administrativo{
+        int id_administrativo PK
+        int id_usuario FK
+    }
+    Estudiante_Beneficiario{
+        int id_estudiante PK
+        int id_usuario FK
+        int[] id_comedores FK
+    }
+    Solicitud{
+        int id_solicitud PK
+        varchar(4000) justificacion
+        varchar(500) evidencia
+        DATE fecha_de_envio
+        int id_estudiante FK
+        int id_comedor FK
+        int id_estado FK
+    }
+    Asignacion{
+        int id_decision PK
+        int id_solicitud FK
+        int id_administrativo FK
+        DATE fecha
+        varchar(4000) motivo
+        bool aprovado
+        int id_comedor FK
+    }
+    Comedor{
+        SERIAL id_comedor PK
+        varchar(32) nombre UK
+        int capacidad_maxima
+        GEOMETRY ubicacion
+    }
+    EstadoSolicitud{
+        int id_estuado PK
+        varchar(32) nombre UK
+    }
+    Notificacion{
+        int id_notificacion PK
+        DATE fecha
+        int id_asignacion FK
+        int id_solicitud FK
+        int id_estado FK
     }
 ```
-
-*(Cardinality: `||` exactly one, `o|` zero or one, `}o` zero or many, `}|` one or many.)*
-
-**Option B — Document-oriented:** collections or document types, structure, identifiers, embedded structures, references and constraints.
-
-```json
-{
-  "collection_name": {
-    "id": "identifier",
-    "embedded_structure": [ { "field": "value" } ],
-    "reference_to_other_collection": "identifier"
-  }
-}
-```
-
-**Other representation:** allowed if you justify why it suits your project. The goal is not to force a relational or document database. The goal is to design the information the software needs.
-
-| Entity / document type | Meaning in the system | Identifier | Constraints (required, unique, allowed values) |
-|---|---|---|---|
-| | | | |
 
 ### 2.3 Data Ownership
 
 | Information | Authoritative owner (component responsible for maintaining it) | Consumed by (uses it without owning it) | Access through |
 |---|---|---|---|
 | **Casos Atípicos (Solicitudes, justificación, estado y decisiones)** | `Gestión de Casos` *(Nota: delega el almacenamiento físico a `Registros`)* | `Interfaz de Solicitudes del Estudiante`, `Panel de Casos Atípicos` | Métodos de clase (Sección 3.2):<br>`ManejoSolicitudes.consultarSolicitudes()`<br>`ManejoSolicitudes.responderSolicitud()`<br>`ManejoSolicitudes.realizarSolicitud()` |
-| **Asignaciones individuales vigentes** (incluye flag `origen: manual \| automatica` según R-4) | `Gestión de Asignaciones` *(Nota: delega el almacenamiento físico a `Registros`)* | `Gestión de Casos` | Capacidades de componente (Sección 2.2):<br>«obtener asignación del estudiante»<br>«reasignar estudiante» |
-| **Carga asignada por comedor** (métrica calculada de estudiantes por día) | `Gestión de Asignaciones` | `Sugerencia de Comedores` | Capacidad de componente (Sección 2.2):<br>«obtener carga asignada por comedor» |
-| **Capacidades máximas estáticas de los comedores** | `Registros` (Datos de configuración administrativa) | `Gestión de Asignaciones` | Capacidad de componente (Sección 2.2):<br>«obtener capacidades» |
-| **Historial de Notificaciones** (Estado de visualización pull in-app, L9) | `Notificaciones al Estudiante` (Lee la decisión maestra desde `Registros`) | `Interfaz de Solicitudes del Estudiante` | Capacidad de componente (Sección 2.2):<br>«consultar mis decisiones» |
+| **Asignaciones individuales vigentes** (incluye flag `origen: manual \| automatica` según R-4) | `Gestión de Asignaciones` *(Nota: delega el almacenamiento físico a `Registros`)* | `Gestión de Casos` | Capacidades de componente (Sección 2.2):<br>`Asignación`<br>`Administrativo` |
+| **Carga asignada por comedor** (métrica calculada de estudiantes por día) | `Gestión de Asignaciones` | `Sugerencia de Comedores` | Capacidad de componente (Sección 2.2):<br>Derivada de `Asignacion` agrupada por `id_comedor` y día; no es una tabla.|
+| **Capacidades máximas estáticas de los comedores** | `Registros` (Datos de configuración administrativa) | `Gestión de Asignaciones` | Capacidad de componente (Sección 2.2):<br>`Comedor` |
+| **Historial de Notificaciones** (Estado de visualización pull in-app, L9) | `Notificaciones al Estudiante` (Lee la decisión maestra desde `Registros`) | `Interfaz de Solicitudes del Estudiante` | Capacidad de componente (Sección 2.2):<br>`Notificacion`|
 | **Borradores y solicitudes locales encoladas** (Offline / AC-10) | `Interfaz de Solicitudes del Estudiante` / `Panel de Casos Atípicos` | Ninguno (uso interno del cliente) | Almacenamiento local de la PWA (`LocalStorage` / `IndexedDB`) |
 | **Cuentas, Usuarios y Roles** | Sistema de usuarios de la universidad (Externo) | `Interfaz de Solicitudes del Estudiante`, `Panel de Casos Atípicos` | API externa (simulada) de verificación |
 
