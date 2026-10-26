@@ -171,12 +171,12 @@ sequenceDiagram
 ```mermaid
 erDiagram
     Administrativo |o--o{ Usuario : "tiene rol"
-    Estudiante |o--o{ Usuario : "tiene rol"
-    Estudiante ||--o{ Solicitud: "realiza"
+    Estudiante_Beneficiario |o--o{ Usuario : "tiene rol"
+    Estudiante_Beneficiario ||--o{ Solicitud: "realiza"
     Administrativo ||--o{ Asignacion: "toma"
     Solicitud ||--|| Comedor: "sugiere"
     Solicitud o{--|| EstadoSolicitud: "tiene"
-    Estudiante ||--o{ Notificacion: "recibe"
+    Estudiante_Beneficiario ||--o{ Notificacion: "recibe"
     Usuario{
         int id_usuario PK
         varchar(32) correo UK
@@ -187,7 +187,7 @@ erDiagram
         int id_administrativo PK
         int id_usuario FK
     }
-    Estudiante{
+    Estudiante_Beneficiario{
         int id_estudiante PK
         int id_usuario FK
         int[] id_comedores FK
