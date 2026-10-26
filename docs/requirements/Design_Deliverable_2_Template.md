@@ -156,7 +156,12 @@ sequenceDiagram
 
 | Information | Needed by (use cases) | Persisted? | Why (or why not) |
 |---|---|---|---|
-| | | Yes / No | |
+| Usuario y clave de usuario | UC-1; UC-4 | Yes | Las credenciales de usuario deben persistir para poder realizar autenticación varias veces. |
+| Estado y Justificación de solicitudes de reasignación | UC-1; UC-4; UC-5 | Yes | Una o varias solicitudes pueden ser consultadas varias veces en un periodo arbitrario de tiempo por un administrador o estudiante. Además, al crearse una solicitud, un administrador debe poder revisarla después. |
+| Asignaciones de comedores | UC-2; UC-4 | Yes | Un usuario administrativo puede reasignar un comedor y el sistema luego notificará al estudiante; estas notificaciones deben ser guardadas en un historial |
+| Capacidad y ubicación de comedores | UC-2 | Yes | Este dato no se puede inferir a partir de otros, está relacionado a los comedores y es utilizado al recomendar comedores |
+| Distancia del comedor al estudiante | UC-2 | No | Este dato se calcula a partir de la capacidad del comedor y depende también del horario del estudiante. Al haber tantos escenarios posibles que resulten en distintas distancias, es necesario calcular este dato dinámicamente en vez de guardarlo en un registro |
+
 
 *(Data owned by an external system, or recomputable on demand, is often better not persisted. If that is your decision, say so.)*
 
@@ -185,6 +190,7 @@ erDiagram
     Estudiante{
         int id_estudiante PK
         int id_usuario FK
+        int[] id_comedores FK
     }
     Solicitud{
         int id_solicitud PK
@@ -208,6 +214,7 @@ erDiagram
         SERIAL id_comedor PK
         varchar(32) nombre UK
         int capacidad_maxima
+        GEOMETRY ubicacion
     }
     EstadoSolicitud{
         int id_estuado PK
