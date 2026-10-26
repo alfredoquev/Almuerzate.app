@@ -95,7 +95,7 @@ sequenceDiagram
 | Main flow, paso 6 (validar y reasignar) | 13 a 18 | Caso con estado, estudiante y día. Luego estudiante, día y comedor, y la asignación guardada con origen manual (R-4) | RepositorioSolicitudes.buscarPorId (3.2). «reasignar estudiante» (2.2), sin clase |
 | Main flow, paso 6 (registrar y notificar) | 19 a 24 | Caso aceptado con la decisión (quién, cuándo, resultado, comedor; R-9). Luego idCaso, resultado y comedor | Solicitud.aprobar (se ejecuta dentro de Gestión de Casos antes del mensaje 19) y RepositorioSolicitudes.guardar (3.2). «notificar decisión» (2.2), sin clase |
 | Main flow, paso 6 (respuesta) | 25 y 26 | Caso reasignado y confirmación al administrador | Resultado (3.2) |
-| Alternative flow (propuesta, no está en UC-2) | 25 y 26 | Caso reasignado y confirmación al administrador | Solicitud controla las transiciones válidas (3.3). Falta YA_RESUELTA en ErrorSolicitud |
+| Alternative flow (propuesta, no está en UC-2) | 27 y 28 | Error 409, caso ya resuelto, que sube al administrador | Solicitud controla las transiciones válidas (3.3). Falta YA_RESUELTA en ErrorSolicitud |
 | Exception (AC-07) | 29 a 32 | El error sube de Registros al administrador con código y mensaje | Sugerencia de Comedores «responde explícitamente que no pudo» (2.2). Resultado con error (Decision A) |
 
 
@@ -210,7 +210,7 @@ erDiagram
 | **Carga asignada por comedor** (métrica calculada de estudiantes por día) | `Gestión de Asignaciones` | `Sugerencia de Comedores` | Capacidad de componente (Sección 2.2):<br>«obtener carga asignada por comedor» |
 | **Capacidades máximas estáticas de los comedores** | `Registros` (Datos de configuración administrativa) | `Gestión de Asignaciones` | Capacidad de componente (Sección 2.2):<br>«obtener capacidades» |
 | **Historial de Notificaciones** (Estado de visualización pull in-app, L9) | `Notificaciones al Estudiante` (Lee la decisión maestra desde `Registros`) | `Interfaz de Solicitudes del Estudiante` | Capacidad de componente (Sección 2.2):<br>«consultar mis decisiones» |
-| **Borradores y solicitudes locales encoladas** (Offline / AC-10) | `Interfaz de Solicitudes del Estudiante` / `Panel de Casos Atípicos` | Ninguno (uso interno del cliente) | Almacenamiento local de la PWA (`LocalStorage` / `IndexedDB`) |
+| **Borradores y solicitudes locales encoladas** (Offline / AC-10) | `Interfaz de Solicitudes del Estudiante` | Ninguno (uso interno del cliente) | Almacenamiento local de la PWA (`LocalStorage` / `IndexedDB`) |
 | **Cuentas, Usuarios y Roles** | Sistema de usuarios de la universidad (Externo) | `Interfaz de Solicitudes del Estudiante`, `Panel de Casos Atípicos` | API externa (simulada) de verificación |
 
 ## 2.4 Business rules and invariants enforced in data
@@ -222,7 +222,7 @@ erDiagram
 | **R-4: Un cambio aprobado es permanente y sobrevive al recálculo** | Ambos | **Logica:** El script de recálculo (Entrega 2) excluye o salta los registros marcados como manuales.<br>**Data constraint:** La entidad de asignación tiene el atributo obligatorio `origen` con valores permitidos `(AUTOMATICA, MANUAL)`. `Gestión de Asignaciones` fija este valor en `MANUAL` al reasignar. |
 | **R-9: Cada decisión queda registrada (quién, cuándo, resultado y motivo)** | Data constraint | La tabla/documento de resolución de la solicitud exige restricciones `NOT NULL` para `id_administrador`, `fecha_decision`, y `resultado`. Si el resultado es `RECHAZADO`, la columna `motivo_rechazo` debe ser obligatoria mediante un constraint condicional (`CHECK`). |
 | **AC-10: Idempotencia en el envío de solicitudes frente a fallos de red** | Ambos | **Logica:** El cliente genera un UUID `idEnvio` antes de intentar la petición. Si falla y reintenta, envía el mismo ID.<br>**Data constraint:** La columna `id_envio` en la tabla de solicitudes tiene una restricción `UNIQUE`. Un reintento duplicado genera un error de conflicto (409) manejado sin crear registros extra. |
-| **R-8: El administrador debe justificar explícitamente si la asignación supera el aforo del 80%** | Component logic | `Gestión de Casos` evalúa si la `carga asignada` resultante supera el `aforo operativo (80%)` usando `GA.obtenerCargaAsignada()`. Si es así, la operación exige que el administrador ingrese un texto de anulación antes de permitir el registro. No se fuerza estrictamente en DB para permitir la contingencia administrativa. |
+| **R-8 (propuesta): El administrador debe justificar explícitamente si la asignación supera el aforo operativo** | Component logic (supuesto, ver Q3) | Se asume que `Sugerencia de Comedores` usa la carga asignada por comedor que obtiene de `Gestión de Asignaciones` (mensaje 3 de UC-2) para marcar los comedores que superarían el aforo operativo. El umbral está por confirmar: R-3 y las AI rules indican 80 %, y el texto de R-8 en REQ-01 indica 85 % (Q3). La captura de la justificación escrita no está modelada en UC-2 y queda como pregunta abierta (Q3). No se fuerza en DB para permitir la contingencia administrativa. |
 ---
 
 ## 3. Interface Contract
@@ -269,22 +269,35 @@ Select **one** important interaction from your sequence diagrams and specify the
 
 > Anything unresolved about behavior or data. List it here instead of guessing.
 
+| # | Pregunta | Dónde afecta | Supuesto mientras tanto |
+|---|---|---|---|
+| Q1 | ¿La reasignación aplica solo al día de la solicitud o a todo el semestre? (REQ-01, P1: UC-5 pide un día, R-4 dice permanente) | UC-5 (formulario con día), UC-2 (mensaje 15, `reasignar(dia)`), entidad de asignación | Aplica solo a ese día, y R-4 hace permanente ese cambio durante el semestre |
+| Q2 | ¿Reasignar, guardar el caso y notificar (mensajes 15 a 24 de UC-2) van en una sola transacción? Si falla uno en medio, el estudiante puede quedar reasignado con el caso aún pendiente | UC-2, sección 2.4 | Sin definir; el diagrama no dibuja fallos en esos pasos |
+| Q3 | ¿Cuál es el umbral de R-8 y dónde se aplica? REQ-01 dice 85 % en R-8, pero R-3, la sección 2.4 y las AI rules dicen 80 % (REQ-01, P6). Además, UC-2 no tiene un paso donde el administrador escriba la justificación al superarlo | UC-2 (mensajes 10 a 12), sección 2.4 (R-8) | 80 % del aforo, con Sugerencia de Comedores solo marcando el exceso. La captura de la justificación queda fuera del diagrama |
+| Q4 | ¿Cómo se calcula el estimado de ocupación? (REQ-01, P3) | UC-2 (mensajes 2 a 9) | Estudiantes asignados frente a capacidad, sin datos reales de ocupación (L7) |
+| Q5 | ¿Qué mensajes pasan por la API en C++ y con qué formato y códigos de error? (REQ-01, P8, falta el ADR nuevo) | Códigos 409, 4XX y 5XX de ambos diagramas, y el contrato de la sección 3 | Los códigos son propuestos hasta que exista el ADR |
+| Q6 | ¿Se agregan a REQ-01 los flujos "caso ya resuelto" (409) en UC-2 y "incumple R-5 o R-6" (4XX) en UC-5? Además, las reglas R-5 a R-10 no están validadas (REQ-01, P4), incluido el plazo de 3 días de R-7, que ningún diagrama modela | UC-2 (mensajes 27 y 28), UC-5 (mensajes 17 y 18) | Se mantienen como propuesta, marcados así en las tablas |
+| Q7 | Tras un fallo de envío (AC-10), ¿quién reintenta, cuándo y cuánto tiempo se conserva la solicitud guardada? REQ-01 solo dice que se guarda localmente | UC-5 (mensajes 19 y 20) | El cliente genera `idEnvio` una vez; el reenvío no se dibuja |
+| Q8 | ¿Dónde se guarda la evidencia adjunta y con qué límites? (REQ-01, P5, R-5 la deja opcional) | UC-5, modelo de datos (2.2) | Fuera de este deliverable: ni UC-5 ni el modelo la incluyen |
+
 ---
 
 ## 6. Optional — AI-Assisted Design Reflection
 
-> One design recommendation generated by AI that the team accepted, modified or rejected, and why.
+>Rejected porque ya hay una verficacion previa en los registros de informacion. Se considera que hay un error de time out por ende se implementaria un verificacion de ejecucion correcta al final.
+
+> Una IA nos recomendó decidir que reasignar al estudiante, guardar el caso y notificar (mensajes 15 a 24 de UC-2) se ejecuten en una sola transacción, porque si falla un paso intermedio el estudiante queda reasignado con el caso todavía pendiente. La aceptamos solo en parte: reconocemos el riesgo, pero no tomamos la decisión. Ni REQ-01 ni un ADR definen cómo se manejan las transacciones ni qué pasa por la API en C++, y fijarlo ahora sería inventar comportamiento. Lo dejamos como pregunta abierta (Q2) y el diagrama no dibuja ese fallo.
 
 ---
 
 ## 7. Consistency Checklist
 
-- [ ] Two use cases from the project, each traceable to a Use Case written in the requirements.
-- [ ] Each sequence diagram shows the main flow and at least one alternative or exception flow.
-- [ ] No business behavior is invented: anything unspecified is marked as an assumption or Open Question.
-- [ ] Section 2.1 explains what is NOT persisted as well as what is.
-- [ ] The data model has identifiers, relationships and constraints, not only boxes.
-- [ ] Every piece of principal information has one authoritative owner, and consumers are listed (Section 2.3).
-- [ ] The contract defines input, output, preconditions, postconditions and failure outcomes.
-- [ ] Sequence, data model and contract describe the same behavior.
-- [ ] Diagrams render correctly on GitHub (or the exported images are embedded).
+- [x] Two use cases from the project, each traceable to a Use Case written in the requirements. *(UC-2 y UC-5)*
+- [x] Each sequence diagram shows the main flow and at least one alternative or exception flow. *(UC-2: caso ya resuelto y AC-07. UC-5: R-5/R-6 y AC-10)*
+- [x] No business behavior is invented: anything unspecified is marked as an assumption or Open Question. *(Q1 a Q8)*
+- [ ] Section 2.1 explains what is NOT persisted as well as what is. *(pendiente: sección sin llenar)*
+- [ ] The data model has identifiers, relationships and constraints, not only boxes. *(pendiente: 2.2 sin llenar)*
+- [x] Every piece of principal information has one authoritative owner, and consumers are listed (Section 2.3). *(corregido: "Borradores y solicitudes locales" queda solo con la interfaz del estudiante)*
+- [ ] The contract defines input, output, preconditions, postconditions and failure outcomes. *(pendiente: sección 3 sin llenar)*
+- [ ] Sequence, data model and contract describe the same behavior. *(pendiente hasta cerrar 2.2 y 3)*
+- [ ] Diagrams render correctly on GitHub (or the exported images are embedded). *(pendiente de verificar)*
