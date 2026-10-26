@@ -161,23 +161,55 @@ sequenceDiagram
 *(Data owned by an external system, or recomputable on demand, is often better not persisted. If that is your decision, say so.)*
 
 ### 2.2 Data model
-
-Choose the representation that fits your persistence approach and **justify it in one or two sentences**:
->
-
-**Option A — Relational:** an Entity-Relationship diagram with entities, relevant attributes, primary identifiers, relationships, cardinalities and constraints.
+**Justificación del modelo de datos elegido:** Acorde a [ADR-0001](docs/adr/0001-Usar-postgresql-como-base-de-datos-principal.md), se acordó usar un tipo de almacenamiento relacional, además las relaciones son el centro del dominio (solicitudes enviadas por estudiantes y evaluadas por un administrativo). Por esto, conviene usar un diagrama ER.
 
 ```mermaid
 erDiagram
-    ENTITY_A ||--o{ ENTITY_B : "relationship"
-    ENTITY_A {
-        int entity_a_id PK
-        string attribute
+    Administrativo |o--o{ Usuario : "tiene rol"
+    Estudiante |o--o{ Usuario : "tiene rol"
+    Estudiante ||--o{ Solicitud: "realiza"
+    Administrativo ||--o{ Decision: "toma"
+    Solicitud ||--|| Comedor: "sugiere"
+    Solicitud o{--|| EstadoSolicitud: "tiene"
+    Usuario{
+        int id_usuario PK
+        varchar(32) correo UK
+        varchar(32) clave UK
+        int id_rol FK
     }
-    ENTITY_B {
-        int entity_b_id PK
-        int entity_a_id FK
-        string attribute
+    Administrativo{
+        int id_administrativo PK
+        int id_usuario FK
+    }
+    Estudiante{
+        int id_estudiante PK
+        int id_usuario FK
+    }
+    Solicitud{
+        int id_solicitud PK
+        varchar(4000) justificacion
+        varchar(500) evidencia
+        DATE fecha_de_envio
+        int id_estudiante FK
+        int id_comedor FK
+        int id_estado FK
+    }
+    Decision{
+        int id_decision PK
+        int id_solicitud FK
+        int id_administrativo FK
+        DATE fecha
+        varchar(4000) motivo
+        bool aprovado
+        int id_comedor FK
+    }
+    Comedor{
+        SERIAL id_comedor PK
+        varchar(32) nombre UK
+    }
+    EstadoSolicitud{
+        int id_estuado PK
+        varchar(32) nombre UK
     }
 ```
 
@@ -194,12 +226,6 @@ erDiagram
   }
 }
 ```
-
-**Other representation:** allowed if you justify why it suits your project. The goal is not to force a relational or document database. The goal is to design the information the software needs.
-
-| Entity / document type | Meaning in the system | Identifier | Constraints (required, unique, allowed values) |
-|---|---|---|---|
-| | | | |
 
 ### 2.3 Data Ownership
 
