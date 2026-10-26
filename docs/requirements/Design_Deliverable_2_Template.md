@@ -254,14 +254,14 @@ erDiagram
 
 | Check | Result |
 |---|---|
-| Every participant in a sequence diagram is an actor, a component, a class or an external system from Deliverable 1 | |
-| Every message corresponds to a capability, operation or contract | |
-| Every entity or document type is reflected in the class diagrams, or the reason it is not is stated | |
-| Every persisted information element has exactly one authoritative owner | |
-| The contract agrees with the sequence diagram and with the data model (same behavior in all three views) | |
+| Every participant in a sequence diagram is an actor, a component, a class or an external system from Deliverable 1 | Sí. Los participantes de los diagramas 1.1 y 1.2 hacen parte de la arquitectura definida en el Deliverable 1. |
+| Every message corresponds to a capability, operation or contract | Sí. Los mensajes se agrupan por responsabilidad: `Panel de Casos Atípicos` recibe las acciones de los administradores y usuarios; `Gestión de Casos` y `Gestión de Asignaciones` se encargan principalmente (aunque no exclusivamente) de las operaciones internas del sistema; y `Registros` se encarga del almacenamiento de la información. |
+| Every entity or document type is reflected in the class diagrams, or the reason it is not is stated | Los usuarios (`Estudiante beneficiario` y `Administrador`) participan directamente en el flujo. Las asignaciones y las solicitudes (con sus estados) se manejan en el flujo general de `Gestión de Casos` y `Gestión de Asignaciones`. Los comedores se manejan de forma indirecta, ya que estos requerimientos solo asignan un comedor al estudiante y no modifican sus datos. |
+| Every persisted information element has exactly one authoritative owner | Sí (ver tabla 2.2). |
+| The contract agrees with the sequence diagram and with the data model (same behavior in all three views) | Sí. El contrato considera todas las alternativas del diagrama 1.1 y respeta las restricciones del modelo de datos de 2.1. |
 
 **Changes made to Deliverable 1 because of this deliverable** *(real designs change when behavior and data become concrete. List what you updated, or write "None" and why.)*
->
+> Se añadió el análisis de comedores por parte del administrador, junto con la información de cada comedor, como apoyo para la toma de decisiones al aceptar o rechazar un caso.
 
 ---
 
