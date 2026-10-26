@@ -168,9 +168,10 @@ erDiagram
     Administrativo |o--o{ Usuario : "tiene rol"
     Estudiante |o--o{ Usuario : "tiene rol"
     Estudiante ||--o{ Solicitud: "realiza"
-    Administrativo ||--o{ Decision: "toma"
+    Administrativo ||--o{ Asignacion: "toma"
     Solicitud ||--|| Comedor: "sugiere"
     Solicitud o{--|| EstadoSolicitud: "tiene"
+    Estudiante ||--o{ Notificacion: "recibe"
     Usuario{
         int id_usuario PK
         varchar(32) correo UK
@@ -194,7 +195,7 @@ erDiagram
         int id_comedor FK
         int id_estado FK
     }
-    Decision{
+    Asignacion{
         int id_decision PK
         int id_solicitud FK
         int id_administrativo FK
@@ -206,25 +207,19 @@ erDiagram
     Comedor{
         SERIAL id_comedor PK
         varchar(32) nombre UK
+        int capacidad_maxima
     }
     EstadoSolicitud{
         int id_estuado PK
         varchar(32) nombre UK
     }
-```
-
-*(Cardinality: `||` exactly one, `o|` zero or one, `}o` zero or many, `}|` one or many.)*
-
-**Option B — Document-oriented:** collections or document types, structure, identifiers, embedded structures, references and constraints.
-
-```json
-{
-  "collection_name": {
-    "id": "identifier",
-    "embedded_structure": [ { "field": "value" } ],
-    "reference_to_other_collection": "identifier"
-  }
-}
+    Notificacion{
+        int id_notificacion PK
+        DATE fecha
+        int id_asignacion FK
+        int id_solicitud FK
+        int id_estado FK
+    }
 ```
 
 ### 2.3 Data Ownership
@@ -232,10 +227,10 @@ erDiagram
 | Information | Authoritative owner (component responsible for maintaining it) | Consumed by (uses it without owning it) | Access through |
 |---|---|---|---|
 | **Casos Atípicos (Solicitudes, justificación, estado y decisiones)** | `Gestión de Casos` *(Nota: delega el almacenamiento físico a `Registros`)* | `Interfaz de Solicitudes del Estudiante`, `Panel de Casos Atípicos` | Métodos de clase (Sección 3.2):<br>`ManejoSolicitudes.consultarSolicitudes()`<br>`ManejoSolicitudes.responderSolicitud()`<br>`ManejoSolicitudes.realizarSolicitud()` |
-| **Asignaciones individuales vigentes** (incluye flag `origen: manual \| automatica` según R-4) | `Gestión de Asignaciones` *(Nota: delega el almacenamiento físico a `Registros`)* | `Gestión de Casos` | Capacidades de componente (Sección 2.2):<br>«obtener asignación del estudiante»<br>«reasignar estudiante» |
-| **Carga asignada por comedor** (métrica calculada de estudiantes por día) | `Gestión de Asignaciones` | `Sugerencia de Comedores` | Capacidad de componente (Sección 2.2):<br>«obtener carga asignada por comedor» |
-| **Capacidades máximas estáticas de los comedores** | `Registros` (Datos de configuración administrativa) | `Gestión de Asignaciones` | Capacidad de componente (Sección 2.2):<br>«obtener capacidades» |
-| **Historial de Notificaciones** (Estado de visualización pull in-app, L9) | `Notificaciones al Estudiante` (Lee la decisión maestra desde `Registros`) | `Interfaz de Solicitudes del Estudiante` | Capacidad de componente (Sección 2.2):<br>«consultar mis decisiones» |
+| **Asignaciones individuales vigentes** (incluye flag `origen: manual \| automatica` según R-4) | `Gestión de Asignaciones` *(Nota: delega el almacenamiento físico a `Registros`)* | `Gestión de Casos` | Capacidades de componente (Sección 2.2):<br>`Asignación`<br>`Administrativo` |
+| **Carga asignada por comedor** (métrica calculada de estudiantes por día) | `Gestión de Asignaciones` | `Sugerencia de Comedores` | Capacidad de componente (Sección 2.2):<br>Derivada de `Asignacion` agrupada por `id_comedor` y día; no es una tabla.|
+| **Capacidades máximas estáticas de los comedores** | `Registros` (Datos de configuración administrativa) | `Gestión de Asignaciones` | Capacidad de componente (Sección 2.2):<br>`Comedor` |
+| **Historial de Notificaciones** (Estado de visualización pull in-app, L9) | `Notificaciones al Estudiante` (Lee la decisión maestra desde `Registros`) | `Interfaz de Solicitudes del Estudiante` | Capacidad de componente (Sección 2.2):<br>`Notificacion`|
 | **Borradores y solicitudes locales encoladas** (Offline / AC-10) | `Interfaz de Solicitudes del Estudiante` / `Panel de Casos Atípicos` | Ninguno (uso interno del cliente) | Almacenamiento local de la PWA (`LocalStorage` / `IndexedDB`) |
 | **Cuentas, Usuarios y Roles** | Sistema de usuarios de la universidad (Externo) | `Interfaz de Solicitudes del Estudiante`, `Panel de Casos Atípicos` | API externa (simulada) de verificación |
 
