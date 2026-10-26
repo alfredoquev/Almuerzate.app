@@ -156,61 +156,89 @@ sequenceDiagram
 
 | Information | Needed by (use cases) | Persisted? | Why (or why not) |
 |---|---|---|---|
-| | | Yes / No | |
+| Usuario y clave de usuario | UC-1; UC-4 | Yes | Las credenciales de usuario deben persistir para poder realizar autenticación varias veces. |
+| Estado y Justificación de solicitudes de reasignación | UC-1; UC-4; UC-5 | Yes | Una o varias solicitudes pueden ser consultadas varias veces en un periodo arbitrario de tiempo por un administrador o estudiante. Además, al crearse una solicitud, un administrador debe poder revisarla después. |
+| Asignaciones de comedores | UC-2; UC-4 | Yes | Un usuario administrativo puede reasignar un comedor y el sistema luego notificará al estudiante; estas notificaciones deben ser guardadas en un historial |
+| Capacidad y ubicación de comedores | UC-2 | Yes | Este dato no se puede inferir a partir de otros, está relacionado a los comedores y es utilizado al recomendar comedores |
+| Distancia del comedor al estudiante | UC-2 | No | Este dato se calcula a partir de la capacidad del comedor y depende también del horario del estudiante. Al haber tantos escenarios posibles que resulten en distintas distancias, es necesario calcular este dato dinámicamente en vez de guardarlo en un registro |
+
 
 *(Data owned by an external system, or recomputable on demand, is often better not persisted. If that is your decision, say so.)*
 
 ### 2.2 Data model
-
-Choose the representation that fits your persistence approach and **justify it in one or two sentences**:
->
-
-**Option A — Relational:** an Entity-Relationship diagram with entities, relevant attributes, primary identifiers, relationships, cardinalities and constraints.
+**Justificación del modelo de datos elegido:** Acorde a [ADR-0001](docs/adr/0001-Usar-postgresql-como-base-de-datos-principal.md), se acordó usar un tipo de almacenamiento relacional, además las relaciones son el centro del dominio (solicitudes enviadas por estudiantes y evaluadas por un administrativo). Por esto, conviene usar un diagrama ER.
 
 ```mermaid
 erDiagram
-    ENTITY_A ||--o{ ENTITY_B : "relationship"
-    ENTITY_A {
-        int entity_a_id PK
-        string attribute
+    Administrativo |o--o{ Usuario : "tiene rol"
+    Estudiante_Beneficiario |o--o{ Usuario : "tiene rol"
+    Estudiante_Beneficiario ||--o{ Solicitud: "realiza"
+    Administrativo ||--o{ Asignacion: "toma"
+    Solicitud ||--|| Comedor: "sugiere"
+    Solicitud o{--|| EstadoSolicitud: "tiene"
+    Estudiante_Beneficiario ||--o{ Notificacion: "recibe"
+    Usuario{
+        int id_usuario PK
+        varchar(32) correo UK
+        varchar(32) clave UK
+        int id_rol FK
     }
-    ENTITY_B {
-        int entity_b_id PK
-        int entity_a_id FK
-        string attribute
+    Administrativo{
+        int id_administrativo PK
+        int id_usuario FK
+    }
+    Estudiante_Beneficiario{
+        int id_estudiante PK
+        int id_usuario FK
+        int[] id_comedores FK
+    }
+    Solicitud{
+        int id_solicitud PK
+        varchar(4000) justificacion
+        varchar(500) evidencia
+        DATE fecha_de_envio
+        int id_estudiante FK
+        int id_comedor FK
+        int id_estado FK
+    }
+    Asignacion{
+        int id_decision PK
+        int id_solicitud FK
+        int id_administrativo FK
+        DATE fecha
+        varchar(4000) motivo
+        bool aprovado
+        int id_comedor FK
+    }
+    Comedor{
+        SERIAL id_comedor PK
+        varchar(32) nombre UK
+        int capacidad_maxima
+        GEOMETRY ubicacion
+    }
+    EstadoSolicitud{
+        int id_estuado PK
+        varchar(32) nombre UK
+    }
+    Notificacion{
+        int id_notificacion PK
+        DATE fecha
+        int id_asignacion FK
+        int id_solicitud FK
+        int id_estado FK
     }
 ```
-
-*(Cardinality: `||` exactly one, `o|` zero or one, `}o` zero or many, `}|` one or many.)*
-
-**Option B — Document-oriented:** collections or document types, structure, identifiers, embedded structures, references and constraints.
-
-```json
-{
-  "collection_name": {
-    "id": "identifier",
-    "embedded_structure": [ { "field": "value" } ],
-    "reference_to_other_collection": "identifier"
-  }
-}
-```
-
-**Other representation:** allowed if you justify why it suits your project. The goal is not to force a relational or document database. The goal is to design the information the software needs.
-
-| Entity / document type | Meaning in the system | Identifier | Constraints (required, unique, allowed values) |
-|---|---|---|---|
-| | | | |
 
 ### 2.3 Data Ownership
 
 | Information | Authoritative owner (component responsible for maintaining it) | Consumed by (uses it without owning it) | Access through |
 |---|---|---|---|
 | **Casos Atípicos (Solicitudes, justificación, estado y decisiones)** | `Gestión de Casos` *(Nota: delega el almacenamiento físico a `Registros`)* | `Interfaz de Solicitudes del Estudiante`, `Panel de Casos Atípicos` | Métodos de clase (Sección 3.2):<br>`ManejoSolicitudes.consultarSolicitudes()`<br>`ManejoSolicitudes.responderSolicitud()`<br>`ManejoSolicitudes.realizarSolicitud()` |
-| **Asignaciones individuales vigentes** (incluye flag `origen: manual \| automatica` según R-4) | `Gestión de Asignaciones` *(Nota: delega el almacenamiento físico a `Registros`)* | `Gestión de Casos` | Capacidades de componente (Sección 2.2):<br>«obtener asignación del estudiante»<br>«reasignar estudiante» |
-| **Carga asignada por comedor** (métrica calculada de estudiantes por día) | `Gestión de Asignaciones` | `Sugerencia de Comedores` | Capacidad de componente (Sección 2.2):<br>«obtener carga asignada por comedor» |
-| **Capacidades máximas estáticas de los comedores** | `Registros` (Datos de configuración administrativa) | `Gestión de Asignaciones` | Capacidad de componente (Sección 2.2):<br>«obtener capacidades» |
-| **Historial de Notificaciones** (Estado de visualización pull in-app, L9) | `Notificaciones al Estudiante` (Lee la decisión maestra desde `Registros`) | `Interfaz de Solicitudes del Estudiante` | Capacidad de componente (Sección 2.2):<br>«consultar mis decisiones» |
-| **Borradores y solicitudes locales encoladas** (Offline / AC-10) | `Interfaz de Solicitudes del Estudiante` | Ninguno (uso interno del cliente) | Almacenamiento local de la PWA (`LocalStorage` / `IndexedDB`) |
+| **Asignaciones individuales vigentes** (incluye flag `origen: manual \| automatica` según R-4) | `Gestión de Asignaciones` *(Nota: delega el almacenamiento físico a `Registros`)* | `Gestión de Casos` | Capacidades de componente (Sección 2.2):<br>`Asignación`<br>`Administrativo` |
+| **Carga asignada por comedor** (métrica calculada de estudiantes por día) | `Gestión de Asignaciones` | `Sugerencia de Comedores` | Capacidad de componente (Sección 2.2):<br>Derivada de `Asignacion` agrupada por `id_comedor` y día; no es una tabla.|
+| **Capacidades máximas estáticas de los comedores** | `Registros` (Datos de configuración administrativa) | `Gestión de Asignaciones` | Capacidad de componente (Sección 2.2):<br>`Comedor` |
+| **Historial de Notificaciones** (Estado de visualización pull in-app, L9) | `Notificaciones al Estudiante` (Lee la decisión maestra desde `Registros`) | `Interfaz de Solicitudes del Estudiante` | Capacidad de componente (Sección 2.2):<br>`Notificacion`|
+| **Borradores y solicitudes locales encoladas** (Offline / AC-10) | `Interfaz de Solicitudes del Estudiante` / `Panel de Casos Atípicos` | Ninguno (uso interno del cliente) | Almacenamiento local de la PWA (`LocalStorage` / `IndexedDB`) |
 | **Cuentas, Usuarios y Roles** | Sistema de usuarios de la universidad (Externo) | `Interfaz de Solicitudes del Estudiante`, `Panel de Casos Atípicos` | API externa (simulada) de verificación |
 
 ## 2.4 Business rules and invariants enforced in data
@@ -227,26 +255,26 @@ erDiagram
 
 ## 3. Interface Contract
 
-Select **one** important interaction from your sequence diagrams and specify the agreement between the two components. Technology (REST, JSON, OpenAPI) is not required.
-
-**Interaction chosen** (from diagram 1.X, message `...`):
->
+**Interaction chosen** (del diagrama 1.1, mensaje `aceptarCaso` de *Panel de Casos Atípicos* a *Gestión de Casos*): flujo principal de UC-2, "Se acepta un caso pendiente". Cuando la operación se ejecuta correctamente, el caso queda aceptado.
+> El administrador acepta un caso pendiente y asigna al estudiante el comedor elegido.
 
 | Element | Specification |
 |---|---|
-| **Operation and purpose** | |
-| **Input** (parameters and types) | |
-| **Output** (successful result and data structure) | |
-| **Preconditions** (what the caller must satisfy before invoking) | |
-| **Postconditions** (what is guaranteed on successful completion) | |
-| **Failure outcomes** (each failure, and what state is left after it) | |
-| **Invariants and side effects** (what must stay true, what may change) | |
-
-**Testable examples** *(optional but recommended: concrete values make guarantees checkable)*
+| **Operation and purpose** | `aceptarCaso(idCaso, idComedor)`: recibe el identificador del caso y el del comedor al que se cambiará al estudiante. Reasigna el comedor del estudiante beneficiario, guarda la decisión en `Registros` (R-9) y deja la notificación disponible para el estudiante dentro de la PWA (R-10). |
+| **Input** | `idCaso`: identificador no vacío de un caso existente. <br> `idComedor`: identificador no vacío de un comedor existente. |
+| **Output** | **Éxito:** confirmación de la resolución del caso (`Caso reasignado`). <br> **Error:** mensaje descriptivo según el tipo de fallo, por ejemplo `409: caso ya resuelto` cuando la solicitud ya fue aprobada o rechazada. |
+| **Preconditions** | - El llamante es un usuario con rol de **administrador**. <br> - Se indican `idCaso` e `idComedor`. <br> - El caso existe y está en estado **pendiente**. |
+| **Postconditions** | **Caso favorable:** el caso queda como aceptado, la asignación manual del estudiante apunta al nuevo comedor, la decisión queda registrada (quién, cuándo, resultado) y la notificación queda disponible para el estudiante en la aplicación. <br> **Caso no favorable:** no se modifica ninguna asignación ni el estado del caso, y se devuelve un mensaje de error que explica lo ocurrido. |
+| **Failure outcomes** (flujos alternos de UC-2) | 1. **Parámetros erróneos:** faltan, están vacíos o no existen en la base de datos. Se devuelve un mensaje indicándolo. <br> 2. **Solicitud ya revisada:** el caso ya fue resuelto. Se detiene la ejecución y se informa al administrador (`409`). <br> 3. **Excepción inesperada:** falla durante la ejecución. Se devuelve un mensaje indicativo junto con la sugerencia de reintentar. |
+| **Invariants and side effects**  | **Invariantes:** los identificadores del caso y del comedor no cambian; una asignación manual aprobada no es sobrescrita por el recálculo automático (R-4). <br> **Efectos secundarios:** cambia el comedor asignado al estudiante y el estado del caso, y se crean un registro de la decisión y una notificación. |
 
 | Case | Before | Request | Expected |
 |---|---|---|---|
-| | | | |
+| Datos correctos | Caso pendiente existente; comedor existente | `aceptarCaso(idCaso, idComedor)` | `Caso reasignado`; asignación del estudiante actualizada al nuevo comedor, decisión registrada y notificación disponible |
+| Datos no identificados | `idCaso` o `idComedor` no existen en los registros | `aceptarCaso(idCaso, idComedor)` | Error: `datos no concordantes` |
+| Datos incompletos | `idCaso` o `idComedor` no definidos | `aceptarCaso(idCaso, -)` o `aceptarCaso(-, idComedor)` o `aceptarCaso(-, -)`| Error: `algún dato no fue definido` |
+| Caso ya resuelto | El caso ya fue aceptado o rechazado | `aceptarCaso(idCaso, idComedor)` | Error `409`: `caso ya resuelto`; sin cambios en la asignación |
+| Excepción / Timeout | El servicio no responde o falla durante la ejecución | `aceptarCaso(idCaso, idComedor)` | Error: `no se pudo ejecutar la operación, intente de nuevo` |
 
 ---
 
@@ -254,14 +282,14 @@ Select **one** important interaction from your sequence diagrams and specify the
 
 | Check | Result |
 |---|---|
-| Every participant in a sequence diagram is an actor, a component, a class or an external system from Deliverable 1 | |
-| Every message corresponds to a capability, operation or contract | |
-| Every entity or document type is reflected in the class diagrams, or the reason it is not is stated | |
-| Every persisted information element has exactly one authoritative owner | |
-| The contract agrees with the sequence diagram and with the data model (same behavior in all three views) | |
+| Every participant in a sequence diagram is an actor, a component, a class or an external system from Deliverable 1 | Sí. Los participantes de los diagramas 1.1 y 1.2 hacen parte de la arquitectura definida en el Deliverable 1. |
+| Every message corresponds to a capability, operation or contract | Sí. Los mensajes se agrupan por responsabilidad: `Panel de Casos Atípicos` recibe las acciones de los administradores y usuarios; `Gestión de Casos` y `Gestión de Asignaciones` se encargan principalmente (aunque no exclusivamente) de las operaciones internas del sistema; y `Registros` se encarga del almacenamiento de la información. |
+| Every entity or document type is reflected in the class diagrams, or the reason it is not is stated | Los usuarios (`Estudiante beneficiario` y `Administrador`) participan directamente en el flujo. Las asignaciones y las solicitudes (con sus estados) se manejan en el flujo general de `Gestión de Casos` y `Gestión de Asignaciones`. Los comedores se manejan de forma indirecta, ya que estos requerimientos solo asignan un comedor al estudiante y no modifican sus datos. |
+| Every persisted information element has exactly one authoritative owner | Sí (ver tabla 2.2). |
+| The contract agrees with the sequence diagram and with the data model (same behavior in all three views) | Sí. El contrato considera todas las alternativas del diagrama 1.1 y respeta las restricciones del modelo de datos de 2.1. |
 
 **Changes made to Deliverable 1 because of this deliverable** *(real designs change when behavior and data become concrete. List what you updated, or write "None" and why.)*
->
+> Se añadió el análisis de comedores por parte del administrador, junto con la información de cada comedor, como apoyo para la toma de decisiones al aceptar o rechazar un caso.
 
 ---
 
