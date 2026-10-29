@@ -8,15 +8,15 @@
 
 ## Requerimiento 3
 
-- El sistema debe considerar las preferencias del estudiante al asignarle un comedor.
+- El sistema debe considerar la preferencia del estudiante beneficiario sobre el comedor en el que desea recibir su beneficio al asignarle un comedor.
 
 ## Requerimiento 4
 
-- El sistema debe asignar al estudiante únicamente comedores que no hayan alcanzado su capacidad máxima.
+- El sistema debe considerar las condiciones del comedor al asignarle un comedor. 
 
 ## Requerimiento 5
 
-- El sistema debe asignar al estudiante únicamente comedores que cumplan con las limitaciones registradas por el estudiante (discapacidad, restricción alimentaria).
+- El sistema debe considerar las limitaciones del estudiante (discapacidad, preferencia alimentaria) al asignarle un comedor.
 
 ## Requerimiento 6
 
