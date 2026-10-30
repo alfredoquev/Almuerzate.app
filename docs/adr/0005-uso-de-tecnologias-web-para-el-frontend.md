@@ -1,4 +1,4 @@
-# ADR-0006: Uso de tecnologías web para el frontend
+# ADR-0005: Uso de tecnologías web para el frontend
 
 Autores: - @amadodev07 - @juanfpg1 - @xedroc422 - @alfredoquev -
 @julondono07 Fecha: 2026-10-29
