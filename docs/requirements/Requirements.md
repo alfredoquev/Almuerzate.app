@@ -12,7 +12,7 @@
 
 ## Requerimiento 4
 
-- El sistema debe considerar las condiciones del comedor al asignarle un comedor. 
+- El sistema debe considerar las condiciones del comedor (capacidad, horario de servicio, menú disponible) al asignarle un comedor. 
 
 ## Requerimiento 5
 
@@ -20,7 +20,7 @@
 
 ## Requerimiento 6
 
-- El sistema debe ejecutar la asignación de comedores de forma automática, sin intervención manual.
+- El sistema debe ejecutar la asignación de comedores de forma automática, sin intervención manual a excepción de casos aislados que la requieran.
 
 ## Requerimiento 7
 
