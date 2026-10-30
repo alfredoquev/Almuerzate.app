@@ -16,7 +16,7 @@ aplicación:
 
 -   **Integración con el backend:** el frontend debe permitir la
     comunicación con el backend desarrollado en C++, cuya integración
-    con JavaScript se realiza mediante Emscripten y WebAssembly, según
+    con JavaScript se realiza mediante PHP, según
     lo establecido en el ADR-0002.
 -   **Accesibilidad:** la interfaz debe estar disponible para los
     usuarios sin exigir la instalación de una aplicación móvil.
