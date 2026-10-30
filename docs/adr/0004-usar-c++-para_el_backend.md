@@ -1,28 +1,47 @@
 # ADR-0004: Implementación de árbol de decisiones en C++
- 
-Se decidio usar el lenguaje de c++ para el manejo de backend
- 
+
 Autores:
- - @amadodev07, @juanfpg1, @xedroc422, @alfredoquev y @julondono07
+- @amadodev07
+- @juanfpg1
+- @xedroc422
+- @alfredoquev
+- @julondono07
+
 Fecha: 2026-09-12
- 
+
 ## Estado
- 
+
 Aceptado
- 
+
+
 ## Contexto
- 
-La asignación de los cupos en el comedor es parte fundamental del programa, por lo que se busca manejar un lenguaje que sea capaz de manejar grandes cantidades de datos por medio de distintas estructuras de datos y que pueda ser conectado tanto con las bases de datos como con el frontend; además, dado que el sistema a implementar puede considerar una complejidad considerable, es pertinente hacer uso de un lenguaje conocido.
- 
+
+La asignación de los cupos en el comedor es parte fundamental del programa. El sistema puede tener una complejidad considerable y debe conectarse tanto con la base de datos como con el frontend.
+
+Las fuerzas y restricciones clave que impulsan esta decisión son:
+1. **Manejo de datos:** Se requiere un lenguaje capaz de manejar grandes cantidades de datos por medio de distintas estructuras de datos.
+2. **Conectividad:** El lenguaje debe poder conectarse con la base de datos y con el frontend.
+3. **Conocimiento del equipo:** Dada la complejidad del sistema, es pertinente utilizar un lenguaje que el equipo ya conozca.
+
+
 ## Decisión
- 
-En base a lo anterior, se definió el uso de C++, ya que es un lenguaje conocido por su capacidad de manejo de grandes cantidades de datos junto con una mejor implementación de estructuras de datos como resultado del manejo de memoria que este permite. Además, es una lenguaje al cual el equipo de trabajo es afín lo que facilita el desarrollo de la aplicación.
- 
+
+Vamos a utilizar C++ como lenguaje para el backend y la implementación del árbol decisional.
+
+
 ## Alternativas consideradas
- 
-Se consideró la implementación de Java, el cual es un lenguaje que también permite un buen manejo de estructuras de datos y puede garantizar una buena implementación con el frontend debido a la existencia de librerías dedicadas a la creación de interfaces de usuario; sin embargo, dado que el equipo no esta muy familiarizado con este y su sintaxis se descartó esta opción.
- 
+
+- **Java:** Se evaluó porque también permite un buen manejo de estructuras de datos y una buena integración con el frontend, gracias a las librerías dedicadas a la creación de interfaces de usuario. Se descartó porque el equipo no está muy familiarizado con el lenguaje ni con su sintaxis.
+
+
 ## Consecuencias
 
-Una vez considerada la decisión de C++, es importante hacer hincapié en la implementación adecuada de las estructuras de datos que se van a utilizar ya que C++ es un lenguaje que tiene cierta complejidad en el manejo de estas. Por otro lado, también es necesario implementar una correcta conexión con el frontend por medio de APIs. Además C++ es un lenguaje comúnmente utilizado en otras aplicaciones de navegador junto con cadenas de herramientas para compilación, debido a que permite la escritura de código de más bajo nivel e intensivo en rendimiento sin necesidad de interactuar directamente con WebAssembly.
+### Positivas (+)
+- **Manejo de datos y estructuras:** C++ permite una mejor implementación de estructuras de datos y el manejo de grandes cantidades de datos, como resultado del control de memoria que ofrece.
+- **Afinidad del equipo:** El equipo de trabajo conoce el lenguaje, lo que facilita el desarrollo de la aplicación.
+- **Compatibilidad con el navegador:** C++ se utiliza comúnmente en aplicaciones de navegador junto con cadenas de herramientas de compilación, lo que permite escribir código de bajo nivel e intensivo en rendimiento sin interactuar directamente con WebAssembly.
+
+### Negativas / Desafíos (-)
+- **Complejidad en las estructuras de datos:** C++ tiene cierta complejidad en el manejo de estructuras de datos, por lo que es necesario implementarlas adecuadamente.
+- **Conexión con el frontend:** Es necesario implementar una correcta conexión con el frontend mediante Emscripten, de acuerdo con lo establecido en el ADR-0002.
  
