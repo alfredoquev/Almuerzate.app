@@ -1,28 +1,45 @@
-# ADR-0002: Empscripten como integracion y conexion de frontend con backend
- 
- 
+# ADR-0002: Usar Emscripten como integración y conexión del frontend con el backend
+
 Autores:
- - @amadodev07, @juanfpg1
+- @amadodev07
+- @juanfpg1
+
 Fecha: 2026-09-12
- 
+
 ## Estado
 
 Aceptado
- 
+
+
 ## Contexto
- 
-El árbol decisional estára desarrollado en C++ y debe integrarse con un frontend web en Tailwind. El proyecto es demostrativo y requiere una integración simple preparada para alto flujo de datos, sin embargo dejando ignorando algunas complejidades tecnicas como la seguridad.
- 
+
+El árbol decisional estará desarrollado en C++ y debe integrarse con un frontend web desarrollado con Tailwind CSS. El proyecto es demostrativo y requiere una integración simple, preparada para un alto flujo de datos, dejando de lado deliberadamente algunas complejidades técnicas como la seguridad.
+
+Las fuerzas y restricciones clave que impulsan esta decisión son:
+1. **Reutilización de la lógica existente:** El árbol decisional ya está implementado en C++ y se busca reutilizarlo sin reescribirlo ni convertirlo en un servicio independiente.
+2. **Simplicidad de la integración:** Al ser un proyecto demostrativo, la conexión entre el frontend y el árbol decisional debe ser sencilla y proporcional al alcance del proyecto.
+3. **Separación de responsabilidades:** El árbol decisional debe concentrarse únicamente en el análisis de los datos recibidos, mientras que la gestión de los datos y la comunicación con la base de datos corresponde al backend.
+
+
 ## Decisión
- 
-Vamos a utilizar Emscripten para compilar el arbol C++ a WebAssembly y ejecutarla desde el frontend mediante JavaScript. Esto nos permitirá a posterior, reutilizar la lógica existente en C++ sin convertirla en un servicio independiente. Por otro lado, la comunicación necesaria con la base de datos se realizará mediante una implementacion en el backend con un modulo en principio sencillo que funcione como intermediario, obteniendo y enviando los datos necesarios hacia el frontend. Así el arbol se concentra puramente en el analisis dados los datos y el backend en cuestión, la gestión de datos manteniendo una integración sencilla para el alcance del proyecto.
- 
+
+Vamos a utilizar Emscripten como único mecanismo de integración entre el frontend y el backend.
+
+
 ## Alternativas consideradas
- 
-APIs C++: descartadas por requerir un servicio adicional y mayor complejidad de la necesaria para nuestra implementacion.
-Ejecutable C++: descartado por ser menos práctico para en aplicaciones web.
-Biblioteca C++ en backend: descartada porque acopla el backend a C++ y requiere mayor integración.
- 
+
+- **APIs C++:** Se descartaron en favor del uso exclusivo de Emscripten, ya que requerirían un servicio adicional y una complejidad mayor a la necesaria para esta implementación.
+- **Ejecutable C++:** Se descartó por ser menos práctico para aplicaciones web.
+- **Biblioteca C++ en el backend:** Se descartó porque acopla el backend a C++ y requiere una integración más compleja.
+
+
 ## Consecuencias
- 
-Se reutiliza el arbol existente y se simplifica su integración con el frontend. Como costo, el equipo debe aprender un sistema nuevo Emscripten y adaptar parte del código C++ para WebAssembly.
+
+### Positivas (+)
+- **Reutilización del árbol decisional:** Se aprovecha la lógica ya desarrollada en C++ sin convertirla en un servicio independiente.
+- **Integración simplificada:** El frontend ejecuta directamente el árbol decisional mediante JavaScript, sin necesidad de mantener un servicio adicional.
+- **Separación de responsabilidades:** El árbol decisional se concentra en el análisis de los datos y el backend en su gestión.
+
+### Negativas / Desafíos (-)
+- **Curva de aprendizaje:** El equipo debe aprender a utilizar Emscripten, una herramienta nueva para el proyecto.
+- **Adaptación del código:** Es necesario adaptar parte del código C++ para que pueda compilarse a WebAssembly.
