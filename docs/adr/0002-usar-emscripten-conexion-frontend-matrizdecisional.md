@@ -13,7 +13,7 @@ Aceptado
 
 ## Contexto
 
-El árbol decisional estará desarrollado en C++ y debe integrarse con un frontend web desarrollado con Tailwind CSS. El proyecto es demostrativo y requiere una integración simple, preparada para un alto flujo de datos, dejando de lado deliberadamente algunas complejidades técnicas como la seguridad.
+El árbol decisional estará desarrollado en C++ y debe integrarse con un frontend web desarrollado con un entorno JS con tailwind CSS. El proyecto es demostrativo y requiere una integración simple, preparada para un alto flujo de datos, dejando de lado deliberadamente algunas complejidades técnicas como la seguridad.
 
 Las fuerzas y restricciones clave que impulsan esta decisión son:
 1. **Reutilización de la lógica existente:** El árbol decisional ya está implementado en C++ y se busca reutilizarlo sin reescribirlo ni convertirlo en un servicio independiente.
