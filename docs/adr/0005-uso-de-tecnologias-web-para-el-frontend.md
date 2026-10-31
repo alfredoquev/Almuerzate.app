@@ -14,7 +14,7 @@ consultar información e interactuar con el sistema. Su desarrollo debe
 considerar la integración con el backend y las condiciones de uso de la
 aplicación:
 
--   **Integración con el backend:** el frontend debe permitir la
+-   **Integración con el backend:** el front-end debe permitir la
     comunicación con el backend desarrollado en C++, cuya integración
     con JavaScript se realiza mediante PHP, según
     lo establecido en el ADR-0002.
@@ -26,7 +26,7 @@ aplicación:
 
 ## Decisión
 
-Vamos a desarrollar el frontend como una aplicación web utilizando HTML,
+Vamos a desarrollar el front-end como una aplicación web utilizando HTML,
 JavaScript y CSS. Se mantiene Tailwind CSS como framework de estilos, de
 acuerdo con la decisión registrada en el ADR-0003.
 
@@ -51,7 +51,7 @@ acuerdo con la decisión registrada en el ADR-0003.
 -   La interfaz podrá utilizarse desde un navegador web, sin requerir la
     instalación de una aplicación móvil.
 -   El equipo tendrá control directo sobre la estructura, el
-    comportamiento y los estilos del frontend.
+    comportamiento y los estilos del front-end.
 -   Se utilizarán tecnologías conocidas por el equipo de desarrollo.
 -   La integración con el backend podrá realizarse mediante JavaScript y
     el mecanismo definido en el ADR-0002.
