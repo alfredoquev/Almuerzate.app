@@ -12,7 +12,7 @@ Propuesto
 
 ## Contexto
 
-El backend y el árbol decisional están desarrollados en C++ y se ejecutan en el servidor. El frontend es una página web que debe recibir la información requerida para mostrarla a cada estudiante. El proyecto es demostrativo y requiere una integración simple, dejando de lado deliberadamente algunas complejidades técnicas.
+El backend y el árbol decisional están desarrollados en C++ y se ejecutan en el servidor. El frontend es una página web que debe recibir la información requerida para mostrarla a cada usuario. El proyecto es demostrativo y requiere una integración simple, dejando de lado deliberadamente algunas complejidades técnicas.
 
 Las fuerzas y restricciones clave que impulsan esta decisión son:
 1. **Reutilización de la lógica existente:** El árbol decisional ya está implementado en C++ y se busca reutilizarlo sin reescribirlo.
