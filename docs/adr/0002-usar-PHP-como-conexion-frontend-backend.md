@@ -21,11 +21,11 @@ Las fuerzas y restricciones clave que impulsan esta decisión son:
 
 ## Decisión
 
-Vamos a ejecutar el backend en C++ en el servidor y a utilizar PHP para enviar al cliente la información requerida, la cual el frontend presenta en una página web.
+Vamos a integrar el frontend con el backend enviando desde el servidor, mediante PHP, únicamente los datos requeridos por el cliente para su visualización.
 
 ## Alternativas consideradas
 
-- **Emscripten:** Se descartó porque requiere ejecutar el código C++ dentro del cliente, y el backend debe ejecutarse en el servidor.
+- **Emscripten:** Se descartó porque requiere ejecutar el código C++ dentro del cliente, y el backend se ejecutara en el servidor.
 - **Bibliotecas en C++:** Se descartaron porque acoplan la conexión con el frontend a C++, requieren una integración más compleja que PHP.
 
 ## Consecuencias
@@ -36,4 +36,4 @@ Vamos a ejecutar el backend en C++ en el servidor y a utilizar PHP para enviar a
 
 ### Negativas / Desafíos (-)
 - **Curva de aprendizaje:** El equipo debe aprender PHP, una tecnología nueva para el proyecto.
-- **Vulnerabilidades de seguridad:** La conexión con PHP puede estar sujeta a vulnerabilidades de seguridad.
+- **Vulnerabilidades de seguridad:** La conexión con PHP puede estar sujeta a vulnerabilidades de seguridad en caso de una mala implementacion.
