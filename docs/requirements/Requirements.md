@@ -1,6 +1,6 @@
 ## Requerimiento 1
 
-- El sistema debe asignar a cada estudiante beneficiario un comedor para cada día de la semana.
+- El sistema debe asignar a cada estudiante beneficiario un comedor para cada día de la semana, y esa asignación debe mantenerse constante hasta el final del semestre
 
 ## Requerimiento 2
 
