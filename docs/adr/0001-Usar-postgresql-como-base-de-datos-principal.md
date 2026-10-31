@@ -28,7 +28,7 @@ Vamos a utilizar PostgreSQL como el sistema de gestión de base de datos relacio
 ## Alternativas consideradas
 
 - **MySQL / MariaDB:** Se evaluó por su alta popularidad; sin embargo, se descartó frente a PostgreSQL debido a que este último ofrece capacidades avanzadas superiores para el manejo de consultas complejas, extensiones robustas y un soporte más estricto de los estándares SQL, lo cual beneficia la lógica intensiva operada desde C++.
-- **SQLite:** Se consideró por su simplicidad al no requerir un servidor dedicado; se descartó porque no está optimizado para soportar la concurrencia de escrituras y lecturas concurrentes que la aplicación podría exigir en entornos de producción.
+- **SQLite:** Se consideró por su simplicidad al no requerir un servidor dedicado; se descartó porque no está optimizado para soportar la concurrencia de escrituras y lecturas concurrentes que la aplicación podría exigir en entornos de producción como el que idealiza el proyecto.
 - **MongoDB (NoSQL):** Se valoró por su flexibilidad en los esquemas; se descartó debido a que la naturaleza de la información (registros institucionales, usuarios y asignaciones) demanda relaciones altamente estructuradas y transacciones atómicas rigurosas (ACID).
 
 
