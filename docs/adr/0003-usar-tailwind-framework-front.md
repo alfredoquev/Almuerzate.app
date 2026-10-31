@@ -29,7 +29,7 @@ Vamos a utilizar Tailwind CSS como la solución principal para la maquetación e
 * Dear ImGui: Se consideró por su alto rendimiento en C++ nativo. Se descartó porque su enfoque visual en modo inmediato dificulta la creación de una interfaz comercial moderna y requiere trabajo manual.
 ## Consecuencias
  ### Positivas (+)
-* Integración sencilla de estadísticas: Permite utilizar directamente librerías de gráficos en JS (como Chart.js, Recharts o Tremor) alimentadas por los datos procesados por el backend C++.
+* Integración sencilla de estadísticas: Permite utilizar directamente librerías de gráficos en JS (como Chart.js) alimentadas por los datos procesados por el backend C++.
 * Bajo impacto en rendimiento: Tailwind genera en la compilación solo las clases utilizadas y no requiere JavaScript en el navegador, por lo que el CSS resultante es pequeño y estático.
 * Ecosistema robusto: Facilita la integración futura de bibliotecas de componentes modernos y sistemas de diseño reutilizables.
 
