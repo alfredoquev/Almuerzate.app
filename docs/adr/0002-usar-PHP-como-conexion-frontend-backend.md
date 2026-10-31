@@ -12,7 +12,9 @@ Aceptado
 
 ## Contexto
 
-El backend y el árbol decisional están desarrollados en C++ y se ejecutan en el servidor. El front-end es una página web que debe recibir la información requerida para mostrarla a cada usuario. El proyecto es demostrativo y requiere una integración simple, dejando de lado deliberadamente algunas complejidades técnicas.
+Vamos a integrar el front-end con el backend mediante PHP, que se ejecuta en
+el servidor, invoca el ejecutable en C++ (árbol decisional) y envía al
+cliente únicamente los datos requeridos para su visualización.
 
 Las fuerzas y restricciones clave que impulsan esta decisión son:
 1. **Reutilización de la lógica existente:** El árbol decisional ya está implementado en C++ y se busca reutilizarlo sin reescribirlo.
@@ -33,7 +35,12 @@ Vamos a integrar el front-end con el backend enviando desde el servidor, mediant
 ### Positivas (+)
 - **Mejor manejo de la conexión cliente-servidor:** PHP provee un mecanismo definido para enviar la información del servidor al cliente.
 - **Sistema más común y mejor documentado:** PHP es una tecnología ampliamente utilizada y cuenta con abundante documentación.
+- **Reutilización directa del C++:** el árbol decisional se usa tal como
+  está, sin reescribirlo ni exponerlo como servicio.
 
 ### Negativas / Desafíos (-)
 - **Curva de aprendizaje:** El equipo debe aprender PHP, una tecnología nueva para el proyecto.
-- **Vulnerabilidades de seguridad:** La conexión con PHP puede estar sujeta a vulnerabilidades de seguridad en caso de una mala implementacion.
+- **Costo por ejecución:** cada solicitud lanza un proceso del backend,
+  lo que puede penalizar el rendimiento con alto flujo de datos.
+- **Validación de argumentos:** los parámetros que PHP pasa al ejecutable
+  deben validarse para evitar inyección de comandos.
