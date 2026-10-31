@@ -22,7 +22,7 @@
 
 ## 1. TL;DR
 
-Buscamos crear una aplicación que sirva como **sistema de asignación de comedores** en la Universidad Nacional de Colombia. El sistema priorizará tres cosas:
+Buscamos crear una aplicación que sirva como **sistema de asignación de comedores** en la Universidad Nacional de Colombia. El sistema priorizará seis criterios:
 
 - el **aforo** de cada comedor,
 - las **preferencias de comedor** de cada estudiante,
