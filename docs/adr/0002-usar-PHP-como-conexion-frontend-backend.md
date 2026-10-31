@@ -21,7 +21,7 @@ Las fuerzas y restricciones clave que impulsan esta decisión son:
 
 ## Decisión
 
-Vamos a ejecutar el backend en C++ en el servidor y a utilizar PHP para enviar al cliente la información requerida, la cual el frontend presenta en una página web. Este ADR reemplaza al ADR-0002.
+Vamos a ejecutar el backend en C++ en el servidor y a utilizar PHP para enviar al cliente la información requerida, la cual el frontend presenta en una página web.
 
 ## Alternativas consideradas
 
