@@ -21,7 +21,7 @@ Las fuerzas y restricciones clave que impulsan esta decisión son:
 
 ## Decisión
 
-Vamos a integrar el frontend con el backend enviando desde el servidor, mediante PHP, únicamente los datos requeridos por el cliente para su visualización.
+Vamos a integrar el frontend con el backend enviando desde el servidor, mediante PHP, únicamente los datos requeridos por el cliente para su visualización obtenidos del arbol desicional en c++.
 
 ## Alternativas consideradas
 
