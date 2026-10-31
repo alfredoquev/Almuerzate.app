@@ -5,7 +5,7 @@ Autores: - @amadodev07 - @juanfpg1 - @xedroc422 - @alfredoquev -
 
 ## Estado
 
-Propuesto
+Aceptado
 
 ## Contexto
 
