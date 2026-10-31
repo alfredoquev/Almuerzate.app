@@ -25,7 +25,10 @@
 Buscamos crear una aplicación que sirva como **sistema de asignación de comedores** en la Universidad Nacional de Colombia. El sistema priorizará tres cosas:
 
 - el **aforo** de cada comedor,
-- las **preferencias** de cada estudiante,
+- las **preferencias de comedor** de cada estudiante,
+- las **discapacidades** del estudiante (en caso de haber),
+- el **horario** del estudiante cada dia,
+- las **preferencias alimentarias** de cada estudiante,
 - y su **ubicación relativa** a cada comedor.
 
 ---
