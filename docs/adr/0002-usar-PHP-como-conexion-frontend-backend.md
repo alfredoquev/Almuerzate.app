@@ -25,7 +25,7 @@ Vamos a ejecutar el backend en C++ en el servidor y a utilizar PHP para enviar a
 
 ## Alternativas consideradas
 
-- **Emscripten (ADR-0002):** Se descartó porque requiere ejecutar el código C++ dentro del cliente, y el backend debe ejecutarse en el servidor.
+- **Emscripten:** Se descartó porque requiere ejecutar el código C++ dentro del cliente, y el backend debe ejecutarse en el servidor.
 - **Bibliotecas en C++:** Se descartaron porque acoplan la conexión con el frontend a C++, requieren una integración más compleja que PHP.
 
 ## Consecuencias
