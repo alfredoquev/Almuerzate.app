@@ -1,7 +1,7 @@
 # ADR-0005: Uso de tecnologías web para el frontend
 
 Autores: - @amadodev07 - @juanfpg1 - @xedroc422 - @alfredoquev -
-@julondono07 Fecha: 2026-10-29
+@julondono07 Fecha: 2026-10-30
 
 ## Estado
 
@@ -32,9 +32,12 @@ acuerdo con la decisión registrada en el ADR-0003.
 
 ## Alternativas consideradas
 
--   **React y Vue:** se descartaron por la complejidad adicional y la
-    curva de aprendizaje que supondría incorporarlos al desarrollo del
-    frontend.
+-   **React y Vue:** se descartaron porque el alcance de la interfaz es
+    acotado y los datos llegan ya procesados desde el servidor, por lo
+    que no se requiere la gestión de estado ni la estructura de
+    componentes que estos frameworks ofrecen. Incorporarlos añadiría
+    complejidad y curva de aprendizaje sin un beneficio proporcional.
+    
 -   **React Native:** se descartó porque está orientado al desarrollo de
     aplicaciones móviles, mientras que el proyecto requiere una interfaz
     web accesible desde un navegador. Además, su distribución y
