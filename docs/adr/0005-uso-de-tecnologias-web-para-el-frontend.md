@@ -58,7 +58,7 @@ acuerdo con la decisión registrada en el ADR-0003.
     instalación de una aplicación móvil.
 -   El equipo tendrá control directo sobre la estructura, el
     comportamiento y los estilos del front-end.
--   Se utilizarán tecnologías conocidas por el equipo de desarrollo.
+-   Se utilizarán HTML, JavaScript y CSS, tecnologías estándar y ampliamente documentadas.
 -   La integración con el backend podrá realizarse mediante JavaScript y
     el mecanismo definido en el ADR-0002.
 
