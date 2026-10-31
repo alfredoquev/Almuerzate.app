@@ -1,11 +1,17 @@
 # ADR-0005: Uso de tecnologías web para el frontend
 
-Autores: - @amadodev07 - @juanfpg1 - @xedroc422 - @alfredoquev -
-@julondono07 Fecha: 2026-10-29
+Autores: 
+- @amadodev07
+- @juanfpg1
+- @xedroc422
+- @alfredoquev
+- @julondono07
+  
+Fecha: 2026-10-30
 
 ## Estado
 
-Propuesto
+Aceptado
 
 ## Contexto
 
@@ -14,9 +20,9 @@ consultar información e interactuar con el sistema. Su desarrollo debe
 considerar la integración con el backend y las condiciones de uso de la
 aplicación:
 
--   **Integración con el backend:** el frontend debe permitir la
+-   **Integración con el backend:** el front-end debe permitir la
     comunicación con el backend desarrollado en C++, cuya integración
-    con JavaScript se realiza mediante Emscripten y WebAssembly, según
+    con JavaScript se realiza mediante PHP, según
     lo establecido en el ADR-0002.
 -   **Accesibilidad:** la interfaz debe estar disponible para los
     usuarios sin exigir la instalación de una aplicación móvil.
@@ -26,15 +32,18 @@ aplicación:
 
 ## Decisión
 
-Vamos a desarrollar el frontend como una aplicación web utilizando HTML,
+Vamos a desarrollar el front-end como una aplicación web utilizando HTML,
 JavaScript y CSS. Se mantiene Tailwind CSS como framework de estilos, de
 acuerdo con la decisión registrada en el ADR-0003.
 
 ## Alternativas consideradas
 
--   **React y Vue:** se descartaron por la complejidad adicional y la
-    curva de aprendizaje que supondría incorporarlos al desarrollo del
-    frontend.
+-   **React y Vue:** se descartaron porque el alcance de la interfaz es
+    acotado y los datos llegan ya procesados desde el servidor, por lo
+    que no se requiere la gestión de estado ni la estructura de
+    componentes que estos frameworks ofrecen. Incorporarlos añadiría
+    complejidad y curva de aprendizaje sin un beneficio proporcional.
+    
 -   **React Native:** se descartó porque está orientado al desarrollo de
     aplicaciones móviles, mientras que el proyecto requiere una interfaz
     web accesible desde un navegador. Además, su distribución y
@@ -48,8 +57,8 @@ acuerdo con la decisión registrada en el ADR-0003.
 -   La interfaz podrá utilizarse desde un navegador web, sin requerir la
     instalación de una aplicación móvil.
 -   El equipo tendrá control directo sobre la estructura, el
-    comportamiento y los estilos del frontend.
--   Se utilizarán tecnologías conocidas por el equipo de desarrollo.
+    comportamiento y los estilos del front-end.
+-   Se utilizarán HTML, JavaScript y CSS, tecnologías estándar y ampliamente documentadas.
 -   La integración con el backend podrá realizarse mediante JavaScript y
     el mecanismo definido en el ADR-0002.
 
