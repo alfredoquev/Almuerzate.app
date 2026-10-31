@@ -35,6 +35,6 @@ Vamos a utilizar Tailwind CSS como la solución principal para la maquetación e
 * Ecosistema robusto: Facilita la integración futura de bibliotecas de componentes modernos y sistemas de diseño reutilizables.
 
 ### Negativas / Desafíos (-)
-* Acoplamiento al entorno Web: Requiere mantener una capa de comunicación (IPC, WebSockets o bindings) entre JavaScript y la lógica nativa en C++.
+* Acoplamiento al entorno Web: Requiere mantener una capa de comunicación entre JavaScript y la lógica en C++, que se implementa con PHP según lo establecido en el ADR-0002.
 
    
