@@ -1,4 +1,4 @@
-# ADR-0004: Implementación de árbol de decisiones en C++
+# ADR-0004: Usar C++ para el backend y el árbol decisional
 
 Autores:
 - @amadodev07
@@ -7,7 +7,7 @@ Autores:
 - @alfredoquev
 - @julondono07
 
-Fecha: 2026-09-12
+Fecha: 2026-10-30
 
 ## Estado
 
@@ -26,7 +26,7 @@ Las fuerzas y restricciones clave que impulsan esta decisión son:
 
 ## Decisión
 
-Vamos a utilizar C++ como lenguaje para el backend y la implementación del árbol decisional, que se ejecutará en el servidor.
+Vamos a utilizar C++ como lenguaje del backend, incluido el árbol decisional, que se ejecutará en el servidor.
 
 
 ## Alternativas consideradas
