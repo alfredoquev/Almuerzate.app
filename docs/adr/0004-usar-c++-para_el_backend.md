@@ -26,7 +26,7 @@ Las fuerzas y restricciones clave que impulsan esta decisión son:
 
 ## Decisión
 
-Vamos a utilizar C++ como lenguaje para el backend y la implementación del árbol decisional.
+Vamos a utilizar C++ como lenguaje para el backend y la implementación del árbol decisional, que se ejecutará en el servidor.
 
 
 ## Alternativas consideradas
@@ -39,9 +39,8 @@ Vamos a utilizar C++ como lenguaje para el backend y la implementación del árb
 ### Positivas (+)
 - **Manejo de datos y estructuras:** C++ permite una mejor implementación de estructuras de datos y el manejo de grandes cantidades de datos, como resultado del control de memoria que ofrece.
 - **Afinidad del equipo:** El equipo de trabajo conoce el lenguaje, lo que facilita el desarrollo de la aplicación.
-- **Compatibilidad con el navegador:** C++ se utiliza comúnmente en aplicaciones de navegador junto con cadenas de herramientas de compilación, lo que permite escribir código de bajo nivel e intensivo en rendimiento sin interactuar directamente con WebAssembly.
 
 ### Negativas / Desafíos (-)
 - **Complejidad en las estructuras de datos:** C++ tiene cierta complejidad en el manejo de estructuras de datos, por lo que es necesario implementarlas adecuadamente.
-- **Conexión con el frontend:** Es necesario implementar una correcta conexión con el frontend mediante Emscripten, de acuerdo con lo establecido en el ADR-0002.
+- **Conexión con el frontend:** Es necesario implementar una correcta conexión con el frontend mediante PHP, de acuerdo con lo establecido en el ADR-0002.
  
