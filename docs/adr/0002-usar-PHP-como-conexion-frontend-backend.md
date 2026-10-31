@@ -12,21 +12,21 @@ Aceptado
 
 ## Contexto
 
-El backend y el árbol decisional están desarrollados en C++ y se ejecutan en el servidor. El frontend es una página web que debe recibir la información requerida para mostrarla a cada usuario. El proyecto es demostrativo y requiere una integración simple, dejando de lado deliberadamente algunas complejidades técnicas.
+El backend y el árbol decisional están desarrollados en C++ y se ejecutan en el servidor. El front-end es una página web que debe recibir la información requerida para mostrarla a cada usuario. El proyecto es demostrativo y requiere una integración simple, dejando de lado deliberadamente algunas complejidades técnicas.
 
 Las fuerzas y restricciones clave que impulsan esta decisión son:
 1. **Reutilización de la lógica existente:** El árbol decisional ya está implementado en C++ y se busca reutilizarlo sin reescribirlo.
-2. **Simplicidad de la integración:** La conexión entre el frontend y el backend debe ser sencilla y proporcional al alcance del proyecto.
-3. **Separación de responsabilidades:** El backend se encarga del análisis y la gestión de los datos, y el frontend de su visualización.
+2. **Simplicidad de la integración:** La conexión entre el front-end y el backend debe ser sencilla y proporcional al alcance del proyecto.
+3. **Separación de responsabilidades:** El backend se encarga del análisis y la gestión de los datos, y el front-end de su visualización.
 
 ## Decisión
 
-Vamos a integrar el frontend con el backend enviando desde el servidor, mediante PHP, únicamente los datos requeridos por el cliente para su visualización obtenidos del arbol desicional en c++.
+Vamos a integrar el front-end con el backend enviando desde el servidor, mediante PHP, únicamente los datos requeridos por el cliente para su visualización obtenidos del arbol desicional en c++.
 
 ## Alternativas consideradas
 
 - **Emscripten:** Se descartó porque requiere ejecutar el código C++ dentro del cliente, y el backend se ejecutará en el servidor.
-- **Bibliotecas en C++:** Se descartaron porque acoplan la conexión con el frontend a C++, requieren una integración más compleja que PHP.
+- **Bibliotecas en C++:** Se descartaron porque acoplan la conexión con el front-end a C++, requieren una integración más compleja que PHP.
 
 ## Consecuencias
 
