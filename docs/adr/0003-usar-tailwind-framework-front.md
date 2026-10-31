@@ -1,13 +1,12 @@
-# ADR-0003: Uso de Tailwind como Framework para el Font-End
+# ADR-0003: Uso de Tailwind como Framework para el Front-End
  
  
 Autores:
  - @amadodev07
  - @juanfpg1
 
-Fecha: 2026-09-12 
+Fecha: 2026-10-30 
 ## Estado
- 
  
 Aceptado
  
@@ -31,7 +30,7 @@ Vamos a utilizar Tailwind CSS como la solución principal para la maquetación e
 ## Consecuencias
  ### Positivas (+)
 * Integración sencilla de estadísticas: Permite utilizar directamente librerías de gráficos en JS (como Chart.js, Recharts o Tremor) alimentadas por los datos procesados por el backend C++.
-* Cero impacto en rendimiento: El CSS final es ultraligero y solo incluye las clases utilizadas.
+* Bajo impacto en rendimiento: Tailwind genera en la compilación solo las clases utilizadas y no requiere JavaScript en el navegador, por lo que el CSS resultante es pequeño y estático.
 * Ecosistema robusto: Facilita la integración futura de bibliotecas de componentes modernos y sistemas de diseño reutilizables.
 
 ### Negativas / Desafíos (-)
