@@ -25,7 +25,7 @@ Vamos a integrar el frontend con el backend enviando desde el servidor, mediante
 
 ## Alternativas consideradas
 
-- **Emscripten:** Se descartó porque requiere ejecutar el código C++ dentro del cliente, y el backend se ejecutara en el servidor.
+- **Emscripten:** Se descartó porque requiere ejecutar el código C++ dentro del cliente, y el backend se ejecutará en el servidor.
 - **Bibliotecas en C++:** Se descartaron porque acoplan la conexión con el frontend a C++, requieren una integración más compleja que PHP.
 
 ## Consecuencias
