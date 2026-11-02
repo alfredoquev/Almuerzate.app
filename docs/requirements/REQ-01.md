@@ -20,7 +20,7 @@ HOW TO USE THIS TEMPLATE
 | **Status** | Draft |
 | **Team / Author(s)** | @amadodev07, @juanfpg1, @xedroc422, @alfredoquev y @julondono07 |
 | **Date** | 2026-01-11 |
-| **Linked User Story / AC** |  |
+| **Linked User Story / AC** | US-01; AC-01; AC-02 |
 
 ---
 
@@ -83,7 +83,7 @@ HOW TO USE THIS TEMPLATE
 ## 4. Representations — Requirement ≠ Representation
 
 ### 4.1 User Story
-
+**US-01**
 > Como **Estudiante**,
 > Quiero **ser asignad@ un comedor cada día de la semana**,
 > Para que **sea el que esté en mejores condiciones cuando vaya a el**.
@@ -92,12 +92,12 @@ HOW TO USE THIS TEMPLATE
 
 *(At least two scenarios: one normal path, one alternative or exception.)*
 
-**Scenario 1 — Comedor disponible**
+**Scenario 1 — Comedor disponible [AC-01]**
 > **Dado** un comedor que no esté lleno
 > **Cuando** se vaya a asignar comedores para toda la semana
 > **Entonces** se asigna el comedor a un estudiante
 
-**Scenario 2 — Comedor lleno**
+**Scenario 2 — Comedor lleno [AC-02]**
 > **Dado** un comedor que esté lleno
 > **Cuando** se vaya a asignar comedores para toda la semana
 > **Entonces** no se podrá asignar el comedor y se opta por otro
@@ -106,7 +106,7 @@ HOW TO USE THIS TEMPLATE
 
 | Field | |
 |---|---|
-| **Use Case name** | Ver comedores asignados |
+| **Use Case name** | Ver comedores asignados [UC-01] |
 | **Actor** | Estudiante beneficiario |
 | **Goal** | Hacer conocer al estudiante el comedor al que deberá ir en cada día de la semana |
 | **Trigger** | El estudiante consulta sus comedores asignados |
