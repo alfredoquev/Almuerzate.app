@@ -62,7 +62,11 @@ HOW TO USE THIS TEMPLATE
 **Dependenc(ies)**
 > El momento en el que entren en efecto los subsidios de alimentación dentro de la Universidad Nacional de Colombia sede Bogotá.
 
-> El acceso brindado a la información de cuáles estudiantes son beneficiarios por parte de las entidades correspondientes. 
+> El acceso brindado a la información de cuáles estudiantes son beneficiarios por parte de las entidades correspondientes.
+
+> Requerimientos desde REQ-01 hasta REQ-06
+
+> BR-01 y BR-02
 
 **Risk(s)**
 
