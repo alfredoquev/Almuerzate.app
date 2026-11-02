@@ -13,33 +13,32 @@ HOW TO USE THIS TEMPLATE
    reference before you start.
 -->
 
-# [REQ-ID] — [Short Requirement Title]
+# [REQ-10] — [Mostrar asignaciones de comedores]
 
 | | |
 |---|---|
-| **Status** | Draft / Validated / Open Question |
-| **Team / Author(s)** | |
-| **Date** | |
-| **Linked User Story / AC** | |
+| **Status** | Draft |
+| **Team / Author(s)** | @amadodev07, @juanfpg1, @xedroc422, @alfredoquev y @julondono07 |
+| **Date** | 2026-01-11 |
+| **Linked User Story / AC** | US-01 |
 
 ---
 
 ## 1. Overview
 
 **Requirement Statement**
-> The system shall [capability/behavior] [under what condition, if applicable].
+> El sistema debe permitir mostrarle a los estudiantes beneficiarios sus asignaciones de comedor para el periodo de asignacion vigente.
 
-**Type:** Functional / Non-functional
-*(Classified using the Perfect Technology Filter from Class 8: imagine a perfect computer — infinite speed, unlimited memory, zero failures, zero cost. Would this requirement still matter? Yes → likely functional. The limitation disappears with perfect technology → likely non-functional.)*
+**Type:** Functional
 
 **Source / Evidence**
-> Where did this come from? (stakeholder, interview, workshop, existing system, regulation — reference your Class 8 Discovery Sheet entry if you have one)
+> Entrevista con los stakeholders realizada en clase: es necesario que el sistema asigne a los estudiantes beneficiarios comedores para cada día de la semana
 
 **Need**
-> What is the underlying need, stated as a goal — not a solution? (e.g. "know when my order will arrive," not "build a GPS map")
+> Los estudiantes beneficiarios necesitan conocer el comedor al que fueron asignados para poder ir a el
 
 **Value / Rationale**
-> Why does this requirement matter? What becomes better for the user/business if it's satisfied? *(This is usually the same as the "so that" of your User Story below — write it once and reuse it, don't rewrite it from scratch.)*
+> Hacer conocer a cada estudiante beneficiario el comedor al que debe ir en cada día de la semana
 
 ---
 
@@ -48,66 +47,71 @@ HOW TO USE THIS TEMPLATE
 *(Class 10. Fill honestly — "N/A — none identified" is a valid, expected answer for several of these.)*
 
 **Business Rule(s)**
-> What rule(s) exist in the business/domain, independent of software, that this requirement supports or enforces? Remember: Business Rule ≠ Software Requirement — not every rule needs one.
+> BR-01 La asignación de comedores a los estudiantes beneficiarios debe tener frecuencia diaria.
+
+> BR-02 Las asignaciones solo se pueden realizar mientras esté cursando un semestre académico.
 
 **Constraint(s)**
-> What limits how this requirement can be solved (regulation, existing technology, contract, interoperability, organizational policy)? A constraint reduces the available design space — it doesn't describe what must be satisfied, it describes what limits the solution.
+> Los periodos de asignación vigentes cubren solo la semana en curso.
+
+> Solo los estudiantes beneficiarios reciben asignación de comedores por cada día de la semana.
+
+> Solo habrá asignaciones durante el transcurso del semestre académico y luego de recibir la información sobre estudiantes beneficiarios.
 
 **Assumption(s)**
-> What are we currently treating as true, without full verification, to keep moving? (Assumption ≠ Fact.)
+> N/A - ninguna identificada
 
 **Dependenc(ies)**
-> What does this requirement rely on to be satisfied (another requirement, an external system/API, a data source, a third party, an organizational process)?
+> REQ-01.
+
+> Información recibida sobre estudiantes beneficiarios.
+
+> Información persistida sobre las asignaciones de comedores.
+
+> BR-01; BR-02.
+
+> Intervalo cubierto por los periodos de asignación vigentes.
 
 **Risk(s)**
-> What uncertain event or condition could negatively affect this requirement or its delivery? For each risk, note a rough Likelihood and Impact (High / Medium / Low) and, if you have one, a brief mitigation note.
 
 | Risk | Likelihood | Impact | Mitigation (optional) |
 |---|---|---|---|
-| | | | |
+| El acceso a los datos de asignación de comedores no es posible por un error en el backend | Low | High | Se muestra un mensaje de error, y se reintenta conseguir los datos periodicamente |
 
 **Open Questions**
-> Anything still unresolved — ambiguity, a question no stakeholder has answered yet, a missing piece of evidence. List it here instead of guessing.
-
+> ¿Qué representación se usará para el horario de comedores de un estudiante?
 ---
 
 ## 3. Priority & Estimation
 
-**Priority model used:** MoSCoW / Kano / RICE / WSJF / Value-Effort *(pick the one that fits the decision you're actually making — see Class 10's comparison if you need to decide which)*
+**Priority model used:** MoSCoW
 
-**Priority assigned:**
-> Because [the situation/signal from your project], we assigned [priority value], accepting the trade-off of [what you're giving up by not prioritizing it higher/lower]. We considered [alternative priority] and didn't use it because [reason].
+**Priority assigned:** Must
+> Debido a que los estudiantes deben saber a qué comedor ir, se asignó la prioridad Must, aceptando el trade-off de no comunicar de forma efectiva información crítica para el estudiante si se le asigna una prioridad menor. Se consideró Should y no se usó debido a que no hay otra alternativa más que dar a conocer los comedores asignados que igual permita cumplir con la motivación del sistema.
 
-**Estimate (confidence):** High / Medium / Low
-> How sure are we about the size and shape of this work? *(This is a confidence tag, not a technique-based number — named estimation techniques like story points are Ingeniería de Software II content, not this course.)*
+**Estimate (confidence):** High
 
 ---
 
 ## 4. Representations — Requirement ≠ Representation
 
-*(Class 9. Each representation reveals different information. Fill in all three below — for this capstone requirement, all three are required.)*
-
 ### 4.1 User Story
 
-> As a **[role]**,
-> I want **[capability]**,
-> so that **[value]**.
-
-*Check yourself: is the "I want" describing the need, or already prescribing a solution?*
+> Como **estudiante beneficiario**,
+> Quiero **poder ver mis comedores asignados**,
+> Para **saber a que comedor ir**.
 
 ### 4.2 Acceptance Criteria
 
-*(At least two scenarios: one normal path, one alternative or exception.)*
+**Scenario 1 — Hay asignaciones disponibles [AC-03]**
+> **Dado** que el estudiante tiene asignaciones disponibles para un periodo vigente
+> **Cuando** consulta sus asignaciones
+> **Entonces** se muestran las asignaciones para esa semana
 
-**Scenario 1 — [short name]**
-> **Given** [context]
-> **When** [event/stimulus]
-> **Then** [observable outcome]
-
-**Scenario 2 — [short name, alternative or exception]**
-> **Given** [context]
-> **When** [event/stimulus]
-> **Then** [observable outcome]
+**Scenario 2 — No hay un periodo vigente [AC-04]**
+> **Dado** que no hay un periodo de asignación vigente
+> **Cuando** un estudiante consulta sus asignaciones
+> **Entonces** se informa que no hay ningún periodo de asignación vigente
 
 ### 4.3 Use Case
 
@@ -126,13 +130,13 @@ HOW TO USE THIS TEMPLATE
 
 **Alternative Flow**
 > Los comedores no han sido asignados aún → El sistema informa al estudiante que aún no se le ha brindado el subsidio alimentario.
-> El semestre ya acabó → El sistema informa al estudiante que ningún semestre está siendo cursado actualmente y que las asignaciones continuarán hasta el siguiente semestre.
+> No hay un periodo de asignación vigente → El sistema informa al estudiante que actualmente no se están realizando asignaciones de comedores.
 
 **Exception**
 > No se pudo obtener los comedores asignados desde el backend → No se muestra el horario de comedores y se redirige a una página con el código del error que llevó a este resultado. (códigos de estado HTTP)
 
 **Postcondition**
-> El estudiante beneficiario puede ver sus comedores asignados cuando ya se hayan realizado las asignaciones y entren en efecto los subsidios de alimentación.
+> El estudiante beneficiario puede ver sus comedores asignados cuando se hayan realizado las asignaciones y entren en efecto los subsidios de alimentación.
 
 **Flow Diagram**
 
@@ -147,7 +151,7 @@ flowchart TD
     E --> I(["No se muestran ningún comedor asignado"])
     D -- "No se pudo obtener los comedores asignados" --> F["No se muestra el horario de comedores"]
     F --> J(["Se redirige a una página con código de error"])
-    D -- "No hay ningún semestre en curso" --> K["Se informa que ningún semestre está en curso y que las asignaciones siguen el siguiente semestre"]
+    D -- "No hay un periodo de asignación vigente" --> K["Se informa que actualmente no se están realizando asignaciones de comedores"]
     K --> I
 
     classDef mainflow fill:#1E2761,color:#ffffff,stroke:#1E2761;
@@ -163,26 +167,24 @@ flowchart TD
 
 ## 5. Traceability & Impact
 
-*(Class 10. Conceptual, not a formal matrix.)*
-
 **Backward — why does this requirement exist?**
-> Evidence → Need → Requirement. Point to the specific evidence/need entries that justify this requirement (from your Discovery Sheet).
+> Los stakeholders informan que es necesario realizar asignaciones de comedores para cada día de la semana → Si a un estudiante se le asigna un comedor, debe ser capaz de saber cuál es para ir a el → El sistema debe permitir mostrarle a los estudiantes beneficiarios sus asignaciones de comedor para el periodo de asignacion vigente [REQ-10](docs/requirements/Requirements.md).
 
 **Forward — what will this affect?**
-> Requirement → future Design → Implementation → Tests. *(It's fine if Design hasn't happened yet — note what you expect this to touch once it does, and update this section once Class 11 work begins.)*
+> El sistema debe permitir mostrarle a los estudiantes beneficiarios sus asignaciones de comedor para el periodo de asignación vigente [REQ-10](docs/requirements/Requirements.md) → Si surgen más razones por las que se le asigna un comedor a un estudiante, se deberá reflejar eso al consultar asignaciones → Cualquier cambio en las asignaciones deberá modificar la información que se recibe para mostrar asignaciones → Es necesario que toda información informada al usuario sea comparada con lo que se tiene en los registros para validar su consistencia.
 
 **Impact Analysis — if this requirement changes, what else might need to change?**
 - [ ] Business Rules
 - [ ] Constraints
 - [ ] Dependencies
-- [ ] Risks
-- [ ] Acceptance Criteria
+- [X] Risks
+- [X] Acceptance Criteria
 - [ ] Estimate
 - [ ] Priority
-- [ ] Future Design
+- [X] Future Design
 - [ ] Future Tests
 
-> Briefly note which of the above are actually likely to be affected, and why.
+> Al cambiar este requerimiento puede cambiar la información mostrada a los usuarios y directamente impactar el riesgo de no mostrar información crítica de forma apropiada. Si la información a mostrar cambia, puede que esta información tenga distintas condiciones que la hagan disponible o no, por lo cual los criterios de aceptación cambiarían. Si se hace necesario mostrar información adicional o diferente, esta debe estar persistida en alguna parte, por lo cual se afecta el diseño futuro.
 
 ---
 
@@ -190,14 +192,14 @@ flowchart TD
 
 *(Class 9 + Class 10. Self-audit before you commit this file. Check honestly — a "no" here means the requirement isn't ready yet, not that you should force a checkmark.)*
 
-- [ ] **Valid?** Does it reflect a real, evidenced need — not an invented one?
-- [ ] **Clear / Unambiguous?** Is there only one reasonable interpretation?
-- [ ] **Atomic?** Is this one independently testable expectation, not several bundled together?
-- [ ] **Necessary?** Does removing it actually break something real?
-- [ ] **Feasible?** Can this realistically be built with what the team has?
-- [ ] **Verifiable?** Can you demonstrate, concretely, whether it's satisfied?
-- [ ] **Consistent?** Does it conflict with any other requirement in your set?
-- [ ] **Complete enough?** Are there important functions or constraints still missing?
-- [ ] **Traceable?** Can every part of this document be traced back to real evidence — not invented to fill a section?
+- [X] **Valid?** Does it reflect a real, evidenced need — not an invented one?
+- [X] **Clear / Unambiguous?** Is there only one reasonable interpretation?
+- [X] **Atomic?** Is this one independently testable expectation, not several bundled together?
+- [X] **Necessary?** Does removing it actually break something real?
+- [X] **Feasible?** Can this realistically be built with what the team has?
+- [X] **Verifiable?** Can you demonstrate, concretely, whether it's satisfied?
+- [X] **Consistent?** Does it conflict with any other requirement in your set?
+- [X] **Complete enough?** Are there important functions or constraints still missing?
+- [X] **Traceable?** Can every part of this document be traced back to real evidence — not invented to fill a section?
 
 > If any box is unchecked, say what's missing and whether it becomes an Open Question or sends you back to Class 8 (re-elicit) or Class 9 (re-specify).
