@@ -33,3 +33,7 @@
 ## Requerimiento 9
 
 - El sistema debe permitir a los administradores consultar el desempeño de los comedores (capacidad, horario y funcionamiento).
+
+## Requerimiento 10
+
+- El sistema debe permitir mostrarle a los estudiantes beneficiarios sus asignaciones de comedor para el periodo de asignacion vigente.
