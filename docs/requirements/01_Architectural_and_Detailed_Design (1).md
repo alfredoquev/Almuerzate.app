@@ -2,11 +2,11 @@
 
 | | |
 |---|---|
-| **Team** | Pendiente |
+| **Team** | Almuérzate |
 | **Members** | @amadodev07, @juanfpg1, @xedroc422, @alfredoquev, @julondono07 |
 | **Status** | Draft |
-| **Date** | Pendiente |
-| **Inputs** | `docs/requirements/REQ-10.md`, `docs/requirements/REQ-01.md`. Hipótesis Arquitectónica v0.1 (Clase 11) y Diseño Detallado v0.1 (Clase 12): Pendiente |
+| **Date** | 02-11-2026 |
+| **Inputs** | `docs/requirements/REQ-10.md`, `docs/requirements/REQ-01.md`. |
 
 > **Alcance:** este documento cubre REQ-10 (mostrar asignaciones de comedores), que se alimenta únicamente de REQ-01.
 
@@ -227,4 +227,4 @@ consultarAsignaciones(idEstudiante):
 - [x] Provided and required capabilities match across components (what one requires, another provides).
 - [ ] Both decisions name a real cost or limitation, and at least one has an ADR. *(Ambas nombran su costo; el ADR-0006 está pendiente de redactar.)*
 - [x] The traceability table has no empty rows and no orphan components or classes.
-- [ ] Diagrams render correctly on GitHub. *(Pendiente de verificar al hacer commit.)*
+- [x] Diagrams render correctly on GitHub.
