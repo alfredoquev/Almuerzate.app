@@ -62,7 +62,7 @@ HOW TO USE THIS TEMPLATE
 > N/A - ninguna identificada
 
 **Dependenc(ies)**
-> REQ-01.
+> Requerimientos desde REQ-01 hasta REQ-06.
 
 > Información recibida sobre estudiantes beneficiarios.
 
