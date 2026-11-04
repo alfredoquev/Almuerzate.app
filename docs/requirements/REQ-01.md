@@ -13,7 +13,7 @@
 ## 1. Overview
 
 **Requirement Statement**
-> El sistema debe asignar a cada estudiante beneficiario un comedor para cada día de la semana, y esa asignación debe mantenerse constante hasta el final del semestre.
+> El sistema deberá calcular y asignar a cada estudiante beneficiario un comedor universitario para cada día de la semana (de lunes a viernes) al inicio del semestre académico, utilizando como criterios de entrada el horario de clases registrado del estudiante y la capacidad máxima declarada de cada comedor. La asignación establecida para cada día de la semana al inicio del semestre académico será la misma para todas las semanas del semestre académico.
 
 **Type:** Functional
 
