@@ -117,7 +117,7 @@
 > No hay un periodo de asignación vigente → El sistema informa al estudiante que actualmente no se están realizando asignaciones de comedores.
 
 **Exception**
-> No se pudo obtener los comedores asignados desde el backend → No se muestra el horario de comedores y se redirige a una página con el código del error que llevó a este resultado. (códigos de estado HTTP)
+> No se pudo obtener los comedores asignados desde el backend → No se muestra el horario de comedores y el sistema informa que hubo un problema de comunicación y pide reintentar
 
 **Postcondition**
 > El estudiante beneficiario puede ver sus comedores asignados cuando se hayan realizado las asignaciones y entren en efecto los subsidios de alimentación.
@@ -134,7 +134,7 @@ flowchart TD
     D -- "No se han realizado asignaciones aún" --> E["Se informa al estudiante que aún no se ha brindado el subsidio alimentario"]
     E --> I(["No se muestran ningún comedor asignado"])
     D -- "No se pudo obtener los comedores asignados" --> F["No se muestra el horario de comedores"]
-    F --> J(["Se redirige a una página con código de error"])
+    F --> J(["El sistema informa que hubo un problema de comunicación y pide reintentar"])
     D -- "No hay un periodo de asignación vigente" --> K["Se informa que actualmente no se están realizando asignaciones de comedores"]
     K --> I
 
