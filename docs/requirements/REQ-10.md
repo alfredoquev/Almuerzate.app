@@ -3,7 +3,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft |
+| **Status** | Validated |
 | **Team / Author(s)** | @amadodev07, @juanfpg1, @xedroc422, @alfredoquev y @julondono07 |
 | **Date** | 2026-01-11 |
 | **Linked User Story / AC** | US-01; AC-03; AC-04 |
