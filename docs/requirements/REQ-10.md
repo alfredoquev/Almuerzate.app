@@ -1,17 +1,3 @@
-<!--
-HOW TO USE THIS TEMPLATE
-------------------------
-1. Copy this file and rename it to the requirement's ID, e.g. REQ-01.md.
-2. Fill in every section. If a section genuinely does not apply to this
-   requirement (not every requirement has a Business Rule or a Constraint),
-   write "N/A — none identified" and say why in one line. Never invent
-   content to fill a blank cell — that breaks the rule we've followed since
-   Class 8: specification is not invention.
-3. If something is unknown rather than inapplicable, use the Open
-   Questions section instead of guessing.
-4. See REQ-07_Example.md (Food Delivery System) for a fully filled-in
-   reference before you start.
--->
 
 # [REQ-10] — [Mostrar asignaciones de comedores]
 
@@ -43,8 +29,6 @@ HOW TO USE THIS TEMPLATE
 ---
 
 ## 2. Context — A Requirement Rarely Stands Alone
-
-*(Class 10. Fill honestly — "N/A — none identified" is a valid, expected answer for several of these.)*
 
 **Business Rule(s)**
 > BR-01 La asignación de comedores a los estudiantes beneficiarios debe tener frecuencia diaria.
@@ -190,7 +174,6 @@ flowchart TD
 
 ## 6. Validation — Quality Gate
 
-*(Class 9 + Class 10. Self-audit before you commit this file. Check honestly — a "no" here means the requirement isn't ready yet, not that you should force a checkmark.)*
 
 - [X] **Valid?** Does it reflect a real, evidenced need — not an invented one?
 - [X] **Clear / Unambiguous?** Is there only one reasonable interpretation?
