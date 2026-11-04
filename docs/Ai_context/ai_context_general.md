@@ -45,6 +45,7 @@
 | 7 | Permitir a los usuarios registrar reportes de inconformidades o fallas |
 | 8 | Notificar a los administradores cada vez que se registre un reporte o se detecte una falla |
 | 9 | Permitir a los administradores consultar el desempeño de los comedores (capacidad, horario y funcionamiento) |
+| 10 |El sistema debe permitir mostrarle a los estudiantes beneficiarios sus asignaciones de comedor para el periodo de asignacion vigente |
 
 **Lectura rápida:** los requerimientos 1–6 son el núcleo (asignación); 7–9 cubren reportes, notificación y consulta de desempeño.
 
@@ -60,7 +61,8 @@
 | 0002 | **PHP** conecta frontend y backend: corre en el servidor, invoca el ejecutable C++ (árbol decisional) y envía al cliente solo los datos requeridos | Reutiliza el C++ existente sin reescribirlo, integración simple y separación de responsabilidades (backend analiza y gestiona datos; frontend visualiza) | El equipo debe aprender PHP; cada solicitud lanza un proceso (puede penalizar el rendimiento con alto flujo de datos); hay que validar los argumentos que PHP pasa al ejecutable para evitar inyección de comandos |
 | 0003 | **Tailwind CSS** para la maquetación e interfaz | Iteración rápida, curva de aprendizaje baja, ecosistema amplio e integración sencilla con librerías JS de gráficos como Chart.js | Acoplamiento al entorno web y necesidad de una capa de comunicación JS ↔ C++ (PHP, ADR-0002) |
 | 0004 | **C++** para el backend y el árbol decisional, ejecutado en el servidor | Buen manejo de estructuras de datos y grandes volúmenes de datos por el control de memoria; el equipo ya conoce el lenguaje | Complejidad en la implementación de estructuras de datos; conexión con el frontend vía PHP |
-| 0005 | **Frontend web con HTML, JavaScript y CSS** (mantiene Tailwind) | Accesible desde navegador sin instalar app móvil; alcance de interfaz acotado y datos que llegan ya procesados | Se renuncia a herramientas de React/Vue; más código propio que escribir y mantener |
+| 0005 | **Frontend web con HTML, JavaScript y CSS** (mantiene Tailwind)** | Accesible desde navegador sin instalar app móvil; alcance de interfaz acotado y datos que llegan ya procesados | Se renuncia a herramientas de React/Vue; más código propio que escribir y mantener |
+| 0006 | **Consulta de Asignaciones como único punto de acceso a los comedores asignados**  | Hay que decidir si el componente que muestra los comedores asignados puede consultar directamente el registro de asignaciones o si la consulta pasa por un componente intermedio | Algo más de latencia y el estado de problema de comunicación puede originarse en dos puntos (fallo de acceso a los datos y falta de respuesta de Consulta de Asignaciones)  que deben ser tratados igualmente. |
 
 ### Alternativas descartadas
 - **Base de datos:** MySQL/MariaDB, SQLite, MongoDB.
