@@ -1,17 +1,3 @@
-<!--
-HOW TO USE THIS TEMPLATE
-------------------------
-1. Copy this file and rename it to the requirement's ID, e.g. REQ-01.md.
-2. Fill in every section. If a section genuinely does not apply to this
-   requirement (not every requirement has a Business Rule or a Constraint),
-   write "N/A — none identified" and say why in one line. Never invent
-   content to fill a blank cell — that breaks the rule we've followed since
-   Class 8: specification is not invention.
-3. If something is unknown rather than inapplicable, use the Open
-   Questions section instead of guessing.
-4. See REQ-07_Example.md (Food Delivery System) for a fully filled-in
-   reference before you start.
--->
 
 # [REQ-01] — [Asignación diaria de comedores durante el semestre]
 
@@ -64,7 +50,7 @@ HOW TO USE THIS TEMPLATE
 
 > El acceso brindado a la información de cuáles estudiantes son beneficiarios por parte de las entidades correspondientes.
 
-> Requerimientos desde REQ-01 hasta REQ-06
+> Requerimientos desde REQ-02 hasta REQ-06
 
 > BR-01 y BR-02
 
