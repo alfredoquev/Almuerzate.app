@@ -20,10 +20,8 @@
  
 | Requirement / Use Case ID | Why it shapes the structure | Quality attribute, constraint or business rule involved |
 |---|---|---|
-| REQ-10 / UC-01 Ver comedores asignados | El flujo tiene cuatro resultados distintos (la asignación existe y está disponible, no se han realizado asignaciones aún, no hay un periodo de asignación vigente, no se pudo obtener los comedores asignados) que deben distinguirse y comunicarse al estudiante | Riesgo de REQ-10: error de acceso a los datos (probabilidad Low, impacto High). Restricción: el periodo vigente cubre solo la semana en curso.
-Criterios AC-03 y AC-04 |
-| REQ-01 Asignación diaria de comedores durante el semestre | Produce y persiste los comedores asignados (uno por cada día, de lunes a viernes, igual para todas las semanas del semestre). REQ-10 solo los lee y los muestra | Restricción: solo estudiantes beneficiarios reciben asignación. Dependencia declarada de REQ-10.
-BR-01 y BR-02 (asignaciones solo durante el semestre académico).|
+| REQ-10 / UC-01 Ver comedores asignados | El flujo tiene cuatro resultados distintos (la asignación existe y está disponible, no se han realizado asignaciones aún, no hay un periodo de asignación vigente, no se pudo obtener los comedores asignados) que deben distinguirse y comunicarse al estudiante | Riesgo de REQ-10: error de acceso a los datos (probabilidad Low, impacto High). Restricción: el periodo vigente cubre solo la semana en curso. <br> Criterios AC-03 y AC-04 |
+| REQ-01 Asignación diaria de comedores durante el semestre | Produce y persiste los comedores asignados (uno por cada día, de lunes a viernes, igual para todas las semanas del semestre). REQ-10 solo los lee y los muestra | Restricción: solo estudiantes beneficiarios reciben asignación. <br> Dependencia declarada de REQ-10.  <br> BR-01 y BR-02 (asignaciones solo durante el semestre académico).|
  
 ---
  
