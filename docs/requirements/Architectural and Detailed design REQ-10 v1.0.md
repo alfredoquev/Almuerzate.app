@@ -243,6 +243,6 @@ Estas son las recomendaciones recibidas y lo que hizo el equipo con cada una.
 - [x] Components are named by responsibility, not technology.
 - [x] Nothing inside the system boundary is something you do not control.
 - [x] Provided and required capabilities match across components (what one requires, another provides).
-- [ ] Both decisions name a real cost or limitation, and at least one has an ADR. *(Ambas nombran su costo; el ADR-0006 está pendiente de redactar.)*
+- [x] Both decisions name a real cost or limitation, and at least one has an ADR. *(Ambas nombran su costo)*
 - [x] The traceability table has no empty rows and no orphan components or classes.
 - [x] Diagrams render correctly on GitHub.
