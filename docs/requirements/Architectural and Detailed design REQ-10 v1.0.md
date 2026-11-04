@@ -5,7 +5,7 @@
 | **Team** | Almuérzate |
 | **Members** | @amadodev07, @juanfpg1, @xedroc422, @alfredoquev, @julondono07 |
 | **Status** | Draft |
-| **Date** | 02-11-2026 |
+| **Date** | 11-02-2026 |
 | **Inputs** | `docs/requirements/REQ-10.md`, `docs/requirements/REQ-01.md`. |
 
 > **Alcance:** este documento cubre REQ-10 (mostrar asignaciones de comedores), que se alimenta únicamente de REQ-01.
@@ -20,8 +20,10 @@
  
 | Requirement / Use Case ID | Why it shapes the structure | Quality attribute, constraint or business rule involved |
 |---|---|---|
-| REQ-10 / UC-01 Ver comedores asignados | El flujo tiene cuatro resultados distintos (la asignación existe y está disponible, no se han realizado asignaciones aún, no hay un periodo de asignación vigente, no se pudo obtener los comedores asignados) que deben distinguirse y comunicarse al estudiante | Riesgo de REQ-10: error de acceso a los datos (probabilidad Low, impacto High). Restricción: el periodo vigente cubre solo la semana en curso. Criterios AC-03 y AC-04 |
-| REQ-01 Asignación diaria de comedores durante el semestre | Produce y persiste los comedores asignados (uno por cada día, de lunes a viernes, igual para todas las semanas del semestre). REQ-10 solo los lee y los muestra | BR-01 y BR-02 (asignaciones solo durante el semestre académico). Restricción: solo estudiantes beneficiarios reciben asignación. Dependencia declarada de REQ-10 |
+| REQ-10 / UC-01 Ver comedores asignados | El flujo tiene cuatro resultados distintos (la asignación existe y está disponible, no se han realizado asignaciones aún, no hay un periodo de asignación vigente, no se pudo obtener los comedores asignados) que deben distinguirse y comunicarse al estudiante | Riesgo de REQ-10: error de acceso a los datos (probabilidad Low, impacto High). Restricción: el periodo vigente cubre solo la semana en curso.
+Criterios AC-03 y AC-04 |
+| REQ-01 Asignación diaria de comedores durante el semestre | Produce y persiste los comedores asignados (uno por cada día, de lunes a viernes, igual para todas las semanas del semestre). REQ-10 solo los lee y los muestra | Restricción: solo estudiantes beneficiarios reciben asignación. Dependencia declarada de REQ-10.
+BR-01 y BR-02 (asignaciones solo durante el semestre académico).|
  
 ---
  
@@ -77,10 +79,12 @@ flowchart LR
 | Presentación de Asignaciones | Es lo único que ve el estudiante: debe mostrar los comedores asignados (AC-03), el aviso de falta de periodo (AC-04), el aviso de "aún no asignados" y el problema de comunicación con petición de reintentar |
  
 ### 3.2 Class Diagram(s)
- 
+
 ```mermaid
 classDiagram
     class PresentacionAsignaciones {
+        -consulta : ConsultaAsignaciones
+        -catalogo : CatalogoMensajes
         +mostrar(idEstudiante : IdEstudiante) void
         +reintentar(idEstudiante : IdEstudiante) void
     }
@@ -88,6 +92,7 @@ classDiagram
         +mensajePara(estado : EstadoConsulta) String
     }
     class ConsultaAsignaciones {
+        -repositorio : RepositorioAsignaciones
         +consultarComedoresAsignados(idEstudiante : IdEstudiante) ResultadoConsulta
     }
     class ResultadoConsulta {
@@ -118,20 +123,20 @@ classDiagram
         -dia : DiaSemana
         -nombreComedor : String
     }
- 
-    PresentacionAsignaciones --> ConsultaAsignaciones : solicita
-    PresentacionAsignaciones --> CatalogoMensajes : usa
-    PresentacionAsignaciones ..> ResultadoConsulta : recibe
-    CatalogoMensajes ..> EstadoConsulta : recibe
-    ConsultaAsignaciones ..> ResultadoConsulta : devuelve
-    ConsultaAsignaciones ..> RepositorioAsignaciones : depende de
-    ResultadoConsulta --> EstadoConsulta : tiene
-    ResultadoConsulta "1" --> "0..5" ComedorAsignado : contiene
-    RepositorioAsignaciones ..> PeriodoAsignacion : entrega
-    RepositorioAsignaciones ..> ComedorAsignado : entrega
+
+    PresentacionAsignaciones "1" --> "1" ConsultaAsignaciones : solicita
+    PresentacionAsignaciones "1" --> "1" CatalogoMensajes : usa
+    PresentacionAsignaciones "1" ..> "1" ResultadoConsulta : recibe
+    CatalogoMensajes "1" ..> "1" EstadoConsulta : recibe
+    ConsultaAsignaciones "1" ..> "1" ResultadoConsulta : devuelve
+    ConsultaAsignaciones "1" --> "1" RepositorioAsignaciones : usa
+    ResultadoConsulta "1" --> "1" EstadoConsulta : tiene
+    ResultadoConsulta "1" --> "0 o 5" ComedorAsignado : contiene
+    RepositorioAsignaciones "1" ..> "0..1" PeriodoAsignacion : entrega
+    RepositorioAsignaciones "1" ..> "0 o 5" ComedorAsignado : entrega
 ```
- 
-> No se usa composición ni generalización: `ComedorAsignado` existe en el registro independientemente del resultado de una consulta, y nada en este diseño es un tipo especializado de otra cosa. `ResultadoConsulta` contiene de 0 a 5 comedores asignados (lunes a viernes, REQ-01); son 0 cuando el estado no es `DISPONIBLE`.
+
+> No se usa composición ni generalización: `ComedorAsignado` existe en el registro independientemente del resultado de una consulta, y nada en este diseño es un tipo especializado de otra cosa. `ResultadoConsulta` contiene 5 comedores asignados (uno por cada día, de lunes a viernes, REQ-01) cuando el estado es `DISPONIBLE`, y ninguno en otro caso: el estudiante tiene un comedor asignado cada día aunque no asista ese día. El periodo es `0..1` porque puede no existir un periodo vigente.
 >
 > El diseño fija solo la representación **lógica** del horario de comedores de un estudiante (lista de día y nombre de comedor). La representación visual sigue siendo la Open Question de REQ-10.
  
@@ -174,10 +179,10 @@ consultarComedoresAsignados(idEstudiante):
 |---|---|
 | **Cohesion:** do the responsibilities inside each class or component belong together? | `ConsultaAsignaciones` solo decide el estado; el texto de cada mensaje vive en `CatalogoMensajes`; `PresentacionAsignaciones` solo muestra y reintenta; `ComedorAsignado` solo guarda día y comedor. |
 | **Coupling:** how far does a change in one element spread? Where are the strongest dependencies? | La dependencia más fuerte es `ConsultaAsignaciones` → `RepositorioAsignaciones`. Un cambio en el almacenamiento llega solo a Registro de Asignaciones. `PresentacionAsignaciones` depende únicamente de `ResultadoConsulta` y `EstadoConsulta`. Agregar un estado nuevo toca tres clases (`EstadoConsulta`, `ConsultaAsignaciones`, `CatalogoMensajes`). |
-| **Information hiding:** what did you keep private or internal, and why? | El almacenamiento y el origen de los fallos de acceso quedan detrás de `RepositorioAsignaciones` y `ConsultaAsignaciones`; la presentación solo ve un estado. El intervalo del periodo vigente lo usa solo `ConsultaAsignaciones`. |
+| **Information hiding:** what did you keep private or internal, and why? | El almacenamiento y el origen de los fallos de acceso quedan detrás de `RepositorioAsignaciones` y `ConsultaAsignaciones`; la presentación solo ve un estado. El intervalo del periodo vigente lo provee `RepositorioAsignaciones` y lo usa `ConsultaAsignaciones`. |
  
 **At least one real finding** (a problem you found in your own design) **and what you changed or would change:**
-> 1. `PROBLEMA_DE_COMUNICACION` solo lo producía `ConsultaAsignaciones` cuando fallaba el registro, pero el riesgo de REQ-10 (error de acceso a los datos) también ocurre si la propia consulta no responde. Se cambió: `PresentacionAsignaciones` trata la falta de respuesta de Consulta como ese mismo estado y toma el mensaje de `CatalogoMensajes`.
+> 1. `PROBLEMA_DE_COMUNICACION` solo lo producía `ConsultaAsignaciones` cuando fallaba el registro, pero el riesgo de REQ-10 (error de acceso a los datos) también ocurre si la propia consulta no responde. Se decidió: `PresentacionAsignaciones` trate la falta de respuesta de Consulta como ese mismo estado y toma el mensaje de `CatalogoMensajes`.
 > 2. El riesgo de REQ-10 menciona un reintento periódico, pero el flujo de excepción corregido solo pide al estudiante reintentar. El diseño sigue el flujo de excepción: `reintentar()` lo dispara el estudiante. Pendiente: alinear la mitigación del riesgo en REQ-10 (no requiere cambios en el diseño).
 > 3. `RepositorioAsignaciones.buscarPeriodoVigente()` pone en Registro de Asignaciones un dato (el periodo vigente) cuya fuente no está definida en REQ-01 ni en REQ-10. Si proviene de otra fuente, se separa en su propio contrato; el costo es bajo porque solo `ConsultaAsignaciones` lo usa.
  
@@ -220,7 +225,16 @@ consultarComedoresAsignados(idEstudiante):
 
 ## 7. Optional — AI-Assisted Design Reflection
 
-> Pendiente: la completa el equipo si registra una recomendación de IA que haya aceptado, modificado o rechazado durante la revisión de este borrador.
+Se usó una IA para revisar este borrador contra ai_context_design.md y ai_context_adrs.md.
+Estas son las recomendaciones recibidas y lo que hizo el equipo con cada una.
+
+| Recomendación de la IA |	Decisión del equipo |	Motivo |
+| ADR-0006: dejar una sola decisión (toda consulta pasa por Consulta de Asignaciones y Presentación no accede a Registro de Asignaciones) y mover la regla de falta de respuesta a Consecuencias |	Modificada: se aceptó la estructura y el equipo ajustó la redacción de la Decisión |	Pendiente |
+| Diagrama de componentes: ampliar el rótulo a "ver comedores asignados / reintentar consulta" y agregar una nota sobre el ADR-0002 |	Pendiente |	Pendiente |
+| Diagrama de clases: agregar multiplicidad a todas las asociaciones continuas y accesores a PeriodoAsignacion y ComedorAsignado |	Pendiente	| Pendiente
+| Documento: corregir la fecha, marcar los Inputs faltantes como Pendiente, reformular el hallazgo 1 y dejar como brecha la rama que prevalece en 3.4	| Pendiente	| Pendiente |
+| Documento: señalar las brechas de identificación del estudiante, la precondición de UC-01, BR-01 frente a "semana en curso" y quién escribe el periodo vigente |	Pendiente |	Pendiente |
+| Segunda revisión: comedores parciales, contrato de buscarPeriodoVigente(), dependencia faltante hacia EstadoConsulta y contradicciones en las secciones 4 y 5 |	Pendiente |	Pendiente |
 
 ---
 
