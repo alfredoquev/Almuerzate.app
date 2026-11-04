@@ -19,7 +19,7 @@ REQ-10 exige mostrar al estudiante beneficiario sus comedores asignados para el 
 
 ## Decisión
 
-Presentación de Asignaciones no accederá directamente a Registro de Asignaciones: toda consulta pasará por Consulta de Asignaciones, que decide y devuelve el estado de la consulta (disponible, no asignados aún, sin periodo vigente o problema de comunicación). Si Presentación de Asignaciones no obtiene respuesta de Consulta de Asignaciones, lo trata como problema de comunicación.
+Presentación de Asignaciones no accederá directamente a Registro de Asignaciones: toda consulta pasará por Consulta de Asignaciones, que decide y devuelve el estado de la consulta (disponible, no asignados aún, sin periodo vigente o problema de comunicación).
 
 ## Alternativas consideradas
 
@@ -35,5 +35,5 @@ Presentación de Asignaciones no accederá directamente a Registro de Asignacion
 
 ### Negativas / Desafíos (-)
 
-- Un componente y un salto adicionales para una función de solo lectura, con algo más de latencia.
+- Se añade un componente (Consulta de Asignaciones) para una función de solo lectura: cada consulta del estudiante pasa primero por la comunicación entre Presentación de Asignaciones y Consulta de Asignaciones antes de llegar a Registro de Asignaciones, lo que agrega algo de latencia.
 - El estado de problema de comunicación puede originarse en dos puntos (fallo de acceso a los datos y falta de respuesta de Consulta de Asignaciones), y ambos deben tratarse igual.
