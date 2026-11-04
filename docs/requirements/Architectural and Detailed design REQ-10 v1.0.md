@@ -227,6 +227,7 @@ Se usó una IA para revisar este borrador contra ai_context_design.md y ai_conte
 Estas son las recomendaciones recibidas y lo que hizo el equipo con cada una.
 
 | Recomendación de la IA |	Decisión del equipo |	Motivo |
+|---|---|---|
 | ADR-0006: dejar una sola decisión (toda consulta pasa por Consulta de Asignaciones y Presentación no accede a Registro de Asignaciones) y mover la regla de falta de respuesta a Consecuencias |	Modificada: se aceptó la estructura y el equipo ajustó la redacción de la Decisión |	Pendiente |
 | Diagrama de componentes: ampliar el rótulo a "ver comedores asignados / reintentar consulta" y agregar una nota sobre el ADR-0002 |	Pendiente |	Pendiente |
 | Diagrama de clases: agregar multiplicidad a todas las asociaciones continuas y accesores a PeriodoAsignacion y ComedorAsignado |	Pendiente	| Pendiente
