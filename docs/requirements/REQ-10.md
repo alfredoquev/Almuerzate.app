@@ -13,7 +13,7 @@
 ## 1. Overview
 
 **Requirement Statement**
-> El sistema debe permitir mostrarle a los estudiantes beneficiarios sus asignaciones de comedor para el periodo de asignacion vigente.
+> El sistema deberá calcular y asignar a cada estudiante beneficiario un comedor universitario para cada día de la semana (de lunes a viernes) al inicio del semestre académico, utilizando como criterios de entrada el horario de clases registrado del estudiante y la capacidad máxima declarada de cada comedor. La asignación establecida para cada día de la semana al inicio del semestre académico será la misma para todas las semanas del semestre académico.
 
 **Type:** Functional
 
@@ -46,7 +46,7 @@
 > N/A - ninguna identificada
 
 **Dependenc(ies)**
-> Requerimientos desde REQ-01 hasta REQ-06.
+> REQ-01.
 
 > Información recibida sobre estudiantes beneficiarios.
 
@@ -60,7 +60,7 @@
 
 | Risk | Likelihood | Impact | Mitigation (optional) |
 |---|---|---|---|
-| El acceso a los datos de asignación de comedores no es posible por un error en el backend | Low | High | Se muestra un mensaje de error, y se reintenta conseguir los datos periodicamente |
+| El acceso a los datos de asignación de comedores no es posible por un error en el backend | Low | High | Se muestra un mensaje de error, y se le da la opción al estudiante de reintentar |
 
 **Open Questions**
 > ¿Qué representación se usará para el horario de comedores de un estudiante?
