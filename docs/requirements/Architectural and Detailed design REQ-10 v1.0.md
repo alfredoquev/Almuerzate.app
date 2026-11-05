@@ -36,24 +36,29 @@
 ### 2.2 Components, Responsibilities & Capabilities
  
 ```mermaid
+
 flowchart LR
     Est([Estudiante beneficiario])
-    subgraph SYS["Almuérzate"]
+    subgraph SYS["Sistema de consulta de comedores"]
         PA["Presentación de Asignaciones"]
         CA["Consulta de Asignaciones"]
         RA["Registro de Asignaciones"]
         CAL["Cálculo de Asignaciones (REQ-01)"]
     end
+    RA -->|"solicitar comedores asignados del estudiante"| DB[("Asignaciones de Beneficiarios")]
+
  
     Est -->|"ver comedores asignados"| PA
     PA -->|"consultar comedores asignados del estudiante"| CA
     CA -->|"buscar periodo vigente / comedores asignados"| RA
     CAL -->|"guardar comedores asignados"| RA
+    
  
     classDef alcance fill:#1E2761,color:#ffffff,stroke:#1E2761;
     classDef insumo fill:#E8EAF0,color:#1E2761,stroke:#9AA0B4,stroke-dasharray:4 3;
     class PA,CA,RA alcance;
     class CAL insumo;
+
 ```
  
 > *Cálculo de Asignaciones* se muestra solo como productor de los registros que REQ-10 consume. Su diseño interno y sus datos de entrada (horario de clases, capacidad de cada comedor, estudiantes beneficiarios) pertenecen a REQ-01 y no se detallan aquí.
