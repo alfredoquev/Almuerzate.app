@@ -30,7 +30,7 @@ sequenceDiagram
         CA-->>PA: ResultadoConsulta(SIN_PERIODO_VIGENTE)
         PA-->>Estudiante: informa que actualmente no se están realizando asignaciones
     else Hay periodo vigente
-        RA-->>CA: periodo
+        RA-->>CA: periodo : PeriodoAsignacion
         CA->>RA: buscarComedoresAsignados(idEstudiante, periodo)
         
         alt Falla de acceso a datos
@@ -38,11 +38,11 @@ sequenceDiagram
             CA-->>PA: ResultadoConsulta(PROBLEMA_DE_COMUNICACION)
             PA-->>Estudiante: informa problema de comunicación y pide reintentar
         else No hay asignaciones
-            RA-->>CA: lista vacía
+            RA-->>CA: comedores : List<ComedorAsignado> (vacía)
             CA-->>PA: ResultadoConsulta(NO_ASIGNADOS_AUN)
             PA-->>Estudiante: informa que aún no se ha brindado el subsidio
         else Asignaciones disponibles
-            RA-->>CA: lista de comedores asignados
+            RA-->>CA: comedores : List <ComedorAsignado>
             CA-->>PA: ResultadoConsulta(DISPONIBLE, lista)
             PA-->>Estudiante: muestra el nombre de cada comedor asignado con su día
         end
@@ -57,31 +57,6 @@ sequenceDiagram
 | Alternative flow: no hay periodo | Primer `alt` branch | `ResultadoConsulta(SIN_PERIODO_VIGENTE)` | `CatalogoMensajes.mensajePara` |
 | Alternative flow: no hay asignaciones aún | Tercer `alt` branch | `ResultadoConsulta(NO_ASIGNADOS_AUN)` | `CatalogoMensajes.mensajePara` |
 | Exception: problema obteniendo datos | Segundo `alt` branch | `ResultadoConsulta(PROBLEMA_DE_COMUNICACION)` | `CatalogoMensajes.mensajePara`, manejo de reintento |
-
-### 1.2 Asignación diaria de comedores — from requirement [REQ-01]
-
-```mermaid
-sequenceDiagram
-    actor Cron as Sistema (Automático)
-    participant CAL as Cálculo de Asignaciones
-    participant RA as Registro de Asignaciones
-
-    Cron->>CAL: ejecutarAsignacion(periodo)
-    CAL->>RA: obtenerEstudiantesBeneficiarios()
-    RA-->>CAL: lista de estudiantes
-    CAL->>RA: obtenerComedoresYCapacidades()
-    RA-->>CAL: lista de comedores
-    CAL->>CAL: calcularAsignaciones() (Árbol decisional)
-    CAL->>RA: guardarComedoresAsignados(asignaciones)
-    RA-->>CAL: confirmación
-    CAL-->>Cron: asignación completada
-```
-
-| Use Case step or flow | Message(s) in the diagram | Information exchanged | Operation defined in (Deliverable 1) |
-|---|---|---|---|
-| Main flow: cálculo y guardado de asignaciones | `ejecutarAsignacion`, `obtenerEstudiantesBeneficiarios`, `calcularAsignaciones`, `guardarComedoresAsignados` | Datos base, `lista de estudiantes`, `lista de comedores`, `asignaciones` calculadas | `RepositorioAsignaciones.guardarComedoresAsignados`, cálculo interno C++ (ADR-0004) |
-
----
 
 ## 2. Data Design
 
@@ -152,16 +127,17 @@ erDiagram
 | El aforo real no puede superarse | Both | Data: constraint `COUNT(asignaciones por dia y comedor) <= capacidad_maxima`. Logic: El árbol decisional respeta el tope. |
 
 ---
+## 3. Interface Contracts
 
-## 3. Interface Contract
+### 3.1 `ConsultaAsignaciones.consultarComedoresAsignados`
 
 **Interaction chosen** (from diagram 1.1, message `consultarComedoresAsignados` de Consulta de Asignaciones):
 
 | Element | Specification |
 |---|---|
 | **Operation and purpose** | `consultarComedoresAsignados(idEstudiante)`: Determina el estado de las asignaciones de un estudiante en el periodo vigente y devuelve sus datos si aplica. |
-| **Input (parameters and types)** | `idEstudiante`: Identificador único no nulo del estudiante. |
-| **Output (successful result and data structure)** | `ResultadoConsulta`: Contiene un enum `EstadoConsulta` y, opcionalmente, una lista de 5 objetos `ComedorAsignado` (dia, nombreComedor). |
+| **Input (parameters and types)** | `idEstudiante`: Identificador único no nulo del estudiante (`IdEstudiante`). |
+| **Output (successful result and data structure)** | `ResultadoConsulta`: Contiene un enum `EstadoConsulta` y, opcionalmente, una lista de 5 objetos `ComedorAsignado` (`dia`, `nombreComedor`). |
 | **Preconditions** | El sistema base de datos está operativo. El ID del estudiante tiene un formato válido. |
 | **Postconditions** | Se garantiza una respuesta tipada sin exponer excepciones crudas a la presentación. Nunca se altera el estado de la base de datos (ReadOnly). |
 | **Failure outcomes** | Falla de conexión a base de datos (timeout/inaccesible): retorna `ResultadoConsulta(PROBLEMA_DE_COMUNICACION)`. |
@@ -175,6 +151,79 @@ erDiagram
 | Sin asignación | Existe periodo vigente, estudiante no tiene registros. | `consultarComedoresAsignados(456)` | `ResultadoConsulta` con estado `NO_ASIGNADOS_AUN` y lista vacía. |
 | Fuera de semestre | No existe ningún periodo marcado como `es_vigente = true`. | `consultarComedoresAsignados(123)` | `ResultadoConsulta` con estado `SIN_PERIODO_VIGENTE` y lista vacía. |
 | Falla de Red / BD | La conexión al motor PostgreSQL falla. | `consultarComedoresAsignados(123)` | `ResultadoConsulta` con estado `PROBLEMA_DE_COMUNICACION` y lista vacía. |
+
+---
+
+### 3.2 `PresentacionAsignaciones.mostrar`
+
+**Interaction chosen** (from diagram 1.1, message `consultar asignaciones para la semana` hacia Presentación de Asignaciones):
+
+| Element | Specification |
+|---|---|
+| **Operation and purpose** | `mostrar(idEstudiante)`: Recibe la solicitud del estudiante desde la interfaz web, invoca a `ConsultaAsignaciones` y muestra los comedores asignados o el mensaje informativo correspondiente. |
+| **Input (parameters and types)** | `idEstudiante`: Identificador único no nulo del estudiante beneficiario (`IdEstudiante`). |
+| **Output (successful result and data structure)** | `void` (renderizado en interfaz web): Muestra cada `ComedorAsignado` (`dia`, `nombreComedor`) si el estado es `DISPONIBLE`, o el `String` retornado por `CatalogoMensajes.mensajePara(estado)` en otro caso. |
+| **Preconditions** | El estudiante interactúa con la interfaz web y se dispone de un `idEstudiante` con formato válido. |
+| **Postconditions** | El estudiante visualiza sus comedores asignados o el motivo de indisponibilidad sin recibir excepciones técnicas; ante `PROBLEMA_DE_COMUNICACION`, se habilita `reintentar(idEstudiante)`. |
+| **Failure outcomes** | Si `ConsultaAsignaciones` retorna `ResultadoConsulta(PROBLEMA_DE_COMUNICACION)` o no responde, asume el estado `PROBLEMA_DE_COMUNICACION`, muestra el mensaje de `CatalogoMensajes` y pide reintentar. |
+| **Invariants and side effects** | Side effects: Ninguno sobre datos persistidos (solo actualiza la vista en el cliente). Invariant: Presenta los nombres de comedores y días tal como llegan en `ResultadoConsulta`, sin transformarlos. |
+
+**Testable examples**
+
+| Case | Before | Request | Expected |
+|---|---|---|---|
+| Asignaciones disponibles | `ConsultaAsignaciones` retorna `ResultadoConsulta(DISPONIBLE, lista)` con 5 elementos. | `mostrar(123)` | Muestra el nombre de cada comedor asignado junto con su día (Lunes a Viernes). |
+| Sin periodo vigente | `ConsultaAsignaciones` retorna `ResultadoConsulta(SIN_PERIODO_VIGENTE)`. | `mostrar(123)` | Muestra el mensaje de `CatalogoMensajes` indicando que actualmente no se están realizando asignaciones. |
+| Sin asignaciones aún | `ConsultaAsignaciones` retorna `ResultadoConsulta(NO_ASIGNADOS_AUN)`. | `mostrar(456)` | Muestra el mensaje de `CatalogoMensajes` indicando que aún no se ha brindado el subsidio alimentario. |
+| Falla o sin respuesta | `ConsultaAsignaciones` retorna `PROBLEMA_DE_COMUNICACION` o no responde. | `mostrar(123)` | Muestra el mensaje de problema de comunicación y habilita la opción para reintentar. |
+
+---
+
+### 3.3 `RepositorioAsignaciones.buscarPeriodoVigente`
+
+**Interaction chosen** (from diagram 1.1, message `buscarPeriodoVigente()` hacia Registro de Asignaciones):
+
+| Element | Specification |
+|---|---|
+| **Operation and purpose** | `buscarPeriodoVigente()`: Consulta en PostgreSQL el periodo de asignación activo (`es_vigente = true`) y retorna su intervalo de fechas. |
+| **Input (parameters and types)** | Ninguno (`void`). |
+| **Output (successful result and data structure)** | `PeriodoAsignacion` (`inicio : Fecha`, `fin : Fecha`) si existe un periodo vigente, o `null` si no existe ninguno activo (multiplicidad `0..1`). |
+| **Preconditions** | La conexión con el motor PostgreSQL está operativa. |
+| **Postconditions** | Devuelve a lo sumo una instancia de `PeriodoAsignacion` o `null` sin alterar el estado de la base de datos (ReadOnly). |
+| **Failure outcomes** | Error de conexión o timeout en PostgreSQL: propaga el fallo de acceso a datos hacia `ConsultaAsignaciones`. |
+| **Invariants and side effects** | Side effects: Ninguno. Es una operación pura de lectura. Invariant: En `PERIODO_ASIGNACION` solo puede haber un periodo con `es_vigente = true` a la vez. |
+
+**Testable examples**
+
+| Case | Before | Request | Expected |
+|---|---|---|---|
+| Periodo vigente activo | Existe un registro en `PERIODO_ASIGNACION` con `es_vigente = true`. | `buscarPeriodoVigente()` | Retorna `PeriodoAsignacion` con `inicio` y `fin` del periodo vigente. |
+| Sin periodo vigente | Ningún registro en `PERIODO_ASIGNACION` tiene `es_vigente = true`. | `buscarPeriodoVigente()` | Retorna `null`. |
+| Falla de Red / BD | La conexión al motor PostgreSQL falla o supera el timeout. | `buscarPeriodoVigente()` | Propaga error de conexión / timeout hacia el invocador. |
+
+---
+
+### 3.4 `RepositorioAsignaciones.buscarComedoresAsignados`
+
+**Interaction chosen** (from diagram 1.1, message `buscarComedoresAsignados(idEstudiante, periodo)` hacia Registro de Asignaciones):
+
+| Element | Specification |
+|---|---|
+| **Operation and purpose** | `buscarComedoresAsignados(idEstudiante, periodo)`: Recupera de PostgreSQL los comedores asignados por día de la semana para un estudiante en el periodo vigente dado. |
+| **Input (parameters and types)** | `idEstudiante`: Identificador único no nulo del estudiante (`IdEstudiante`); `periodo`: Instancia no nula del periodo vigente (`PeriodoAsignacion`). |
+| **Output (successful result and data structure)** | `List<ComedorAsignado>`, donde cada elemento contiene `dia : DiaSemana` y `nombreComedor : String` (multiplicidad `0 o 5`). |
+| **Preconditions** | La conexión con PostgreSQL está operativa, `idEstudiante` tiene un formato válido y `periodo` corresponde a un periodo vigente existente. |
+| **Postconditions** | Retorna una lista con 5 objetos `ComedorAsignado` (Lunes a Viernes) o una lista vacía si el estudiante no tiene asignaciones, sin alterar la base de datos (ReadOnly). |
+| **Failure outcomes** | Error de conexión o timeout en PostgreSQL: propaga el fallo de acceso a datos hacia `ConsultaAsignaciones`. |
+| **Invariants and side effects** | Side effects: Ninguno. Es una operación pura de lectura. Invariant: Un estudiante solo puede tener una asignación por `dia_semana` (`Lunes` a `Viernes`) en un mismo periodo; la lista retornada tiene `0` o `5` elementos. |
+
+**Testable examples**
+
+| Case | Before | Request | Expected |
+|---|---|---|---|
+| Asignaciones encontradas | Existen 5 registros en `ASIGNACION` para `id_estudiante = 123` en el `periodo` vigente. | `buscarComedoresAsignados(123, periodo)` | Retorna `List<ComedorAsignado>` con 5 elementos (`dia`, `nombreComedor`). |
+| Sin asignaciones | No existen registros en `ASIGNACION` para `id_estudiante = 456` en el `periodo` vigente. | `buscarComedoresAsignados(456, periodo)` | Retorna `List<ComedorAsignado>` vacía (`0` elementos). |
+| Falla de Red / BD | La conexión al motor PostgreSQL falla o supera el timeout. | `buscarComedoresAsignados(123, periodo)` | Propaga error de conexión / timeout hacia el invocador. |
 
 ---
 
