@@ -21,17 +21,17 @@ sequenceDiagram
     participant CA as Consulta de Asignaciones
     participant RA as Registro de Asignaciones
 
-    Estudiante->>PA: consultar asignaciones para la semana
-    PA->>CA: consultarComedoresAsignados(idEstudiante)
-    CA->>RA: buscarPeriodoVigente()
+    Estudiante->>+PA: consultar asignaciones para la semana
+    PA->>+CA: consultarComedoresAsignados(idEstudiante)
+    CA->>+RA: buscarPeriodoVigente()
     
     alt No hay periodo vigente
         RA-->>CA: null
         CA-->>PA: ResultadoConsulta(SIN_PERIODO_VIGENTE)
         PA-->>Estudiante: informa que actualmente no se están realizando asignaciones
     else Hay periodo vigente
-        RA-->>CA: periodo : PeriodoAsignacion
-        CA->>RA: buscarComedoresAsignados(idEstudiante, periodo)
+        RA-->>-CA: periodo : PeriodoAsignacion
+        CA->>+RA: buscarComedoresAsignados(idEstudiante, periodo)
         
         alt Falla de acceso a datos
             RA-->>CA: error de conexión / timeout
@@ -42,9 +42,10 @@ sequenceDiagram
             CA-->>PA: ResultadoConsulta(NO_ASIGNADOS_AUN)
             PA-->>Estudiante: informa que aún no se ha brindado el subsidio
         else Asignaciones disponibles
-            RA-->>CA: comedores : List <ComedorAsignado>
-            CA-->>PA: ResultadoConsulta(DISPONIBLE, lista)
-            PA-->>Estudiante: muestra el nombre de cada comedor asignado con su día
+            RA-->>-CA: comedores : List <ComedorAsignado>
+            CA-->>-PA: ResultadoConsulta(DISPONIBLE, lista)
+            PA-->>-Estudiante: muestra el nombre de cada comedor asignado con su día
+
         end
     end
 ```
