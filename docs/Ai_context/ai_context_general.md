@@ -1,6 +1,8 @@
 # AI Context General — almuerzate.app
 
-> Contexto del proyecto para que una IA entienda de qué trata, qué se decidió y qué se espera construir. No impone formato de salida: el formato lo define cada petición. Fuentes: RFC "Almuérzate", ADR 0001–0005 (aceptados) y `Requirements.md`.
+> Contexto del proyecto para que una IA entienda de qué trata, qué se decidió y qué se espera construir. No impone formato de salida: el formato lo define cada petición. Fuentes: RFC "Almuérzate", ADR 0001–0005 (aceptados), ADR-0006 (propuesto), `Requirements.md` y los requerimientos ya redactados (`REQ-01.md`, `REQ-10.md`).
+>
+> Última actualización: 2026-11-16.
 
 ---
 
@@ -29,6 +31,7 @@
 - **Estudiantes beneficiarios:** consultan el comedor que les fue asignado; esperan una mejora en el servicio.
 - **Administradores:** consultan estadísticas y desempeño de los comedores, reciben notificaciones de reportes o fallas y pueden hacer reasignaciones de emergencia.
 - **Trabajadores de los comedores:** enfrentan menos saturación en horas pico y pueden ofrecer mejor servicio.
+- **Sistema (asignación automática):** actor interno para las funciones que se ejecutan sin intervención humana (Req. 1 y 6).
 
 ---
 
@@ -36,7 +39,7 @@
 
 | N.º | El sistema debe… |
 |---|---|
-| 1 | Asignar a cada estudiante beneficiario un comedor para cada día de la semana |
+| 1 | Asignar a cada estudiante beneficiario un comedor para cada día de la semana, y mantener esa asignación constante hasta el final del semestre |
 | 2 | Considerar el horario del estudiante al asignar |
 | 3 | Considerar la preferencia del estudiante sobre el comedor |
 | 4 | Considerar las condiciones del comedor (capacidad, horario de servicio, menú disponible) |
@@ -45,13 +48,28 @@
 | 7 | Permitir a los usuarios registrar reportes de inconformidades o fallas |
 | 8 | Notificar a los administradores cada vez que se registre un reporte o se detecte una falla |
 | 9 | Permitir a los administradores consultar el desempeño de los comedores (capacidad, horario y funcionamiento) |
-| 10 |El sistema debe permitir mostrarle a los estudiantes beneficiarios sus asignaciones de comedor para el periodo de asignacion vigente |
+| 10 | Mostrar a los estudiantes beneficiarios sus asignaciones de comedor para el periodo de asignación vigente |
 
-**Lectura rápida:** los requerimientos 1–6 son el núcleo (asignación); 7–9 cubren reportes, notificación y consulta de desempeño.
+**Lectura rápida:** los requerimientos 1–6 son el núcleo (asignación); 7–9 cubren reportes, notificación y consulta de desempeño; 10 es la consulta del estudiante a lo que el núcleo asignó (solo lee, no calcula).
+
+### Estado de la documentación
+
+| Documento | Estado |
+|---|---|
+| `REQ-01.md` | Validated |
+| `REQ-10.md` | Validated (se alimenta solo de REQ-01) |
+| `REQ-02` a `REQ-09` | Aún no redactados |
+| Diseño arquitectónico y detallado de REQ-10 (v1.0) | Draft; cubre REQ-10 y toma REQ-01 solo como productor de los datos |
+| ADR 0001–0005 | Aceptados |
+| ADR-0006 | Propuesto; fecha pendiente |
+
+### Reglas de negocio ya definidas por el equipo
+- **BR-01:** la asignación de comedores a los estudiantes beneficiarios debe tener frecuencia diaria.
+- **BR-02:** las asignaciones solo se pueden realizar mientras se esté cursando un semestre académico.
 
 ---
 
-## 4. Arquitectura y decisiones técnicas (ADR aceptados)
+## 4. Arquitectura y decisiones técnicas (ADR 0001–0005 aceptados; ADR-0006 propuesto)
 
 **En una línea:** el backend en C++ (incluido el árbol decisional) corre en el servidor y consulta PostgreSQL; PHP entrega al navegador solo los datos ya procesados que se necesitan para visualizar; el frontend es una aplicación web que los muestra.
 
@@ -61,8 +79,8 @@
 | 0002 | **PHP** conecta frontend y backend: corre en el servidor, invoca el ejecutable C++ (árbol decisional) y envía al cliente solo los datos requeridos | Reutiliza el C++ existente sin reescribirlo, integración simple y separación de responsabilidades (backend analiza y gestiona datos; frontend visualiza) | El equipo debe aprender PHP; cada solicitud lanza un proceso (puede penalizar el rendimiento con alto flujo de datos); hay que validar los argumentos que PHP pasa al ejecutable para evitar inyección de comandos |
 | 0003 | **Tailwind CSS** para la maquetación e interfaz | Iteración rápida, curva de aprendizaje baja, ecosistema amplio e integración sencilla con librerías JS de gráficos como Chart.js | Acoplamiento al entorno web y necesidad de una capa de comunicación JS ↔ C++ (PHP, ADR-0002) |
 | 0004 | **C++** para el backend y el árbol decisional, ejecutado en el servidor | Buen manejo de estructuras de datos y grandes volúmenes de datos por el control de memoria; el equipo ya conoce el lenguaje | Complejidad en la implementación de estructuras de datos; conexión con el frontend vía PHP |
-| 0005 | **Frontend web con HTML, JavaScript y CSS** (mantiene Tailwind)** | Accesible desde navegador sin instalar app móvil; alcance de interfaz acotado y datos que llegan ya procesados | Se renuncia a herramientas de React/Vue; más código propio que escribir y mantener |
-| 0006 | **Consulta de Asignaciones como único punto de acceso a los comedores asignados**  | Hay que decidir si el componente que muestra los comedores asignados puede consultar directamente el registro de asignaciones o si la consulta pasa por un componente intermedio | Algo más de latencia y el estado de problema de comunicación puede originarse en dos puntos (fallo de acceso a los datos y falta de respuesta de Consulta de Asignaciones)  que deben ser tratados igualmente. |
+| 0005 | **Frontend web con HTML, JavaScript y CSS** (mantiene Tailwind) | Accesible desde navegador sin instalar app móvil; alcance de interfaz acotado y datos que llegan ya procesados | Se renuncia a herramientas de React/Vue; más código propio que escribir y mantener |
+| 0006 *(Propuesto)* | **Consulta de Asignaciones como único punto de acceso a los comedores asignados**: Presentación de Asignaciones no accede directamente a Registro de Asignaciones | Los cuatro resultados del flujo de REQ-10 (disponible, no asignados aún, sin periodo vigente, problema de comunicación) y los fallos de acceso a los datos se resuelven en un solo componente | Un componente y un salto adicionales para una función de solo lectura (algo más de latencia); el estado de problema de comunicación puede originarse en dos puntos (fallo de acceso a los datos y falta de respuesta de Consulta de Asignaciones) y debe tratarse igual |
 
 ### Alternativas descartadas
 - **Base de datos:** MySQL/MariaDB, SQLite, MongoDB.
@@ -70,18 +88,30 @@
 - **Interfaz:** Slint y Dear ImGui.
 - **Backend:** Java (el equipo no lo domina).
 - **Frontend:** React, Vue y React Native.
+- **Consulta de asignaciones (ADR-0006):** que la presentación consulte directamente al registro de asignaciones (cada resultado y cada fallo tendrían que resolverse en la interfaz).
 
 ### Implicaciones prácticas
 - El C++ **no** se ejecuta en el cliente.
 - El navegador nunca habla directo con el backend: pasa por PHP.
 - Las gráficas y paneles estadísticos usan librerías JS (Chart.js) alimentadas con datos del backend.
 - La persistencia es relacional y transaccional.
+- Si ADR-0006 se acepta: la consulta del estudiante a sus comedores asignados pasa siempre por Consulta de Asignaciones.
+
+### Componentes del diseño ya definidos (diseño de REQ-10 v1.0)
+Los nombres siguen la responsabilidad, no la tecnología. El detalle y las clases están en `ai_context_design.md`.
+
+| Componente | Responsabilidad |
+|---|---|
+| Presentación de Asignaciones | Muestra al estudiante sus comedores asignados o el mensaje que corresponde |
+| Consulta de Asignaciones | Decide qué debe ver el estudiante: sus asignaciones o la razón por la que no están disponibles |
+| Registro de Asignaciones | Persiste y entrega las asignaciones y el periodo de asignación vigente |
+| Cálculo de Asignaciones | Calcula y asigna un comedor por día (REQ-01); su diseño interno no se detalla en el diseño de REQ-10 |
 
 ---
 
 ## 5. Plan de entregas (RFC)
 
-1. **Entrega 1:** aplicación en línea donde el estudiante consulta el comedor asignado; asignación "inteligente" según información personal y características del estudiante.
+1. **Entrega 1:** aplicación en línea donde el estudiante consulta el comedor asignado (Req. 10); asignación "inteligente" según información personal y características del estudiante (Req. 1 a 6).
 2. **Entrega 2:** encuesta para conocer necesidades y preferencias; sistema de reasignación periódica; mejora del proceso de asignación de cupos.
 3. **Entrega final:** sistema de estadísticas para administradores; reasignaciones de emergencia; diferenciación en la asignación de cupos según el lapso de tiempo que el estudiante elija (a partir de la encuesta).
 
@@ -105,10 +135,14 @@
 - **Límites físicos:** el aforo real de cada comedor es un tope que el sistema no puede superar.
 - **Fuga de datos personales:** se manejan ubicación, condiciones y preferencias; el acceso debe estar restringido y protegido (es el punto más sensible).
 - **Riesgos técnicos aceptados (ADR):** costo por ejecución de PHP al lanzar un proceso por solicitud, validación de argumentos contra inyección de comandos y curva de aprendizaje de PHP.
+- **Error de acceso a los datos de asignación (REQ-10):** probabilidad Low, impacto High; mitigación: se muestra un mensaje de error y se da al estudiante la opción de reintentar.
+- **Capacidad mal estimada (REQ-01):** estudiantes no beneficiarios afectan el aforo real y el sistema no lo mide; probabilidad Alta, impacto Medio.
 
 **Dependencias**
 - Estado actual de los comedores (infraestructura y capacidad).
 - Entidades que administran los datos de los estudiantes relevantes para la asignación.
+- Momento en que entran en efecto los subsidios de alimentación en la Universidad Nacional de Colombia sede Bogotá (REQ-01).
+- REQ-10 depende de REQ-01 (las asignaciones deben existir y estar persistidas).
 
 **Alternativas al sistema (descartadas en el RFC):** asignación aleatoria (ignora las características de cada estudiante) y mantener el sistema actual (no ha resuelto saturación ni filas).
 
@@ -120,14 +154,14 @@ Cada pregunta se responde solo con lo que ya está en el RFC, los ADR y los requ
 
 **1. ¿Cómo se redistribuye a los estudiantes cuando el aforo cambia de forma imprevista (cierre temporal, falla en el servicio)?** — *Parcialmente respondida*
 - La falla se registra mediante un reporte (Req. 7) o se detecta, y el sistema notifica a los administradores (Req. 8).
-- La redistribución la hacen los administradores mediante **reasignaciones de emergencia** (RFC, entrega final), que corresponden a los casos aislados con intervención manual (Req. 6).
+- La redistribución la hacen los administradores mediante **reasignaciones de emergencia** (RFC, entrega final), que corresponden a los casos aislados con intervención manual (Req. 6). El equipo decidió que el sistema no reasigna automáticamente ante una novedad.
 - Los administradores pueden consultar capacidad, horario y funcionamiento de los comedores (Req. 9) para decidir.
 - Sin definir: el criterio con el que se redistribuye y si el sistema propone alguna reasignación.
 
 **2. ¿Con qué frecuencia se actualizan los datos de los estudiantes (ubicación, horario) y quién los mantiene?** — *Pendiente*
 
 **3. ¿Cómo se ponderan los componentes del árbol de decisión cuando entran en conflicto?** — *Parcialmente respondida*
-- El aforo es un tope físico que el sistema no puede superar (RFC, riesgos), por lo que actúa como límite y no como un criterio más.
+- El aforo es un tope físico que el sistema no puede superar (RFC, riesgos), por lo que actúa como límite y no como un criterio más. REQ-01 lo recoge como restricción: un comedor lleno no se puede asignar.
 - Los criterios a considerar son horario, preferencia de comedor, condiciones del comedor y limitaciones del estudiante (Req. 2 a 5), más la ubicación relativa (RFC).
 - Sin definir: el peso o la prioridad entre estos criterios cuando se contradicen.
 
@@ -149,10 +183,20 @@ Cada pregunta se responde solo con lo que ya está en el RFC, los ADR y los requ
 
 **Resumen:** 4 preguntas con respuesta parcial (1, 3, 4, 7), 2 pendientes (2, 6) y 1 sin definir en las fuentes (5). Lo pendiente o sin definir queda abierto hasta que el equipo lo decida.
 
+### Preguntas abiertas propias de los requerimientos ya redactados
+- **REQ-01:** ¿qué se debe hacer cuando no se puede medir acertadamente la capacidad de atención de un comedor?
+- **REQ-10:** ¿qué representación visual se usará para el horario de comedores de un estudiante? (el diseño solo fija la representación lógica: día + comedor).
+
 ---
 
 ## 9. Notas de alcance
 
 - El RFC incluye la **ubicación relativa** como criterio y menciona encuesta, reasignación periódica y estadísticas por entregas; `Requirements.md` aún no contiene requerimientos explícitos para ubicación ni para la encuesta.
 - El proyecto es de escala acotada: se prefiere una integración simple y no sobredimensionar la solución.
-- Terminología usada en las fuentes: comedor, cupos, aforo, estudiante beneficiario, administrador, árbol decisional (o árbol de decisión), frontend, backend.
+- Terminología usada en las fuentes: comedor, cupos, aforo, estudiante beneficiario, administrador, árbol decisional (o árbol de decisión), frontend, backend, periodo de asignación vigente, comedores asignados.
+- **Alcance temporal de la asignación:** REQ-01 fija un comedor por día (lunes a viernes), igual para todas las semanas del semestre. El RFC menciona reasignación periódica (entrega 2); la relación entre ambos sigue sin definir.
+- **Brechas abiertas entre REQ-01 y REQ-10** (se señalan, no se resuelven aquí):
+  - Quién mantiene el periodo de asignación vigente y dónde vive.
+  - Cómo se identifica al estudiante que consulta (el RFC pide acceso restringido a sus datos).
+  - Cómo se relacionan BR-01 (frecuencia diaria) y la asignación fija del semestre con el periodo "semana en curso" de REQ-10.
+  - El enunciado del archivo `REQ-10.md` repite el de REQ-09 (consulta de desempeño); el enunciado correcto es el de `Requirements.md`, Requerimiento 10.
