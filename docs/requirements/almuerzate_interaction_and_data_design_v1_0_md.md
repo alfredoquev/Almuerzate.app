@@ -224,7 +224,7 @@ erDiagram
 |---|---|---|---|
 | Asignaciones encontradas | Existen 5 registros en `ASIGNACION` para `id_estudiante = 123` en el `periodo` vigente. | `buscarComedoresAsignados(123, periodo)` | Retorna `List<ComedorAsignado>` con 5 elementos (`dia`, `nombreComedor`). |
 | Sin asignaciones | No existen registros en `ASIGNACION` para `id_estudiante = 456` en el `periodo` vigente. | `buscarComedoresAsignados(456, periodo)` | Retorna `List<ComedorAsignado>` vacía (`0` elementos). |
-| Falla de Red / BD | La conexión al motor PostgreSQL falla o supera el timeout. | `buscarComedoresAsignados(123, periodo)` | Propaga error de conexión / timeout hacia el invocador. |
+| Falla de Red / BD | La conexión al motor PostgreSQL falla o supera el timeout. | `buscarComedoresAsignados(123, periodo)` | Señala la falla al acceder a los datos. |
 
 ---
 
@@ -259,7 +259,7 @@ erDiagram
 
 ## 7. Consistency Checklist
 
-- [X] Two use cases from the project, each traceable to a Use Case written in the requirements.
+- [ ] Two use cases from the project, each traceable to a Use Case written in the requirements.
 - [X] Each sequence diagram shows the main flow and at least one alternative or exception flow.
 - [X] No business behavior is invented: anything unspecified is marked as an assumption or Open Question.
 - [X] Section 2.1 explains what is NOT persisted as well as what is.
