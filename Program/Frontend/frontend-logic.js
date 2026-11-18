@@ -14,7 +14,7 @@ function displayQueryOnHTML(queryResult){
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-    fetch('query-fetcher.php')
+    fetch('../Backend/Business/query-fetcher.php')
     .then(response => response.json())
     .then(data => {
         console.log(data.queryResult);
