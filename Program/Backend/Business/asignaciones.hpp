@@ -74,7 +74,6 @@ class RepositorioAsignaciones {
 public:
     virtual ~RepositorioAsignaciones() = default;
 
-    // "0..1" PeriodoAsignacion -> optional
     virtual optional<PeriodoAsignacion> buscarPeriodoVigente() = 0;
 
     // "0 o 5" ComedorAsignado -> vector vacio o con 5 elementos
