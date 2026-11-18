@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <cstdlib>
 
 using namespace std;
 
@@ -73,7 +74,6 @@ class RepositorioAsignaciones {
 public:
     virtual ~RepositorioAsignaciones() = default;
 
-    // "0..1" PeriodoAsignacion -> optional
     virtual optional<PeriodoAsignacion> buscarPeriodoVigente() = 0;
 
     // "0 o 5" ComedorAsignado -> vector vacio o con 5 elementos
@@ -130,61 +130,30 @@ public:
 // ---------------------------------------------------------------------
 // ConsultaAsignaciones
 // ---------------------------------------------------------------------
+
 class ConsultaAsignaciones {
 public:
     explicit ConsultaAsignaciones(RepositorioAsignaciones& repositorio)
         : repositorio(repositorio) {}
+        ResultadoConsulta consultarComedoresAsignados(const IdEstudiante& idEstudiante) {
+            try {
+                optional<PeriodoAsignacion> periodo = repositorio.buscarPeriodoVigente();
+                if (!periodo) {
+                    return ResultadoConsulta(EstadoConsulta::SIN_PERIODO_VIGENTE);
+                }
 
-    ResultadoConsulta consultarComedoresAsignados(const IdEstudiante& idEstudiante) {
-        try {
-            optional<PeriodoAsignacion> periodo = repositorio.buscarPeriodoVigente();
-            if (!periodo) {
-                return ResultadoConsulta(EstadoConsulta::SIN_PERIODO_VIGENTE);
+                vector<ComedorAsignado> comedores =
+                    repositorio.buscarComedoresAsignados(idEstudiante, *periodo);
+                if (comedores.empty()) {
+                    return ResultadoConsulta(EstadoConsulta::NO_ASIGNADOS_AUN);
+                }
+
+                return ResultadoConsulta(EstadoConsulta::DISPONIBLE, move(comedores));
+            } catch (const exception&) {
+                return ResultadoConsulta(EstadoConsulta::PROBLEMA_DE_COMUNICACION);
             }
-
-            vector<ComedorAsignado> comedores =
-                repositorio.buscarComedoresAsignados(idEstudiante, *periodo);
-            if (comedores.empty()) {
-                return ResultadoConsulta(EstadoConsulta::NO_ASIGNADOS_AUN);
-            }
-
-            return ResultadoConsulta(EstadoConsulta::DISPONIBLE, move(comedores));
-        } catch (const exception&) {
-            return ResultadoConsulta(EstadoConsulta::PROBLEMA_DE_COMUNICACION);
         }
-    }
 
 private:
     RepositorioAsignaciones& repositorio;
-};
-
-// ---------------------------------------------------------------------
-// PresentacionAsignaciones
-// ---------------------------------------------------------------------
-class PresentacionAsignaciones {
-public:
-    PresentacionAsignaciones(ConsultaAsignaciones& consulta, CatalogoMensajes& catalogo)
-        : consulta(consulta), catalogo(catalogo) {}
-
-    void mostrar(const IdEstudiante& idEstudiante) {
-        ResultadoConsulta resultado = consulta.consultarComedoresAsignados(idEstudiante);
-
-        cout << catalogo.mensajePara(resultado.getEstado()) << "\n";
-
-        if (resultado.estaDisponible()) {
-            for (const ComedorAsignado& comedor : resultado.getComedoresAsignados()) {
-                cout << "  " << nombreDia(comedor.getDia()) << ": "
-                     << comedor.getNombreComedor() << "\n";
-            }
-        }
-    }
-
-    // SUPUESTO: el diagrama no define quien dispara el reintento ni con que
-    // frecuencia; aqui simplemente repite la consulta y la muestra.
-    void reintentar(const IdEstudiante& idEstudiante) { mostrar(idEstudiante); }
-
-private:
-
-    ConsultaAsignaciones& consulta;
-    CatalogoMensajes& catalogo;
 };
