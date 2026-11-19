@@ -11,6 +11,28 @@
 using namespace std;
 
 // ---------------------------------------------------------------------
+// Funciones auxiliares
+// ---------------------------------------------------------------------
+
+
+static string obtenerEchoPhp(const string &rutaScript)
+{
+    string cmd = "php " + rutaScript;
+    FILE *pipe = popen(cmd.c_str(), "r");
+    if (!pipe)
+        throw runtime_error("No se pudo ejecutar php");
+
+    string salida;
+    char buffer[4096];
+    while (fgets(buffer, sizeof(buffer), pipe))
+        salida += buffer;
+
+    if (pclose(pipe) != 0)
+        throw runtime_error("php terminó con error");
+    return salida;
+}
+
+// ---------------------------------------------------------------------
 // Tipos auxiliares (el diagrama los usa pero no los define)
 // ---------------------------------------------------------------------
 using IdEstudiante = string;
@@ -84,6 +106,42 @@ public:
     virtual void guardarComedoresAsignados(
         const IdEstudiante& idEstudiante,
         const vector<ComedorAsignado>& comedores) = 0;
+
+    virtual string leerJson() const { return ""; }
+};
+
+// ---------------------------------------------------------------------
+// RepositorioAsignacionesPhp (enfocado en la conexion con los echo PHP)
+// ---------------------------------------------------------------------
+
+class RepositorioAsignacionesPhp : public RepositorioAsignaciones {
+public:
+    explicit RepositorioAsignacionesPhp(string rutaScript)
+        : rutaScript(move(rutaScript)) {}
+
+    optional<PeriodoAsignacion> buscarPeriodoVigente() override {
+        string json = obtenerEchoPhp(rutaScript);   // dato actual
+        // TODO: extraer inicio y fin de json; nullopt si no hay periodo
+        return nullopt;
+    }
+
+    vector<ComedorAsignado> buscarComedoresAsignados(
+            const IdEstudiante& idEstudiante,
+            const PeriodoAsignacion& periodo) override {
+        string json = obtenerEchoPhp(rutaScript);   // dato actual
+        // TODO: parsear json y construir los ComedorAsignado del estudiante
+        return {};
+    }
+
+    string leerJson() const override { return obtenerEchoPhp(rutaScript); }
+
+    void guardarComedoresAsignados(
+            const IdEstudiante&, const vector<ComedorAsignado>&) override {
+        throw runtime_error("repositorio de solo lectura");
+    }
+
+private:
+    string rutaScript;
 };
 
 // ---------------------------------------------------------------------
@@ -152,6 +210,11 @@ public:
             } catch (const exception&) {
                 return ResultadoConsulta(EstadoConsulta::PROBLEMA_DE_COMUNICACION);
             }
+        }
+
+        // TEMPORAL: depuración
+        void imprimirJson() const {
+            cout << repositorio.leerJson() << endl;
         }
 
 private:
