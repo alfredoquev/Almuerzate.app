@@ -7,6 +7,13 @@
 #include <utility>
 #include <vector>
 #include <cstdlib>
+#include <cstdio>   // popen / pclose / fgets / FILE
+
+// popen/pclose se llaman _popen/_pclose en Windows (MSVC)
+#ifdef _WIN32
+  #define popen  _popen
+  #define pclose _pclose
+#endif
 
 using namespace std;
 
@@ -14,10 +21,13 @@ using namespace std;
 // Funciones auxiliares
 // ---------------------------------------------------------------------
 
-
+// Ejecuta el script PHP y devuelve todo lo que imprime con echo.
+// rutaScript debe ser una ruta ABSOLUTA: el directorio de trabajo del
+// proceso que carga la libreria (Apache, php-fpm, php CLI) no es fijo.
 static string obtenerEchoPhp(const string &rutaScript)
 {
-    string cmd = "php " + rutaScript;
+    // Comillas para soportar rutas con espacios (Windows y Linux)
+    string cmd = "php \"" + rutaScript + "\"";
     FILE *pipe = popen(cmd.c_str(), "r");
     if (!pipe)
         throw runtime_error("No se pudo ejecutar php");
