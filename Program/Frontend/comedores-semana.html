@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Almuerzate — Comedores de la semana</title>
+  <meta name="theme-color" content="#059669">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #f9fafb;
+      color: #111827;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      padding-bottom: 2.5rem;
+      min-height: 100vh;
+    }
+
+    .px-5 {
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #10b981 0%, #059669 50%, #0d9488 100%);
+      padding: 2.5rem 1.5rem 3.5rem;
+      border-radius: 0 0 2rem 2rem;
+      box-shadow: 0 4px 24px rgba(5, 150, 105, .25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 10rem;
+      height: 10rem;
+      background: rgba(255, 255, 255, .05);
+      border-radius: 50%;
+    }
+
+    .header-eyebrow {
+      color: #a7f3d0;
+      font-size: .75rem;
+      font-weight: 500;
+    }
+
+    .header-eyebrow span {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .header-label {
+      color: rgba(167, 243, 208, .7);
+      font-size: .65rem;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      font-weight: 600;
+      margin-top: 1.25rem;
+    }
+
+    .header-msg {
+      color: rgba(255, 255, 255, .8);
+      font-size: .875rem;
+      font-weight: 500;
+      min-height: 1.25rem;
+      margin-top: .2rem;
+    }
+
+    /* ── Contenido ── */
+    .content {
+      padding: 0 1.25rem;
+      margin-top: -1.5rem;
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    /* ── Card base ── */
+    .card {
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
+      padding: 1.25rem;
+    }
+
+    .card-title {
+      font-weight: 700;
+      font-size: .9rem;
+      color: #1f2937;
+      margin-bottom: .75rem;
+    }
+
+    /* ── Skeleton ── */
+    @keyframes shimmer {
+      0% {
+        background-position: -400px 0;
+      }
+
+      100% {
+        background-position: 400px 0;
+      }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+      background-size: 400px 100%;
+      animation: shimmer 1.4s ease-in-out infinite;
+      border-radius: .4rem;
+    }
+
+    .sk-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .75rem 1rem;
+      border-radius: .75rem;
+      background: #f9fafb;
+      margin-bottom: .5rem;
+    }
+
+    .sk-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .sk-left {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .sk-dot {
+      width: .5rem;
+      height: .5rem;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .sk-label {
+      height: .75rem;
+      border-radius: .3rem;
+    }
+
+    .sk-val {
+      height: .75rem;
+      border-radius: .3rem;
+    }
+
+    /* ── Error ── */
+    .error-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 2.5rem 1.25rem;
+    }
+
+    .error-icon {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 50%;
+      background: #fef2f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .error-icon svg {
+      width: 1.75rem;
+      height: 1.75rem;
+      color: #f87171;
+    }
+
+    .error-title {
+      font-weight: 700;
+      font-size: .9rem;
+      color: #1f2937;
+      margin-bottom: .4rem;
+    }
+
+    .error-desc {
+      font-size: .875rem;
+      color: #9ca3af;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      padding: .625rem 1.5rem;
+      background: linear-gradient(135deg, #10b981, #0d9488);
+      color: #fff;
+      font-weight: 700;
+      font-size: .875rem;
+      border: none;
+      border-radius: .75rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, .25);
+      transition: transform .15s, box-shadow .15s;
+    }
+
+    .btn-primary:active {
+      transform: scale(.97);
+    }
+
+    /* ── Horario semanal ── */
+    .day-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .75rem 1rem;
+      border-radius: .75rem;
+      background: #f9fafb;
+      margin-bottom: .5rem;
+      transition: all .2s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .day-row:hover {
+      background: #f3f4f6;
+      transform: translateY(-1px);
+    }
+
+    .day-row:active {
+      transform: scale(.98);
+    }
+
+    .day-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .day-row.today {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+    }
+
+    .day-row.today:hover {
+      background: #d1fae5;
+    }
+
+    .day-right {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .chevron-icon {
+      width: 1rem;
+      height: 1rem;
+      color: #9ca3af;
+      transition: transform .2s;
+    }
+
+    /* ── Modal / Bottom Sheet para Detalle de Comedor ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #fff;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 1.5rem 1.5rem 0 0;
+      padding: 1.5rem 1.25rem 2rem;
+      box-shadow: 0 -8px 30px rgba(0, 0, 0, .15);
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0);
+    }
+
+    .modal-drag-handle {
+      width: 2.75rem;
+      height: .25rem;
+      background: #e5e7eb;
+      border-radius: 999px;
+      margin: 0 auto 1.25rem;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .modal-subtitle {
+      font-size: .8rem;
+      color: #059669;
+      font-weight: 600;
+      margin-top: .15rem;
+    }
+
+    .modal-close-btn {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: #f3f4f6;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #6b7280;
+      transition: background .2s;
+    }
+
+    .modal-close-btn:hover {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .modal-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-info-item {
+      background: #f9fafb;
+      border-radius: .85rem;
+      padding: .85rem 1rem;
+      border: 1px solid #f3f4f6;
+    }
+
+    .modal-info-label {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #9ca3af;
+      font-weight: 600;
+      margin-bottom: .25rem;
+    }
+
+    .modal-info-value {
+      font-size: .95rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .modal-badge-row {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .day-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .day-row.today {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+    }
+
+    .day-left {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .day-dot {
+      width: .5rem;
+      height: .5rem;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: #d1d5db;
+    }
+
+    .day-dot.today {
+      background: #10b981;
+      animation: pulse-soft 2s ease-in-out infinite;
+    }
+
+    .day-name {
+      font-size: .875rem;
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .day-name.today {
+      color: #065f46;
+    }
+
+    .today-badge {
+      font-size: .6rem;
+      background: #10b981;
+      color: #fff;
+      padding: .15rem .5rem;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .day-comedor {
+      font-size: .875rem;
+      font-weight: 600;
+      color: #6b7280;
+    }
+
+    .day-comedor.today {
+      color: #059669;
+    }
+
+    @keyframes pulse-soft {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .45
+      }
+    }
+
+    /* ── Cards de comedores ── */
+    .section-label {
+      font-size: .7rem;
+      font-weight: 600;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: 0 .25rem;
+      margin-bottom: .5rem;
+    }
+
+    .comedor-card {
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .06);
+      padding: 1.25rem;
+      margin-bottom: .75rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .comedor-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .comedor-info {}
+
+    .comedor-nombre {
+      font-weight: 700;
+      font-size: .9rem;
+      color: #1f2937;
+    }
+
+    .comedor-cap {
+      font-size: .75rem;
+      color: #9ca3af;
+      margin-top: .2rem;
+    }
+
+    .comedor-cap span {
+      font-weight: 600;
+      color: #4b5563;
+    }
+
+    .comedor-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .7rem;
+      color: #059669;
+      background: #ecfdf5;
+      padding: .25rem .65rem;
+      border-radius: 999px;
+      font-weight: 600;
+      margin-top: .6rem;
+    }
+
+    .comedor-badge-dot {
+      width: .4rem;
+      height: .4rem;
+      border-radius: 50%;
+      background: #10b981;
+    }
+
+    .comedor-icon-wrap {
+      width: 2.25rem;
+      height: 2.25rem;
+      flex-shrink: 0;
+      border-radius: .6rem;
+      background: #ecfdf5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .comedor-icon-wrap svg {
+      width: 1rem;
+      height: 1rem;
+      color: #059669;
+    }
+
+    /* ── Animaciones de entrada ── */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .anim {
+      animation: fadeInUp .4s ease-out both;
+    }
+
+    .d1 {
+      animation-delay: .07s;
+    }
+
+    .d2 {
+      animation-delay: .14s;
+    }
+
+    .d3 {
+      animation-delay: .21s;
+    }
+
+    .d4 {
+      animation-delay: .28s;
+    }
+
+    /* ── Utilidades ── */
+    .hidden {
+      display: none !important;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      top: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      background: #111827;
+      color: #fff;
+      padding: .75rem 1.25rem;
+      border-radius: .75rem;
+      font-size: .875rem;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
+      max-width: 90vw;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- Header -->
+    <div class="header">
+      <p class="header-eyebrow">Bienvenido, <span>User</span></p>
+      <p class="header-label">Comedores de la semana</p>
+      <p class="header-msg" id="estado-msg"></p>
+    </div>
+
+    <!-- Contenido -->
+    <div class="content">
+
+      <!-- SKELETON -->
+      <div id="view-skeleton" class="card">
+        <div class="skeleton" style="height:.85rem;width:7rem;margin-bottom:.85rem;"></div>
+        <div class="sk-row">
+          <div class="sk-left">
+            <div class="skeleton sk-dot"></div>
+            <div class="skeleton sk-label" style="width:4rem;"></div>
+          </div>
+          <div class="skeleton sk-val" style="width:7rem;"></div>
+        </div>
+        <div class="sk-row">
+          <div class="sk-left">
+            <div class="skeleton sk-dot"></div>
+            <div class="skeleton sk-label" style="width:3.5rem;"></div>
+          </div>
+          <div class="skeleton sk-val" style="width:5.5rem;"></div>
+        </div>
+        <div class="sk-row">
+          <div class="sk-left">
+            <div class="skeleton sk-dot"></div>
+            <div class="skeleton sk-label" style="width:5rem;"></div>
+          </div>
+          <div class="skeleton sk-val" style="width:7rem;"></div>
+        </div>
+        <div class="sk-row">
+          <div class="sk-left">
+            <div class="skeleton sk-dot"></div>
+            <div class="skeleton sk-label" style="width:3.5rem;"></div>
+          </div>
+          <div class="skeleton sk-val" style="width:6rem;"></div>
+        </div>
+        <div class="sk-row">
+          <div class="sk-left">
+            <div class="skeleton sk-dot"></div>
+            <div class="skeleton sk-label" style="width:4rem;"></div>
+          </div>
+          <div class="skeleton sk-val" style="width:5rem;"></div>
+        </div>
+      </div>
+
+      <!-- ERROR -->
+      <div id="view-error" class="card hidden">
+        <div class="error-panel">
+          <div class="error-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+            </svg>
+          </div>
+          <p class="error-title">Problema de comunicacion</p>
+          <p class="error-desc">Hubo un problema de comunicacion. Intenta nuevamente.</p>
+          <button class="btn-primary" onclick="cargarComedores()">Reintentar</button>
+        </div>
+      </div>
+
+      <!-- DISPONIBLE -->
+      <div id="view-schedule" class="hidden">
+
+        <!-- Horario semanal -->
+        <div class="card anim">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.75rem;">
+            <p class="card-title" style="margin-bottom:0;">Tu semana</p>
+            <span style="font-size:.7rem; color:#9ca3af; font-weight:500;">Toca para ver detalles</span>
+          </div>
+          <div id="weekly-schedule"></div>
+        </div>
+
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /app -->
+
+  <!-- Modal Bottom Sheet: Detalle de Comedor al hacer Tap -->
+  <div id="modal-detalle-overlay" class="modal-overlay" onclick="cerrarDetalleComedor(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-drag-handle"></div>
+
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitle" id="modal-comedor-dia">Lunes</p>
+          <h3 class="modal-title" id="modal-comedor-nombre">Comedor Central</h3>
+        </div>
+        <button class="modal-close-btn" onclick="cerrarDetalleDirecto()" aria-label="Cerrar">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+            style="width:1.25rem;height:1.25rem;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-badge-row">
+        <span class="comedor-badge" style="margin-top:0;">
+          <span class="comedor-badge-dot"></span>
+          Disponible
+        </span>
+        <span style="font-size: .75rem; color: #9ca3af; font-weight: 500;" id="modal-comedor-id">ID: 1</span>
+      </div>
+
+      <div class="modal-info-grid">
+        <div class="modal-info-item">
+          <p class="modal-info-label">Capacidad Máxima</p>
+          <p class="modal-info-value" id="modal-comedor-capacidad">3 personas</p>
+        </div>
+        <div class="modal-info-item">
+          <p class="modal-info-label">Estado Asignación</p>
+          <p class="modal-info-value" style="color:#059669;">Asignado</p>
+        </div>
+      </div>
+
+      <button class="btn-primary" style="width:100%; text-align:center; padding:.8rem;"
+        onclick="cerrarDetalleDirecto()">
+        Entendido
+      </button>
+    </div>
+  </div>
+
+  <div id="toast" class="hidden"></div>
+
+  <script>
+    // ─── CatalogoMensajes (traduccion de clases.hpp) ─────────────────────
+    const EstadoConsulta = Object.freeze({
+      DISPONIBLE: 'DISPONIBLE',
+      PROBLEMA_DE_COMUNICACION: 'PROBLEMA_DE_COMUNICACION',
+    });
+
+    const CatalogoMensajes = {
+      mensajePara(estado) {
+        switch (estado) {
+          case EstadoConsulta.DISPONIBLE:
+            return 'Estos son tus comedores asignados.';
+          case EstadoConsulta.PROBLEMA_DE_COMUNICACION:
+            return 'Hubo un problema de comunicacion. Intenta nuevamente.';
+        }
+        return '';
+      }
+    };
+
+    // ─── Configuracion ───────────────────────────────────────────────────
+    const USE_MOCK = false; // ← true = datos locales | false = fetch real al PHP
+
+    const API_URL = '../Backend/Business/query-fetcher.php';
+
+    // Mock de comedores (simula queryResult del PHP)
+    const MOCK_COMEDORES = [
+      { id_comedor: 1, nombre: 'Comedor Central', capacidad_maxima: 3 },
+      { id_comedor: 2, nombre: 'Comedor Ciencias', capacidad_maxima: 3 },
+      { id_comedor: 3, nombre: 'Comedor Ingenieria', capacidad_maxima: 3 },
+      { id_comedor: 4, nombre: 'Comedor Humanidades', capacidad_maxima: 2 },
+    ];
+
+    // Mock de asignacion semanal (dia → id_comedor)
+    const MOCK_ASIGNACION = [
+      { dia: 'Lunes', id_comedor: 1 },
+      { dia: 'Martes', id_comedor: 2 },
+      { dia: 'Miercoles', id_comedor: 3 },
+      { dia: 'Jueves', id_comedor: 1 },
+      { dia: 'Viernes', id_comedor: 4 },
+    ];
+
+    const DIAS = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+
+    // Variable global para consulta rápida de comedores al hacer tap
+    let cacheComedores = {};
+
+    // ─── Vistas ──────────────────────────────────────────────────────────
+    function mostrar(id) {
+      ['view-skeleton', 'view-error', 'view-schedule'].forEach(v =>
+        document.getElementById(v).classList.toggle('hidden', v !== id)
+      );
+    }
+
+    function setMensaje(estado) {
+      document.getElementById('estado-msg').textContent =
+        estado ? CatalogoMensajes.mensajePara(estado) : '';
+    }
+
+    // ─── Fetch ───────────────────────────────────────────────────────────
+    // Respuesta esperada: { queryResult: [ {id_comedor, nombre, capacidad_maxima} ] | null }
+    async function cargarComedores() {
+      mostrar('view-skeleton');
+      setMensaje(null);
+
+      if (USE_MOCK) {
+        await new Promise(r => setTimeout(r, 1200)); // simula delay de red
+        setMensaje(EstadoConsulta.DISPONIBLE);
+        renderHorario(MOCK_ASIGNACION, MOCK_COMEDORES);
+        mostrar('view-schedule');
+        return;
+      }
+
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        if (!res.ok || data.queryResult === null) throw new Error('Sin datos');
+
+        const comedores = data.queryResult;
+
+        setMensaje(EstadoConsulta.DISPONIBLE);
+        renderHorario(MOCK_ASIGNACION, comedores);
+        mostrar('view-schedule');
+
+      } catch {
+        setMensaje(EstadoConsulta.PROBLEMA_DE_COMUNICACION);
+        mostrar('view-error');
+      }
+    }
+
+    // ─── Render: horario semanal con soporte para Tap ─────────────────────
+    function renderHorario(asignacion, comedores) {
+      const dow = new Date().getDay();
+      const diaHoy = DIAS[dow - 1] ?? null;
+
+      cacheComedores = {};
+      comedores.forEach(c => { cacheComedores[c.id_comedor] = c; });
+
+      document.getElementById('weekly-schedule').innerHTML =
+        asignacion.map(item => {
+          const c = cacheComedores[item.id_comedor];
+          const nombre = c ? c.nombre : '—';
+          const isHoy = item.dia === diaHoy;
+          return `
+        <div class="day-row ${isHoy ? 'today' : ''}" onclick="verDetalleComedor(${item.id_comedor}, '${item.dia}')">
+          <div class="day-left">
+            <span class="day-dot ${isHoy ? 'today' : ''}"></span>
+            <span class="day-name ${isHoy ? 'today' : ''}">${item.dia}</span>
+            ${isHoy ? '<span class="today-badge">Hoy</span>' : ''}
+          </div>
+          <div class="day-right">
+            <span class="day-comedor ${isHoy ? 'today' : ''}">${nombre}</span>
+            <svg class="chevron-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+          </div>
+        </div>`;
+        }).join('');
+    }
+
+    // ─── Modal interactivo: Detalle al hacer tap ─────────────────────────
+    function verDetalleComedor(idComedor, dia) {
+      const c = cacheComedores[idComedor];
+      if (!c) return;
+
+      document.getElementById('modal-comedor-dia').textContent = dia ? `Asignación: ${dia}` : 'Comedor Asignado';
+      document.getElementById('modal-comedor-nombre').textContent = c.nombre;
+      document.getElementById('modal-comedor-id').textContent = `ID: ${c.id_comedor}`;
+      document.getElementById('modal-comedor-capacidad').textContent = `${c.capacidad_maxima} personas`;
+
+      const overlay = document.getElementById('modal-detalle-overlay');
+      overlay.classList.add('active');
+    }
+
+    function cerrarDetalleDirecto() {
+      const overlay = document.getElementById('modal-detalle-overlay');
+      overlay.classList.remove('active');
+    }
+
+    function cerrarDetalleComedor(event) {
+      if (event.target === document.getElementById('modal-detalle-overlay')) {
+        cerrarDetalleDirecto();
+      }
+    }
+
+    // ─── Init ─────────────────────────────────────────────────────────────
+    cargarComedores();
+  </script>
+</body>
+
+</html>
