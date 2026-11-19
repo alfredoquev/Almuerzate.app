@@ -213,9 +213,9 @@ public:
         }
 
         // TEMPORAL: depuración
-        void imprimirJson() const {
-            cout << repositorio.leerJson() << endl;
-        }
+    void imprimirJson() const {
+        cout << repositorio.leerJson() << endl;
+    }
 
 private:
     RepositorioAsignaciones& repositorio;

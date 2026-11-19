@@ -49,7 +49,7 @@ int main() {
         RepositorioAsignacionesPhp repositorio("query-fetcher.php");
         ConsultaAsignaciones consulta(repositorio);
 
-        consulta.imprimirJson();
+        string prueba = consulta.imprimirJson();
     } catch (const exception& e) {
         cerr << "Error: " << e.what() << endl;
         return 1;
