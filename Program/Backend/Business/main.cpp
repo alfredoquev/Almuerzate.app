@@ -44,12 +44,17 @@ static const char *nombreEstado(EstadoConsulta estado)
 
 // Ejecuta el script PHP y devuelve todo lo que imprime con echo
 
-int main() {
-    try {
+extern "C" {
+    void imprimirJson() {
         RepositorioAsignacionesPhp repositorio("query-fetcher.php");
         ConsultaAsignaciones consulta(repositorio);
+        consulta.imprimirJson();
+    }
+}
 
-        string prueba = consulta.imprimirJson();
+int main() {
+    try {
+        imprimirJson();
     } catch (const exception& e) {
         cerr << "Error: " << e.what() << endl;
         return 1;
@@ -57,3 +62,4 @@ int main() {
 
     return 0;
 }
+
