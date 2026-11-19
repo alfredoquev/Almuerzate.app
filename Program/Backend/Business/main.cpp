@@ -1,12 +1,22 @@
 #include <cstdlib>
 #include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <stdexcept>
 #include "clases.hpp"
-#include <iterator>
 
 using namespace std;
+
+// ---------------------------------------------------------------------
+// Macro de exportacion: Windows (.dll) necesita __declspec(dllexport);
+// Linux (.so) exporta con visibility("default").
+// ---------------------------------------------------------------------
+#ifdef _WIN32
+  #define API __declspec(dllexport)
+#else
+  #define API __attribute__((visibility("default")))
+#endif
 
 static const char *nombreDia(DiaSemana dia)
 {
@@ -42,24 +52,36 @@ static const char *nombreEstado(EstadoConsulta estado)
     return "";
 }
 
-// Ejecuta el script PHP y devuelve todo lo que imprime con echo
-
+// ---------------------------------------------------------------------
+// API visible desde PHP (FFI). Solo tipos de C: char*, int, etc.
+// ---------------------------------------------------------------------
 extern "C" {
-    void imprimirJson() {
-        RepositorioAsignacionesPhp repositorio("query-fetcher.php");
-        ConsultaAsignaciones consulta(repositorio);
-        consulta.imprimirJson();
-    }
-}
 
-int main() {
+// Ejecuta el script PHP indicado y devuelve su salida como cadena C.
+// - rutaScript: ruta absoluta al script (la pasa PHP).
+// - Devuelve NULL si hubo cualquier error.
+// - La memoria devuelta DEBE liberarse con liberarCadena().
+API char* imprimirJson(const char* rutaScript)
+{
+    if (!rutaScript) return nullptr;
     try {
-        imprimirJson();
-    } catch (const exception& e) {
-        cerr << "Error: " << e.what() << endl;
-        return 1;
-    }
+        RepositorioAsignacionesPhp repositorio(rutaScript);
+        string json = repositorio.leerJson();
 
-    return 0;
+        // Copia en memoria propia: el std::string se destruye al salir
+        char* out = static_cast<char*>(malloc(json.size() + 1));
+        if (!out) return nullptr;
+        memcpy(out, json.c_str(), json.size() + 1);
+        return out;
+    } catch (...) {
+        return nullptr;   // ninguna excepcion puede cruzar hacia PHP
+    }
 }
 
+// Libera la memoria devuelta por imprimirJson() (mismo allocator que la creo)
+API void liberarCadena(char* s)
+{
+    free(s);
+}
+
+} // extern "C"
