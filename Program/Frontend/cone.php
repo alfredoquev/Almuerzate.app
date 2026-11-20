@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 // ---- Rutas (ajusta si tus carpetas son distintas) ----
 $dirLib     = __DIR__ . '/../Backend/Business';
@@ -21,7 +21,7 @@ try {
     ", $rutaLib);
 
     $ptr = $ffi->imprimirJson($rutaScript);
-    if ($ptr === null) {
+    if (FFI::isNull($ptr)) {
         throw new RuntimeException('imprimirJson() falló en la librería C++');
     }
 
@@ -31,10 +31,22 @@ try {
         $ffi->liberarCadena($ptr);   // liberar siempre, aunque algo falle
     }
 
-    // $result ya es JSON: se decodifica para no codificarlo dos veces
+    $decoded = json_decode($result, true, 512, JSON_THROW_ON_ERROR);
+
+    // Si query-fetcher.php ya reporta un error propio, se propaga como error
+    if (is_array($decoded) && isset($decoded['status']) && $decoded['status'] !== 'success') {
+        throw new RuntimeException($decoded['message'] ?? 'Error en query-fetcher.php');
+    }
+
+    // Si lo que imprime query-fetcher.php ya viene envuelto como
+    // {"status":..., "queryResult":...}, se toma solo el contenido interno
+    if (is_array($decoded) && array_key_exists('queryResult', $decoded)) {
+        $decoded = $decoded['queryResult'];
+    }
+
     $response = [
         'status'      => 'success',
-        'queryResult' => json_decode($result, true, 512, JSON_THROW_ON_ERROR),
+        'queryResult' => $decoded,
     ];
 } catch (Throwable $e) {
     http_response_code(500);
