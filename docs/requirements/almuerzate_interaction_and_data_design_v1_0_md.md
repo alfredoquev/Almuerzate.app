@@ -62,38 +62,39 @@ sequenceDiagram
 ## 2. Data Design
 
 ### 2.1 Principal information the system needs
-
+ 
 | Information | Needed by (use cases) | Persisted? | Why (or why not) |
 |---|---|---|---|
-| Comedores | Asignar comedores (REQ-01), Ver asignaciones (REQ-10) | Yes | Es la infraestructura base; se necesita su aforo y nombre para mostrar |
-| Estudiantes Beneficiarios | Asignar comedores (REQ-01) | Yes | Solo los beneficiarios reciben asignaciones; se asocian sus datos a los cupos |
-| Periodo de Asignación | Asignar comedores (REQ-01), Ver asignaciones (REQ-10) | Yes | Determina si hay asignaciones vigentes para mostrar y delimita el cálculo |
-| Asignaciones (Cupos) | Asignar comedores (REQ-01), Ver asignaciones (REQ-10) | Yes | Es el output central del sistema y debe ser inmutable y rápido de consultar para lectura (REQ-10) |
-
+| Comedores (nombre, capacidad máxima) | UC-01 (nombre); proceso interno de REQ-01, sin caso de uso (capacidad) | Yes | Un comedor existe independientemente de cualquier consulta. Su nombre se muestra y su capacidad es el tope que REQ-01 no puede superar |
+| Estudiantes beneficiarios | Proceso interno de REQ-01; UC-01 solo usa su identificador | Yes | Solo ellos reciben asignación (REQ-01, REQ-10). Cada asignación debe referirse a uno |
+| Periodos de asignación | UC-01; proceso interno de REQ-01 | Yes | Determinan si hay asignaciones vigentes para mostrar (AC-04) y delimitan cuándo se asigna (BR-02) |
+| Asignaciones (estudiante, comedor, día, periodo) | UC-01; proceso interno de REQ-01 | Yes | Es lo que REQ-01 produce y REQ-10 muestra. Se lee en cada consulta y se escribe al asignar. No se declara inmutable: el RFC prevé reasignaciones (entregas 2 y final), fuera del alcance de este documento |
+| `ResultadoConsulta` y `EstadoConsulta` | UC-01 | No | Se calculan en cada consulta a partir del periodo y de las asignaciones. Guardarlos crearía una segunda fuente de verdad que quedaría desactualizada |
+| Horario de comedores que ve el estudiante (día y comedor) | UC-01 | No | Es una vista derivada de las asignaciones: se reconstruye en cada consulta |
+| Textos de los mensajes al estudiante | UC-01 | No | Son textos fijos de la presentación (`CatalogoMensajes`), no datos de negocio |
+ 
 ### 2.2 Data model
-
-**Justification:** Relational (ADR-0001: PostgreSQL). Las entidades (estudiantes, comedores, periodos, asignaciones) tienen relaciones directas y estructuradas. Se requiere integridad transaccional (ACID) estricta para garantizar que el total de asignaciones nunca supere la capacidad del comedor.
-
+ 
+**Justification:** relational (ADR-0001, PostgreSQL). Estudiantes, comedores, periodos y asignaciones tienen relaciones directas y reglas de integridad (una asignación no existe sin su estudiante, comedor y periodo). La asignación de los 5 días de un estudiante debe guardarse de forma atómica, lo que aprovecha las transacciones ACID.
+ 
 ```mermaid
 erDiagram
-    ESTUDIANTE ||--o{ ASIGNACION : tiene
+    ESTUDIANTE_BENEFICIARIO ||--o{ ASIGNACION : tiene
     COMEDOR ||--o{ ASIGNACION : otorga
     PERIODO_ASIGNACION ||--o{ ASIGNACION : corresponde
-
-    ESTUDIANTE {
+ 
+    ESTUDIANTE_BENEFICIARIO {
         int id_estudiante PK
-        boolean es_beneficiario
     }
     COMEDOR {
         int id_comedor PK
-        string nombre
+        string nombre UK
         int capacidad_maxima
     }
     PERIODO_ASIGNACION {
         int id_periodo PK
         date fecha_inicio
         date fecha_fin
-        boolean es_vigente
     }
     ASIGNACION {
         int id_asignacion PK
@@ -103,30 +104,50 @@ erDiagram
         string dia_semana
     }
 ```
-
+ 
 | Entity / document type | Meaning in the system | Identifier | Constraints (required, unique, allowed values) |
 |---|---|---|---|
-| ESTUDIANTE | Representa a los usuarios del sistema | `id_estudiante` | `es_beneficiario` requerido (solo true recibe asignación) |
-| COMEDOR | Instalación física que ofrece el servicio | `id_comedor` | `capacidad_maxima` requerida, debe ser > 0 |
-| PERIODO_ASIGNACION | Ventana de tiempo (semestre/semana) activa | `id_periodo` | Solo puede haber un periodo con `es_vigente = true` a la vez |
-| ASIGNACION | El cruce entre un estudiante y un comedor un día | `id_asignacion` | `dia_semana` limitado a [Lunes, Martes, Miércoles, Jueves, Viernes]. Un estudiante solo puede tener una asignación por día en un periodo. |
-
+| ESTUDIANTE_BENEFICIARIO | Estudiante que recibe asignación de comedor. Solo se almacenan beneficiarios, por lo que la regla "solo beneficiarios reciben asignación" queda protegida por la clave foránea de ASIGNACION | `id_estudiante` | Requerido y único |
+| COMEDOR | Instalación física que ofrece el servicio | `id_comedor` | `nombre` requerido y único (identifica el comedor sin ambigüedad, porque `ComedorAsignado` solo expone el nombre). `capacidad_maxima` requerida y mayor que 0 |
+| PERIODO_ASIGNACION | Intervalo de fechas durante el cual rige un conjunto de asignaciones. Su duración (semana o semestre) está abierta: ver OQ-1 | `id_periodo` | `fecha_inicio` y `fecha_fin` requeridas, con `fecha_inicio` menor o igual que `fecha_fin`. Los periodos no se solapan (ver 2.4) |
+| ASIGNACION | Comedor asignado a un estudiante para un día de la semana dentro de un periodo | `id_asignacion` | `id_estudiante`, `id_comedor` e `id_periodo` requeridos. `dia_semana` limitado a Lunes, Martes, Miércoles, Jueves, Viernes (los valores del tipo `DiaSemana` de D1). Único por (`id_estudiante`, `id_periodo`, `dia_semana`) |
+ 
+> **Periodo vigente:** no se guarda una marca de vigencia. Es el periodo cuyo intervalo contiene la fecha actual, así que no puede quedar desactualizado.
+>
+> **Neutralidad frente a OQ-1:** el modelo funciona con periodos semanales o semestrales. Si fueran semanales, las 5 asignaciones (iguales toda la semana y todo el semestre según REQ-01) se replicarían por cada periodo. Si fuera uno solo por semestre, no hay réplica. El contrato y la secuencia no cambian en ningún caso.
+ 
+**Correspondencia entre el modelo y los contratos (sección 3)**
+ 
+| Elemento del contrato / D1 | Se obtiene del modelo así |
+|---|---|
+| `IdEstudiante` | `ESTUDIANTE_BENEFICIARIO.id_estudiante` |
+| `PeriodoAsignacion` (`inicio`, `fin`) | `PERIODO_ASIGNACION.fecha_inicio` y `fecha_fin` del periodo que contiene la fecha actual del servidor. Si ninguno la contiene, no hay periodo (`buscarPeriodoVigente` devuelve ausencia) |
+| `ComedorAsignado` (`dia`, `nombreComedor`) | `ASIGNACION.dia_semana` y `COMEDOR.nombre`, unidos por `id_comedor`, filtrados por `id_estudiante` e `id_periodo` y devueltos en orden Lunes a Viernes |
+| `DiaSemana` | Los cinco valores permitidos de `ASIGNACION.dia_semana` |
+| `EstadoConsulta` | No se almacena (2.1): se deduce de si existe periodo, de si la lista tiene 0 o 5 elementos y de si el acceso a los datos falló |
+| `guardarComedoresAsignados` (REQ-01) | Inserta de una vez las 5 filas de ASIGNACION de un estudiante en un periodo, o ninguna (2.4) |
+ 
 ### 2.3 Data Ownership
-
+ 
 | Information | Authoritative owner (component responsible for maintaining it) | Consumed by (uses it without owning it) | Access through |
 |---|---|---|---|
-| Asignaciones | Cálculo de Asignaciones (escribe vía Registro) | Consulta de Asignaciones | `RepositorioAsignaciones` |
-| Periodo de Asignación | Administración (fuera del alcance actual) | Consulta y Cálculo de Asignaciones | `RepositorioAsignaciones` |
-| Comedores | Administración (fuera del alcance actual) | Cálculo de Asignaciones | `RepositorioAsignaciones` |
-
+| Asignaciones | Registro de Asignaciones (persiste y entrega, D1 2.2) | Consulta de Asignaciones (lee). Cálculo de Asignaciones produce el contenido, pero no lo almacena | `RepositorioAsignaciones` (`guardarComedoresAsignados`, `buscarComedoresAsignados`) |
+| Periodos de asignación | Registro de Asignaciones | Consulta de Asignaciones (periodo vigente). Cálculo de Asignaciones (REQ-01, cuándo asignar) | `RepositorioAsignaciones` (`buscarPeriodoVigente`) |
+| Comedores | Registro de Asignaciones | Consulta de Asignaciones (solo el nombre, dentro de `ComedorAsignado`). Cálculo de Asignaciones (capacidad, REQ-01) | `RepositorioAsignaciones`. D1 no define aún una operación para leer capacidades: se define con el diseño de REQ-01 |
+| Estudiantes beneficiarios | Registro de Asignaciones (copia persistida). La fuente es externa: las entidades que informan quiénes son beneficiarios (dependencia de REQ-01) | Cálculo de Asignaciones (REQ-01) | `RepositorioAsignaciones`. Cómo llega esa información al sistema es OQ-3 |
+ 
+> Quién carga o actualiza el contenido de periodos, comedores y beneficiarios no está definido en las fuentes. No se asigna a un actor ni componente inexistente (como "Administración"): es OQ-3.
+ 
 ### 2.4 Business rules and invariants enforced in data
-
+ 
 | Business rule or invariant | Where it is enforced (component logic / data constraint / both) | How |
 |---|---|---|
-| BR-01: Asignación diaria | Both | Data: el campo `dia_semana` es un enum estricto de días hábiles. Un constraint UNIQUE (`id_estudiante`, `id_periodo`, `dia_semana`) evita duplicados. Logic: el algoritmo asegura asignar los 5 días. |
-| BR-02: Solo en semestre académico | Logic | Component logic: Cálculo de asignaciones no se ejecuta fuera del intervalo establecido por los periodos vigentes. |
-| El aforo real no puede superarse | Both | Data: constraint `COUNT(asignaciones por dia y comedor) <= capacidad_maxima`. Logic: El árbol decisional respeta el tope. |
-
+| BR-01: asignación con frecuencia diaria | Both | Data: `dia_semana` limitado a los 5 días hábiles y único por (`id_estudiante`, `id_periodo`, `dia_semana`); esto evita duplicados, pero no garantiza que existan los 5 días. Logic: Cálculo de Asignaciones asigna los 5 días y Registro de Asignaciones los guarda todos en una sola transacción (ADR-0001) |
+| BR-02: solo se asigna durante el semestre académico | Logic | Cálculo de Asignaciones no asigna fuera del semestre. Desde la consulta, la ausencia de periodo se informa como `SIN_PERIODO_VIGENTE` (AC-04). Cómo se registran los periodos: OQ-3 |
+| A lo sumo un periodo vigente | Both | Data: los periodos no se solapan (restricción de exclusión sobre el rango de fechas en PostgreSQL). Logic: `buscarPeriodoVigente` compara la fecha actual con `fecha_inicio` y `fecha_fin` |
+| Solo los estudiantes beneficiarios reciben asignación (REQ-01) | Data | Solo existen beneficiarios en ESTUDIANTE_BENEFICIARIO y ASIGNACION referencia esa tabla |
+| El aforo real de un comedor no se puede superar (REQ-01, AC-02) | Logic | Cálculo de Asignaciones verifica el tope antes de asignar, dentro de la transacción. No es una restricción declarativa simple, porque contar filas contra `capacidad_maxima` exige bloqueo o transacción serializable. Qué significa exactamente el aforo (por día, por franja): OQ-6 |
+| Un estudiante tiene 0 o 5 asignaciones por periodo (invariante de D1) | Logic | Se cumple porque los 5 días se guardan juntos o no se guarda ninguno. Si aparecieran entre 1 y 4, el comportamiento no está definido: OQ-5 |
 ---
 ## 3. Interface Contracts
 
