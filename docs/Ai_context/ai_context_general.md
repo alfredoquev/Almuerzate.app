@@ -1,8 +1,8 @@
 # AI Context General — almuerzate.app
 
-> Contexto del proyecto para que una IA entienda de qué trata, qué se decidió y qué se espera construir. No impone formato de salida: el formato lo define cada petición. Fuentes: RFC "Almuérzate", ADR 0001–0005 (aceptados), ADR-0006 (propuesto), `Requirements.md` y los requerimientos ya redactados (`REQ-01.md`, `REQ-10.md`).
+> Contexto del proyecto para que una IA entienda de qué trata, qué se decidió y qué se espera construir. No impone formato de salida: el formato lo define cada petición. Fuentes: RFC "Almuérzate", ADR 0001–0005 (aceptados), ADR 0006–0008 (propuestos), `Requirements.md` y los requerimientos ya redactados (`REQ-01.md`, `REQ-10.md`).
 >
-> Última actualización: 2026-11-16.
+> Última actualización: 2026-11-22.
 
 ---
 
@@ -62,6 +62,7 @@
 | Diseño arquitectónico y detallado de REQ-10 (v1.0) | Draft; cubre REQ-10 y toma REQ-01 solo como productor de los datos |
 | ADR 0001–0005 | Aceptados |
 | ADR-0006 | Propuesto; fecha pendiente |
+| ADR-0007 y ADR-0008 | Propuestos; fecha 2026-11-22 (autor @julondono07) |
 
 ### Reglas de negocio ya definidas por el equipo
 - **BR-01:** la asignación de comedores a los estudiantes beneficiarios debe tener frecuencia diaria.
@@ -69,9 +70,11 @@
 
 ---
 
-## 4. Arquitectura y decisiones técnicas (ADR 0001–0005 aceptados; ADR-0006 propuesto)
+## 4. Arquitectura y decisiones técnicas (ADR 0001–0005 aceptados; ADR 0006–0008 propuestos)
 
 **En una línea:** el backend en C++ (incluido el árbol decisional) corre en el servidor y consulta PostgreSQL; PHP entrega al navegador solo los datos ya procesados que se necesitan para visualizar; el frontend es una aplicación web que los muestra.
+
+> **Propuesto (no vigente):** con los ADR 0007 y 0008, PHP cargaría el backend como librería compartida de C++ mediante FFI y el backend obtendría los datos ejecutando un script PHP que consulta PostgreSQL. Hasta que se acepten, la fila vigente de integración es la del ADR-0002 (PHP invoca el ejecutable).
 
 | ADR | Decisión | Por qué | Costo aceptado |
 |---|---|---|---|
@@ -81,10 +84,14 @@
 | 0004 | **C++** para el backend y el árbol decisional, ejecutado en el servidor | Buen manejo de estructuras de datos y grandes volúmenes de datos por el control de memoria; el equipo ya conoce el lenguaje | Complejidad en la implementación de estructuras de datos; conexión con el frontend vía PHP |
 | 0005 | **Frontend web con HTML, JavaScript y CSS** (mantiene Tailwind) | Accesible desde navegador sin instalar app móvil; alcance de interfaz acotado y datos que llegan ya procesados | Se renuncia a herramientas de React/Vue; más código propio que escribir y mantener |
 | 0006 *(Propuesto)* | **Consulta de Asignaciones como único punto de acceso a los comedores asignados**: Presentación de Asignaciones no accede directamente a Registro de Asignaciones | Los cuatro resultados del flujo de REQ-10 (disponible, no asignados aún, sin periodo vigente, problema de comunicación) y los fallos de acceso a los datos se resuelven en un solo componente | Un componente y un salto adicionales para una función de solo lectura (algo más de latencia); el estado de problema de comunicación puede originarse en dos puntos (fallo de acceso a los datos y falta de respuesta de Consulta de Asignaciones) y debe tratarse igual |
+| 0007 *(Propuesto)* | **Librería compartida de C++**: el backend se compila como librería (`.dll` en Windows) que PHP carga mediante FFI; reemplazaría el mecanismo de invocación del ADR-0002 | La implementación real carga una librería y no invoca un ejecutable; no se lanza un proceso del backend por solicitud y PHP recibe directamente el JSON | Requiere habilitar FFI en PHP; una librería por sistema operativo; firmas declaradas en PHP sincronizadas con el C++ (un desajuste puede tumbar el proceso); liberación manual de la memoria reservada por C++ |
+| 0008 *(Propuesto)* | **Script PHP para acceder a PostgreSQL**: el backend C++ ejecuta el script que consulta la base de datos y devuelve JSON | Acceso a la base de datos más sencillo de aprender y de entender que una conexión directa con `libpqxx` | Cada consulta lanza un proceso `php` desde C++; el flujo pasa por PHP dos veces (PHP → C++ → PHP); el backend depende de que `php` esté en el servidor; se deja de aprovechar `libpqxx` (ADR-0001) |
 
 ### Alternativas descartadas
 - **Base de datos:** MySQL/MariaDB, SQLite, MongoDB.
-- **Integración:** Emscripten (obligaría a ejecutar C++ en el cliente) y bibliotecas C++ (acoplan la conexión a C++).
+- **Integración:** Emscripten (obligaría a ejecutar C++ en el cliente; el ADR-0007 dice que podría volver a evaluarse, pero no está habilitado) y bibliotecas C++ (acoplan la conexión a C++).
+- **Invocación del backend (ADR-0007, propuesto):** ejecutable invocado por PHP (mecanismo del ADR-0002, que el 0007 reemplazaría).
+- **Acceso a la base de datos (ADR-0008, propuesto):** conexión directa desde C++ con `libpqxx` (más compleja de aprender y entender).
 - **Interfaz:** Slint y Dear ImGui.
 - **Backend:** Java (el equipo no lo domina).
 - **Frontend:** React, Vue y React Native.
@@ -96,6 +103,8 @@
 - Las gráficas y paneles estadísticos usan librerías JS (Chart.js) alimentadas con datos del backend.
 - La persistencia es relacional y transaccional.
 - Si ADR-0006 se acepta: la consulta del estudiante a sus comedores asignados pasa siempre por Consulta de Asignaciones.
+- Si ADR-0007 se acepta: no se lanza un proceso del backend por solicitud (el costo del ADR-0002 deja de aplicar a la invocación), pero PHP debe tener FFI habilitado y hay que compilar la librería por sistema operativo.
+- Si ADR-0008 se acepta: el backend no se conecta directamente a PostgreSQL; ejecuta un script PHP por consulta. Los componentes del diseño y sus capacidades no cambian (los nombres siguen la responsabilidad, no la tecnología).
 
 ### Componentes del diseño ya definidos (diseño de REQ-10 v1.0)
 Los nombres siguen la responsabilidad, no la tecnología. El detalle y las clases están en `ai_context_design.md`.
@@ -134,7 +143,7 @@ Los nombres siguen la responsabilidad, no la tecnología. El detalle y las clase
 - **Asignación errónea:** si el árbol decisional asigna mal, pueden aumentar los tiempos de desplazamiento y de fila.
 - **Límites físicos:** el aforo real de cada comedor es un tope que el sistema no puede superar.
 - **Fuga de datos personales:** se manejan ubicación, condiciones y preferencias; el acceso debe estar restringido y protegido (es el punto más sensible).
-- **Riesgos técnicos aceptados (ADR):** costo por ejecución de PHP al lanzar un proceso por solicitud, validación de argumentos contra inyección de comandos y curva de aprendizaje de PHP.
+- **Riesgos técnicos aceptados (ADR):** costo por ejecución de PHP al lanzar un proceso por solicitud, validación de argumentos contra inyección de comandos y curva de aprendizaje de PHP (ADR-0002, vigente). Si se aceptan los ADR 0007 y 0008 el riesgo cambia de lugar: FFI habilitado, una librería por sistema operativo, firmas sincronizadas, memoria manual (0007) y un proceso `php` lanzado desde C++ por cada consulta a la base de datos (0008). Mientras sean Propuestos, se sigue citando el riesgo del ADR-0002.
 - **Error de acceso a los datos de asignación (REQ-10):** probabilidad Low, impacto High; mitigación: se muestra un mensaje de error y se da al estudiante la opción de reintentar.
 - **Capacidad mal estimada (REQ-01):** estudiantes no beneficiarios afectan el aforo real y el sistema no lo mide; probabilidad Alta, impacto Medio.
 
@@ -194,6 +203,7 @@ Cada pregunta se responde solo con lo que ya está en el RFC, los ADR y los requ
 - El RFC incluye la **ubicación relativa** como criterio y menciona encuesta, reasignación periódica y estadísticas por entregas; `Requirements.md` aún no contiene requerimientos explícitos para ubicación ni para la encuesta.
 - El proyecto es de escala acotada: se prefiere una integración simple y no sobredimensionar la solución.
 - Terminología usada en las fuentes: comedor, cupos, aforo, estudiante beneficiario, administrador, árbol decisional (o árbol de decisión), frontend, backend, periodo de asignación vigente, comedores asignados.
+- **Decisiones técnicas pendientes de aceptación (ADR 0006–0008):** se citan siempre como propuesta. Brechas señaladas, no resueltas: el 0007 declara que reemplaza el mecanismo del 0002 pero el 0002 sigue Aceptado y su estado no admite un reemplazo parcial; el 0007 cita como beneficio no lanzar un proceso por solicitud mientras el 0008 lanza un proceso `php` por consulta; el 0008 deja de aprovechar `libpqxx` (ADR-0001); el sistema operativo del servidor no está definido (el 0007 menciona `.dll` de Windows).
 - **Alcance temporal de la asignación:** REQ-01 fija un comedor por día (lunes a viernes), igual para todas las semanas del semestre. El RFC menciona reasignación periódica (entrega 2); la relación entre ambos sigue sin definir.
 - **Brechas abiertas entre REQ-01 y REQ-10** (se señalan, no se resuelven aquí):
   - Quién mantiene el periodo de asignación vigente y dónde vive.

@@ -2,7 +2,7 @@
 
 > Este archivo es el contexto que debe leer una IA **antes** de redactar, revisar o completar cualquier archivo de requerimiento (`REQ-XX.md`) de este proyecto. Su único alcance son los requerimientos; no aplica a los ADR (ver `ai_context_adrs.md`) ni al diseño (ver `ai_context_design.md`).
 >
-> Última actualización: 2026-11-16.
+> Última actualización: 2026-11-22.
 
 ---
 
@@ -26,7 +26,7 @@ Solo se puede usar información de estas fuentes:
 |---|---|
 | `Requirements.md` | El enunciado base de cada requerimiento (REQ-01 … REQ-10) |
 | `rfc_almuerzate.md` | Motivación, alcance por entregas, métricas, riesgos, dependencias, seguridad y preguntas sin resolver |
-| ADR 0001–0005 (**Aceptados**) y ADR-0006 (**Propuesto**) | Restricciones técnicas y de diseño vigentes (el 0006 se cita solo en REQ-10 y con la salvedad de que aún no está aceptado) |
+| ADR 0001–0005 (**Aceptados**) y ADR 0006–0008 (**Propuestos**) | Restricciones técnicas y de diseño vigentes (el 0006 se cita solo en REQ-10; los 0006–0008 solo con la salvedad de que aún no están aceptados) |
 | `ai_context_adrs.md` / `ai_context_general.md` | Contexto general del proyecto: actores, arquitectura, terminología |
 | `REQ-01.md` y `REQ-10.md` (**Validated**) | Reglas de negocio ya definidas (BR-01, BR-02), dependencias entre requerimientos, formato de uso de la plantilla y evidencia aportada por el equipo |
 
@@ -67,7 +67,7 @@ Todo lo que no esté en estas fuentes **no existe** hasta que el equipo lo aport
 
 > **Formato de ID y ruta (confirmados):** un archivo por requerimiento, `REQ-XX.md`, en `docs/requirements/`. `Requirements.md` conserva "Requerimiento N".
 
-### 3.3 Restricciones técnicas vigentes (ADR 0001–0005 aceptados; 0006 propuesto)
+### 3.3 Restricciones técnicas vigentes (ADR 0001–0005 aceptados; 0006–0008 propuestos)
 
 Solo se citan en la sección **Constraint(s)** cuando realmente limitan la solución de ese requerimiento. Nunca en el enunciado.
 
@@ -79,6 +79,8 @@ Solo se citan en la sección **Constraint(s)** cuando realmente limitan la soluc
 | 0004 | La lógica de asignación y la gestión de datos están en C++, en el servidor |
 | 0005 | Frontend web (HTML, JavaScript y CSS) accesible desde navegador, sin app móvil ni frameworks descartados |
 | 0006 (Propuesto) | La consulta del estudiante a sus comedores asignados pasa siempre por un componente intermedio (Consulta de Asignaciones); aplica solo a REQ-10 y se cita con la salvedad de su estado |
+| 0007 (Propuesto) | Mecanismo de invocación del backend: librería compartida cargada por PHP mediante FFI, en lugar del ejecutable del ADR-0002. Es una decisión de integración: no se cita en Constraint(s) salvo que el equipo la asocie a un requerimiento concreto y, si se cita, con la salvedad de su estado |
+| 0008 (Propuesto) | Acceso a la base de datos desde el backend mediante un script PHP, en lugar de conexión directa con `libpqxx`. Misma regla de cita que el 0007 |
 
 ### 3.4 Alcance por entregas (RFC, Propuesta de implementación)
 
@@ -95,7 +97,7 @@ Sirve como señal para **prioridad** y para **dependencias entre requerimientos*
 ### 3.5 Insumos del RFC reutilizables
 
 - **Riesgos del RFC:** asignación errónea de comedores (aumenta desplazamientos y filas), limitaciones físicas del aforo (es un tope que el sistema no puede superar), fuga de información privada de los estudiantes.
-- **Riesgos aceptados en ADR:** costo por ejecución (cada solicitud lanza un proceso del backend), validación de argumentos (inyección de comandos), curva de aprendizaje de PHP.
+- **Riesgos aceptados en ADR:** costo por ejecución (cada solicitud lanza un proceso del backend), validación de argumentos (inyección de comandos), curva de aprendizaje de PHP (ADR-0002, vigente). Los ADR 0007 y 0008 (Propuestos) cambiarían estos riesgos (FFI habilitado, una librería por sistema operativo, proceso `php` lanzado desde C++ por consulta); mientras no se acepten se sigue citando el riesgo del ADR-0002 y, si se mencionan, con la salvedad de su estado.
 - **Riesgos ya registrados en REQ-01 y REQ-10:** capacidad de un comedor sobreestimada por el efecto de estudiantes no beneficiarios que el sistema no mide (REQ-01); error de acceso a los datos de asignación por falla del backend (REQ-10). Se reutilizan o referencian, no se duplican.
 - **Dependencias del RFC:** el estado actual de los comedores (infraestructura y capacidad) y las entidades que manejan los datos de los estudiantes relevantes para la asignación.
 - **Seguridad (RFC):** el acceso a los datos de los estudiantes debe estar restringido y protegido.
@@ -297,38 +299,9 @@ Si falta algo indispensable, la IA pregunta solo por eso o deja el campo como `P
 - [ ] El tipo (funcional / no funcional) está justificado con el Perfect Technology Filter.
 - [ ] La evidencia citada es real o está marcada `Pendiente`; no hay IDs ni citas inventadas.
 - [ ] Context: cada entrada tiene contenido real o `N/A — none identified` con motivo; los IDs de reglas de negocio son coherentes con los de otros REQ.
-- [ ] Las restricciones citadas son las ADR que realmente aplican al requerimiento (el 0006 con la salvedad de su estado).
+- [ ] Las restricciones citadas son las ADR que realmente aplican al requerimiento (los 0006–0008 con la salvedad de su estado).
 - [ ] La prioridad usa MoSCoW, sin números inventados, y Estimate tiene un único valor.
 - [ ] Las tres representaciones (historia, criterios, caso de uso) son coherentes entre sí; hay al menos dos escenarios (normal y alternativo/excepción); los IDs de US y AC existen en el mismo archivo.
-- [ ] El diagrama de flujo es limpio, sobrio, compacto, en español y renderiza en GitHub.
-- [ ] Los casos no definidos en las fuentes están en Open Questions, no resueltos por suposición.
-- [ ] Trazabilidad backward y forward presentes; Impact Analysis marcado con justificación.
-- [ ] Validation: solo se marcaron las casillas verificadas; atomicidad evaluada de forma real.
-- [ ] Terminología consistente y nombre de archivo `REQ-XX.md`.
-- [ ] Lo desconocido está marcado `Pendiente` o `N/A: motivo`, no inventado.
-## 9. Cómo pedirle un requerimiento a la IA (entrada esperada)
-
-1. **Requerimiento(s)** a redactar (ID) o **sección(es)** a completar o corregir.
-2. **Evidencia o información adicional** que el equipo tenga (Discovery Sheet, reuniones, reglas de negocio, casos de uso ya definidos).
-3. **Modelo de priorización** elegido y, si aplica, los valores que usa.
-4. **Autores y fecha** (para el encabezado) y estado deseado.
-5. Decisiones del equipo sobre las **Open Questions** que ya se resolvieron.
-
-Si falta algo indispensable, la IA pregunta solo por eso o deja el campo como `Pendiente`.
-
----
-
-## 10. Checklist de revisión antes de entregar
-
-- [ ] Se respetó la plantilla (secciones, orden y encabezados) y se eliminó el comentario inicial.
-- [ ] Todo el contenido sale de las fuentes permitidas; nada tomado del ejemplo.
-- [ ] El enunciado conserva el significado de `Requirements.md` y no prescribe solución.
-- [ ] El tipo (funcional / no funcional) está justificado con el Perfect Technology Filter.
-- [ ] La evidencia citada es real o está marcada `Pendiente`; no hay IDs ni citas inventadas.
-- [ ] Context: cada entrada tiene contenido real o `N/A — none identified` con motivo.
-- [ ] Las restricciones citadas son las ADR que realmente aplican al requerimiento.
-- [ ] La prioridad usa el modelo único del proyecto y no incluye números inventados.
-- [ ] Las tres representaciones (historia, criterios, caso de uso) son coherentes entre sí; hay al menos dos escenarios (normal y alternativo/excepción).
 - [ ] El diagrama de flujo es limpio, sobrio, compacto, en español y renderiza en GitHub.
 - [ ] Los casos no definidos en las fuentes están en Open Questions, no resueltos por suposición.
 - [ ] Trazabilidad backward y forward presentes; Impact Analysis marcado con justificación.

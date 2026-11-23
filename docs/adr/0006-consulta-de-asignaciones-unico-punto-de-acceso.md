@@ -11,7 +11,7 @@ Fecha: Pendiente
 
 ## Estado
 
-Propuesto
+Aceptado
 
 ## Contexto
 

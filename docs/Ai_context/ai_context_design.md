@@ -2,7 +2,7 @@
 
 > Este archivo es el contexto que debe leer una IA **antes** de redactar, revisar o completar el documento de diseño (`docs/design/01_Architectural_and_Detailed_Design.md`). Su único alcance es el diseño arquitectónico y detallado (Entregable 1); no aplica a los requerimientos (ver `ai_context_req.md`) ni a los ADR (ver `ai_context_adrs.md`), ni cubre el entregable de interacción y datos.
 >
-> Última actualización: 2026-11-16.
+> Última actualización: 2026-11-22.
 
 ---
 
@@ -26,7 +26,7 @@ Actúas como asistente de diseño. Tu tarea es ayudar al equipo a **documentar d
 | `REQ-XX.md` indicados por el usuario (versión vigente, con correcciones aplicadas) | Enunciado, reglas de negocio, restricciones, dependencias, riesgos, historia, criterios, caso de uso y flujo |
 | `Requirements.md` | Solo para consultar otro requerimiento cuando sea **estrictamente necesario**; se justifica por qué |
 | `ai_context_general.md` | Actores, arquitectura general y terminología |
-| ADR 0001–0005 (**Aceptados**) y ADR-0006 (**Propuesto**) | Restricciones técnicas y de diseño vigentes; el 0006 registra la Decisión A del diseño de REQ-10 |
+| ADR 0001–0005 (**Aceptados**) y ADR 0006–0008 (**Propuestos**) | Restricciones técnicas y de diseño vigentes; el 0006 registra la Decisión A del diseño de REQ-10; el 0007 y el 0008 son decisiones de integración y acceso a datos, no de estructura del diseño |
 | Diseños del propio equipo ya redactados (hoy, el diseño de REQ-10 v1.0) | Nombres de componentes, clases y capacidades que se reutilizan (sección 5). Son del proyecto, no un ejemplo |
 | `Design_Deliverable_1_Template.md` | Estructura obligatoria |
 
@@ -42,7 +42,7 @@ Todo lo demás **no existe** hasta que el equipo lo aporte. Lo que falte se preg
 
 ### 3.1 Restricciones técnicas vigentes (ADR)
 
-Se citan en **Context** de una decisión o en las restricciones de la sección 1 solo cuando realmente condicionan el diseño. **Nunca** en el nombre de un componente.
+Se citan en **Context** de una decisión o en las restricciones de la sección 1 solo cuando realmente condicionan el diseño. **Nunca** en el nombre de un componente. Los ADR Propuestos se citan siempre con la salvedad de su estado.
 
 | ADR | Implicación para el diseño |
 |---|---|
@@ -51,6 +51,8 @@ Se citan en **Context** de una decisión o en las restricciones de la sección 1
 | 0003 / 0005 | Frontend web (HTML, JavaScript, CSS con Tailwind), sin app móvil ni frameworks descartados |
 | 0004 | La lógica de asignación y la gestión de datos viven en el backend, en el servidor |
 | 0006 (Propuesto) | Presentación de Asignaciones no accede a Registro de Asignaciones; toda consulta pasa por Consulta de Asignaciones. Se cita con la salvedad de su estado |
+| 0007 (Propuesto) | Cómo se invoca el backend desde PHP (librería compartida con FFI en lugar de ejecutable). No cambia componentes ni capacidades del diseño; no se cita salvo que condicione una decisión, y con la salvedad de su estado |
+| 0008 (Propuesto) | Cómo el backend accede a PostgreSQL (script PHP en lugar de conexión directa). No cambia componentes ni capacidades: Registro de Asignaciones sigue siendo quien persiste y entrega; el mecanismo no aparece en su nombre ni en sus capacidades. Misma regla de cita que el 0007 |
 
 ---
 
@@ -90,7 +92,7 @@ Usa **siempre** `Design_Deliverable_1_Template.md` con sus secciones, orden y en
 
 ### 4.5 Sección 5 — Design Decisions & Decision Record
 - Dos decisiones: **A** (arquitectónica) y **B** (diseño detallado), cada una con contexto, decisión, justificación y **trade-off real**.
-- Al menos una debe tener ADR. Numeración: continúa la existente (siguiente: **`ADR-0007`**; el 0006 ya existe como `Propuesto` y registra la Decisión A del diseño de REQ-10). Archivo: `docs/adr/NNNN-slug.md` (ruta confirmada; no `docs/decisions/`). Si el ADR aún no está redactado, se dice.
+- Al menos una debe tener ADR. Numeración: continúa la existente (siguiente: **`ADR-0009`**; el 0006 ya existe como `Propuesto` y registra la Decisión A del diseño de REQ-10; el 0007 y el 0008 existen como `Propuestos` y registran decisiones de integración y acceso a datos, que no corresponden a las decisiones A y B del diseño de REQ-10 salvo que el equipo indique lo contrario). Archivo: `docs/adr/NNNN-slug.md` (ruta confirmada; no `docs/decisions/`). Si el ADR aún no está redactado, se dice.
 - Una alternativa rechazada solo se menciona si realmente se consideró.
 
 ### 4.6 Sección 6 — Traceability
@@ -149,7 +151,8 @@ No se corrigen en silencio: se señalan al usuario.
 - Diagrama de clases: multiplicidad en todas las asociaciones, accesores en `PeriodoAsignacion` y `ComedorAsignado`, dependencia hacia `EstadoConsulta`.
 - Contrato de `buscarPeriodoVigente()` y contradicciones por revisar entre las secciones 4 y 5.
 - Inputs faltantes marcados `Pendiente`; fecha en formato ISO; ruta y nombre definitivos del archivo (el contexto indica `docs/design/01_Architectural_and_Detailed_Design.md`).
-- ADR-0006: fecha pendiente y estado `Propuesto`; la casilla de ADR de la sección 8 debe reflejarlo.
+- ADR-0006: fecha pendiente y estado `Propuesto`; la casilla de ADR de la sección 8 debe reflejarlo. Si el diseño cita el ADR-0007 o el ADR-0008 (ambos `Propuestos`, 2026-11-22), lo mismo.
+- Brechas entre ADR propuestos que pueden afectar al diseño (se señalan, no se resuelven): el 0007 reemplazaría el mecanismo de invocación del ADR-0002 pero el 0002 sigue `Aceptado`; el 0007 cita como beneficio no lanzar un proceso por solicitud mientras el 0008 lanza un proceso `php` por consulta (relevante para el riesgo de error de acceso a los datos de REQ-10 y su reintento, cuyo mecanismo de fallo podría cambiar); el 0008 deja de aprovechar `libpqxx` (ADR-0001). El diseño no debe depender de ninguno hasta que se acepten.
 
 **Resueltas (ya no se vigilan)**
 - **Reintento:** `REQ-10.md` ya alinea la mitigación del riesgo con el flujo de excepción: se muestra un mensaje de error y se le da al estudiante la opción de reintentar (lo dispara el estudiante).
