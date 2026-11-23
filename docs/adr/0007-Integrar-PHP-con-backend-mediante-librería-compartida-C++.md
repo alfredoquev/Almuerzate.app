@@ -7,7 +7,7 @@ Fecha: 2026-11-22
 
 ## Estado
 
-Propuesto
+Aceptado
 
 ## Contexto
 
