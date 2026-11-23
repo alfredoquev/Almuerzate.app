@@ -3,7 +3,7 @@
 Autores:
  - @julondono07
 
-Fecha: Pendiente
+Fecha: 2026-11-22
 
 ## Estado
 
