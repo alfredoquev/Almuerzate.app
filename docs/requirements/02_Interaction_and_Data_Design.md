@@ -24,13 +24,13 @@ sequenceDiagram
     participant CA as Consulta de Asignaciones
     participant RA as Registro de Asignaciones
 
-    Est->>PA: ver comedores asignados
-    PA->>CA: consultarComedoresAsignados(idEstudiante)
+    Est->>+PA: ver comedores asignados
+    PA->>+CA: consultarComedoresAsignados(idEstudiante)
 
     alt CA no responde
-        Note over PA: PA asume el estado PROBLEMA_DE_COMUNICACION
+        Note over PA: PA deja de esperar y asume el estado PROBLEMA_DE_COMUNICACION
     else CA responde
-        CA->>RA: buscarPeriodoVigente()
+        CA->>+RA: buscarPeriodoVigente()
         alt falla de acceso a datos
             RA-->>CA: fallo
             CA-->>PA: ResultadoConsulta PROBLEMA_DE_COMUNICACION
@@ -39,7 +39,8 @@ sequenceDiagram
             CA-->>PA: ResultadoConsulta SIN_PERIODO_VIGENTE
         else la fecha actual está en un periodo
             RA-->>CA: PeriodoAsignacion
-            CA->>RA: buscarComedoresAsignados(idEstudiante, periodo)
+            deactivate RA
+            CA->>+RA: buscarComedoresAsignados(idEstudiante, periodo)
             alt falla de acceso a datos
                 RA-->>CA: fallo
                 CA-->>PA: ResultadoConsulta PROBLEMA_DE_COMUNICACION
@@ -50,22 +51,26 @@ sequenceDiagram
                 RA-->>CA: lista de ComedorAsignado
                 CA-->>PA: ResultadoConsulta DISPONIBLE con la lista
             end
+            deactivate RA
         end
     end
+    deactivate CA
 
     alt estado DISPONIBLE
         PA-->>Est: nombre de cada comedor asignado con su día
     else cualquier otro estado
-        PA->>CM: mensajePara(estado)
-        CM-->>PA: texto del mensaje
+        PA->>+CM: mensajePara(estado)
         Note over CM: SIN_PERIODO_VIGENTE se informa como fecha fuera del periodo del servicio
+        CM-->>-PA: texto del mensaje
         PA-->>Est: mensaje del estado
         opt el estado es PROBLEMA_DE_COMUNICACION
             Est->>PA: reintentar(idEstudiante)
             Note over PA: repite el flujo desde consultarComedoresAsignados
         end
     end
+    deactivate PA
 ```
+
 
 | Use Case step or flow | Message(s) in the diagram | Information exchanged | Operation defined in (Deliverable 1) |
 |---|---|---|---|
