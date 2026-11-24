@@ -604,6 +604,105 @@
       max-width: 90vw;
       text-align: center;
     }
+
+    .btn-cambiar {
+      position: relative;
+      z-index: 1;
+      margin-top: .9rem;
+      background: rgba(255, 255, 255, .18);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, .35);
+      border-radius: 999px;
+      padding: .3rem .8rem;
+      font-size: .7rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ── Login ── */
+    .campo {
+      margin-bottom: 1rem;
+    }
+
+    .campo-label {
+      display: block;
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #9ca3af;
+      font-weight: 600;
+      margin-bottom: .35rem;
+    }
+
+    .campo-wrap {
+      position: relative;
+    }
+
+    .campo-icono {
+      position: absolute;
+      left: .9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1.1rem;
+      height: 1.1rem;
+      color: #9ca3af;
+      pointer-events: none;
+    }
+
+    .campo-input {
+      width: 100%;
+      padding: .8rem 3.5rem .8rem 2.6rem;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: .85rem;
+      font-family: inherit;
+      font-size: .95rem;
+      font-weight: 500;
+      color: #111827;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+
+    .campo-input::placeholder {
+      color: #c0c4cc;
+      font-weight: 400;
+    }
+
+    .campo-input:focus {
+      background: #fff;
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, .15);
+    }
+
+    .campo-ver {
+      position: absolute;
+      right: .6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: .75rem;
+      font-weight: 700;
+      color: #059669;
+      cursor: pointer;
+      padding: .35rem .5rem;
+    }
+
+    .login-error {
+      font-size: .8rem;
+      font-weight: 600;
+      color: #b91c1c;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: .75rem;
+      padding: .6rem .85rem;
+      margin-bottom: 1rem;
+    }
+
+    .btn-primary:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
   </style>
 </head>
 
@@ -612,9 +711,10 @@
 
     <!-- Header -->
     <div class="header">
-      <p class="header-eyebrow">Bienvenido, <span>User</span></p>
+      <p class="header-eyebrow">Bienvenido, <span id="usuario-nombre"></span></p>
       <p class="header-label">Comedores de la semana</p>
       <p class="header-msg" id="estado-msg"></p>
+      <button class="btn-cambiar" onclick="abrirLogin()">Cambiar usuario</button>
     </div>
 
     <!-- Contenido -->
@@ -671,7 +771,7 @@
           </div>
           <p class="error-title">Problema de comunicacion</p>
           <p class="error-desc">Hubo un problema de comunicacion. Intenta nuevamente.</p>
-          <button class="btn-primary" onclick="cargarComedores()">Reintentar</button>
+          <button class="btn-primary" onclick="iniciar()">Reintentar</button>
         </div>
       </div>
 
@@ -736,6 +836,60 @@
     </div>
   </div>
 
+  <!-- Modal Bottom Sheet: Cambiar de usuario -->
+  <div id="login-overlay" class="modal-overlay" onclick="cerrarLoginFondo(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-drag-handle"></div>
+
+      <div class="modal-header">
+        <div>
+          <p class="modal-subtitle">Almuerzate</p>
+          <h3 class="modal-title">Iniciar sesión</h3>
+        </div>
+        <button type="button" class="modal-close-btn" onclick="cerrarLogin()" aria-label="Cerrar">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+            style="width:1.25rem;height:1.25rem;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="login-form" onsubmit="enviarLogin(event)" novalidate>
+        <div class="campo">
+          <label class="campo-label" for="login-usuario">Usuario</label>
+          <div class="campo-wrap">
+            <svg class="campo-icono" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.1a7.5 7.5 0 0 1 15 0" />
+            </svg>
+            <input id="login-usuario" class="campo-input" type="text" autocomplete="username" placeholder="Tu usuario"
+              required>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label class="campo-label" for="login-clave">Contraseña</label>
+          <div class="campo-wrap">
+            <svg class="campo-icono" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+            </svg>
+            <input id="login-clave" class="campo-input" type="password" autocomplete="current-password"
+              placeholder="Tu contraseña" required>
+            <button type="button" class="campo-ver" onclick="alternarClave()" id="login-ver">Ver</button>
+          </div>
+        </div>
+
+        <p id="login-error" class="login-error hidden" role="alert"></p>
+
+        <button type="submit" id="login-enviar" class="btn-primary"
+          style="width:100%; text-align:center; padding:.8rem;">
+          Ingresar
+        </button>
+      </form>
+    </div>
+  </div>
+
   <div id="toast" class="hidden"></div>
 
   <script>
@@ -760,6 +914,49 @@
     // ─── Configuracion ───────────────────────────────────────────────────
 
     const API_URL = 'cone.php';
+
+    // ─── Sesion: guarda y entrega el usuario ─────────────────────────────
+    // Forma guardada: { id: number, nombre: string }
+
+    const Sesion = {
+      CLAVE: 'almuerzate_usuario',
+      _mem: null, // respaldo si localStorage no está disponible
+
+      guardar(usuario) {
+        this._mem = usuario;
+        try { localStorage.setItem(this.CLAVE, JSON.stringify(usuario)); } catch (_) { }
+      },
+
+      obtener() {
+        if (this._mem) return this._mem;
+        try {
+          const raw = localStorage.getItem(this.CLAVE);
+          if (raw) this._mem = JSON.parse(raw);
+        } catch (_) { }
+        return this._mem;
+      },
+
+      limpiar() {
+        this._mem = null;
+        try { localStorage.removeItem(this.CLAVE); } catch (_) { }
+      }
+    };
+
+    function pintarUsuario() {
+      const u = Sesion.obtener();
+      document.getElementById('usuario-nombre').textContent = u?.nombre ?? 'Usuario';
+    }
+
+    // Temporal: permite entrar con ?usuario=ID&nombre=Ana hasta que exista login
+
+    function inicializarUsuarioDesdeURL() {
+      const p = new URLSearchParams(location.search);
+      const id = Number(p.get('usuario'));
+      if (Number.isInteger(id) && id > 0) {
+        Sesion.guardar({ id, nombre: p.get('nombre') || 'Usuario' });
+        history.replaceState(null, '', location.pathname); // limpia la URL
+      }
+    }
 
     // Mock de comedores (simula queryResult del PHP)
 
@@ -821,30 +1018,136 @@
           id_comedor: comedores[i % comedores.length].id_comedor, // PROVISIONAL
         }));
 
+      // Si el backend envía el usuario, se guarda y se usa
+      if (!Array.isArray(q) && q?.usuario?.id != null) {
+        Sesion.guardar({ id: Number(q.usuario.id), nombre: String(q.usuario.nombre ?? 'Usuario') });
+      }
+
       return { comedores, asignacion };
     }
 
-    async function cargarComedores() {
+    // 1. Consulta: obtiene el usuario guardado, llama a cone.php e interpreta la respuesta
+    async function consultarAsignaciones() {
+      const usuario = Sesion.obtener();
+      if (!usuario) throw new Error('Sin usuario');
+
+      const res = await fetch(`${API_URL}?usuario=${encodeURIComponent(usuario.id)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      return interpretarRespuesta(data); // { comedores, asignacion }
+    }
+
+    // 2. Caso exitoso: pinta usuario, mensaje y horario
+    function mostrarAsignaciones({ comedores, asignacion }) {
+      pintarUsuario();
+      setMensaje(EstadoConsulta.DISPONIBLE);
+      renderHorario(asignacion, comedores);
+      mostrar('view-schedule');
+    }
+
+    // 3. Caso de error: mensaje y pantalla de reintento
+    function mostrarProblemaComunicacion(error) {
+      console.error(error);
+      setMensaje(EstadoConsulta.PROBLEMA_DE_COMUNICACION);
+      mostrar('view-error');
+    }
+
+    // Orquestador: lo usan el init, el botón Reintentar y cambiarUsuario
+    async function iniciar() {
       mostrar('view-skeleton');
       setMensaje(null);
-
       try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
-        console.log(data);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-
-        const { comedores, asignacion } = interpretarRespuesta(data);
-
-        setMensaje(EstadoConsulta.DISPONIBLE);
-        renderHorario(asignacion, comedores);
-        mostrar('view-schedule');
+        mostrarAsignaciones(await consultarAsignaciones());
       } catch (e) {
-        console.error(e);
-        setMensaje(EstadoConsulta.PROBLEMA_DE_COMUNICACION);
-        mostrar('view-error');
+        mostrarProblemaComunicacion(e);
       }
     }
+
+    // ─── Login (cambiar de usuario) ──────────────────────────────────────
+    const LOGIN_URL = 'login.php';
+
+    function abrirLogin() {
+      document.getElementById('login-error').classList.add('hidden');
+      document.getElementById('login-clave').value = '';
+      document.getElementById('login-usuario').value = '';
+      document.getElementById('login-overlay').classList.add('active');
+      setTimeout(() => document.getElementById('login-usuario').focus(), 300);
+    }
+
+    function cerrarLogin() {
+      document.getElementById('login-overlay').classList.remove('active');
+      document.getElementById('login-clave').value = '';
+    }
+
+    function cerrarLoginFondo(event) {
+      if (event.target === document.getElementById('login-overlay')) cerrarLogin();
+    }
+
+    function alternarClave() {
+      const input = document.getElementById('login-clave');
+      const ver = input.type === 'password';
+      input.type = ver ? 'text' : 'password';
+      document.getElementById('login-ver').textContent = ver ? 'Ocultar' : 'Ver';
+    }
+
+    function mostrarErrorLogin(texto) {
+      const el = document.getElementById('login-error');
+      el.textContent = texto;
+      el.classList.remove('hidden');
+    }
+
+    async function enviarLogin(event) {
+      event.preventDefault();
+      const usuario = document.getElementById('login-usuario').value.trim();
+      const clave = document.getElementById('login-clave').value;
+
+      if (!usuario || !clave) {
+        mostrarErrorLogin('Escribe tu usuario y tu contraseña.');
+        return;
+      }
+
+      const boton = document.getElementById('login-enviar');
+      boton.disabled = true;
+      boton.textContent = 'Ingresando...';
+
+      try {
+        const res = await fetch(LOGIN_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, clave })
+        });
+
+        if (res.status === 401) {
+          mostrarErrorLogin('Usuario o contraseña incorrectos.');
+          return;
+        }
+
+        const data = await res.json();
+        if (!res.ok || data.status !== 'success' || data.usuario?.id == null) {
+          throw new Error('Respuesta invalida');
+        }
+
+        // Solo se guarda id y nombre; la contraseña nunca se almacena
+        Sesion.guardar({
+          id: Number(data.usuario.id),
+          nombre: String(data.usuario.nombre ?? usuario)
+        });
+        cerrarLogin();
+        pintarUsuario();
+        iniciar(); // vuelve a consultar con el nuevo usuario
+      } catch (e) {
+        console.error(e);
+        mostrarErrorLogin('No se pudo conectar. Intenta nuevamente.');
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Ingresar';
+      }
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') cerrarLogin();
+    });
 
     // ─── Render: horario semanal con soporte para Tap ─────────────────────
     function renderHorario(asignacion, comedores) {
@@ -902,6 +1205,8 @@
     }
 
     // ─── Init ─────────────────────────────────────────────────────────────
+    inicializarUsuarioDesdeURL();
+    pintarUsuario();
     cargarComedores();
   </script>
 </body>

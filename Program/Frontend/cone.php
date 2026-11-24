@@ -10,6 +10,22 @@ $rutaLib    = $dirLib . (PHP_OS_FAMILY === 'Windows' ? '/main.dll' : '/main.so')
 // Ruta ABSOLUTA del script que C++ ejecuta con "php ..."
 $rutaScript = realpath($dirLib . '/query-fetcher.php');
 
+// ---- Usuario: se valida como entero positivo antes de usarlo ----
+$idUsuario = filter_var(
+    $_GET['usuario'] ?? null,
+    FILTER_VALIDATE_INT,
+    ['options' => ['min_range' => 1]]
+);
+
+if ($idUsuario === false || $idUsuario === null) {
+    http_response_code(400);
+    echo json_encode(
+        ['status' => 'error', 'message' => 'Usuario inválido'],
+        JSON_UNESCAPED_UNICODE
+    );
+    exit;
+}
+
 try {
     if ($rutaScript === false) {
         throw new RuntimeException('No se encontró query-fetcher.php');
