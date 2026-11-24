@@ -92,4 +92,15 @@ BEGIN
   FROM unnest(p_comedores) WITH ORDINALITY AS c(id_comedor, ord);
 END $$ LANGUAGE plpgsql;
 
+-- Devuelve una fila (inicio, fin), o ninguna si no hay periodo vigente (no es un error).
+-- p_fecha solo se usa en pruebas; por defecto es hoy en America/Bogota.
+CREATE OR REPLACE FUNCTION buscar_periodo_vigente(p_fecha date DEFAULT NULL)
+RETURNS TABLE (inicio date, fin date) AS $$
+  SELECT fecha_inicio, fecha_fin
+    FROM periodo_asignacion
+   WHERE COALESCE(p_fecha, (now() AT TIME ZONE 'America/Bogota')::date)
+         BETWEEN fecha_inicio AND fecha_fin;
+$$ LANGUAGE sql STABLE;
+
+
 COMMIT;
