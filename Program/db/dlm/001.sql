@@ -79,16 +79,34 @@ CREATE CONSTRAINT TRIGGER asignacion_cinco_dias
   DEFERRABLE INITIALLY DEFERRED
   FOR EACH ROW EXECUTE FUNCTION verificar_cinco_dias();
 
--- guardarComedoresAsignados (REQ-01): guarda los 5 días de un estudiante de una vez o ninguno.
--- p_comedores: 5 id_comedor en orden Lunes..Viernes. NO verifica el aforo (OQ-6 sin definir).
-CREATE OR REPLACE FUNCTION guardar_comedores_asignados(p_id_estudiante integer, p_id_periodo integer, p_comedores integer[])
+-- 002: guardar_comedores_asignados con periodo por defecto = periodo vigente.
+-- Cambia la firma, así que se elimina la versión anterior para no dejar dos sobrecargas.
+DROP FUNCTION IF EXISTS guardar_comedores_asignados(integer, integer, integer[]);
+
+CREATE OR REPLACE FUNCTION guardar_comedores_asignados(
+  p_id_estudiante integer,
+  p_comedores     integer[],
+  p_id_periodo    integer DEFAULT NULL)
 RETURNS void AS $$
+DECLARE
+  v_periodo integer;
 BEGIN
   IF p_comedores IS NULL OR cardinality(p_comedores) <> 5 THEN
     RAISE EXCEPTION 'Se requieren exactamente 5 comedores (Lunes a Viernes)';
   END IF;
+
+  -- Sin periodo explícito, se usa el que contiene la fecha actual (Bogotá), extremos incluidos
+  v_periodo := COALESCE(
+    p_id_periodo,
+    (SELECT id_periodo FROM periodo_asignacion
+      WHERE (now() AT TIME ZONE 'America/Bogota')::date BETWEEN fecha_inicio AND fecha_fin));
+
+  IF v_periodo IS NULL THEN
+    RAISE EXCEPTION 'No hay un periodo de asignación vigente';
+  END IF;
+
   INSERT INTO asignacion (id_estudiante, id_comedor, id_periodo, dia_semana)
-  SELECT p_id_estudiante, c.id_comedor, p_id_periodo, (enum_range(NULL::dia_semana))[c.ord]
+  SELECT p_id_estudiante, c.id_comedor, v_periodo, (enum_range(NULL::dia_semana))[c.ord]
   FROM unnest(p_comedores) WITH ORDINALITY AS c(id_comedor, ord);
 END $$ LANGUAGE plpgsql;
 
@@ -102,5 +120,18 @@ RETURNS TABLE (inicio date, fin date) AS $$
          BETWEEN fecha_inicio AND fecha_fin;
 $$ LANGUAGE sql STABLE;
 
+-- buscarComedoresAsignados (contrato 3.4): comedores asignados por día a un estudiante en un periodo.
+-- Devuelve 5 filas (Lunes a Viernes) o ninguna si el estudiante no tiene asignaciones en ese periodo.
+CREATE OR REPLACE FUNCTION buscar_comedores_asignados(p_id_estudiante integer, p_inicio date, p_fin date)
+RETURNS TABLE (dia dia_semana, nombre_comedor text) AS $$
+  SELECT a.dia_semana, c.nombre
+    FROM asignacion a
+    JOIN comedor c            ON c.id_comedor = a.id_comedor
+    JOIN periodo_asignacion p ON p.id_periodo = a.id_periodo
+   WHERE a.id_estudiante = p_id_estudiante
+     AND p.fecha_inicio  = p_inicio
+     AND p.fecha_fin     = p_fin
+   ORDER BY a.dia_semana;
+$$ LANGUAGE sql STABLE;
 
 COMMIT;
