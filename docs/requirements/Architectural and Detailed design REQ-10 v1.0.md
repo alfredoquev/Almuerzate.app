@@ -162,7 +162,7 @@ classDiagram
 consultarComedoresAsignados(idEstudiante):
     INTENTAR:                                                    // "El sistema busca los comedores asignados"
         periodo = repositorio.buscarPeriodoVigente()
-        SI no hay periodo vigente:
+        SI no hay periodo:
             RETORNAR ResultadoConsulta(SIN_PERIODO_VIGENTE)      // AC-04
         comedores = repositorio.buscarComedoresAsignados(idEstudiante, periodo)
     SI EL ACCESO A LOS DATOS FALLA:
