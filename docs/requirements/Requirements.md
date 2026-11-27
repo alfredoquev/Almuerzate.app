@@ -37,3 +37,7 @@
 ## Requerimiento 10
 
 - El sistema debe permitir mostrarle a los estudiantes beneficiarios sus asignaciones de comedor para el periodo de asignacion vigente.
+
+## Requerimiento 11
+
+- El sistema debe permitir que el estudiante beneficiario y el administrador incien sesion en la pagina de almuerzate.

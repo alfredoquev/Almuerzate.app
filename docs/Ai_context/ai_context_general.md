@@ -1,8 +1,8 @@
 # AI Context General — almuerzate.app
 
-> Contexto del proyecto para que una IA entienda de qué trata, qué se decidió y qué se espera construir. No impone formato de salida: el formato lo define cada petición. Fuentes: RFC "Almuérzate", ADR 0001–0005 (aceptados), ADR 0006–0008 (propuestos), `Requirements.md` y los requerimientos ya redactados (`REQ-01.md`, `REQ-10.md`).
+> Contexto del proyecto para que una IA entienda de qué trata, qué se decidió y qué se espera construir. No impone formato de salida: el formato lo define cada petición. Fuentes: RFC "Almuérzate", ADR 0001–0005 (aceptados), ADR 0006–0008 (propuestos), `Requirements.md` y los requerimientos ya redactados (`REQ-01.md`, `REQ-10.md` y el borrador `REQ-11.md`).
 >
-> Última actualización: 2026-11-22.
+> Última actualización: 2026-11-25.
 
 ---
 
@@ -28,8 +28,8 @@
 
 ## 2. Actores e impacto
 
-- **Estudiantes beneficiarios:** consultan el comedor que les fue asignado; esperan una mejora en el servicio.
-- **Administradores:** consultan estadísticas y desempeño de los comedores, reciben notificaciones de reportes o fallas y pueden hacer reasignaciones de emergencia.
+- **Estudiantes beneficiarios:** consultan el comedor que les fue asignado; inician sesión (Req. 11); esperan una mejora en el servicio.
+- **Administradores:** consultan estadísticas y desempeño de los comedores, reciben notificaciones de reportes o fallas, pueden hacer reasignaciones de emergencia e inician sesión (Req. 11).
 - **Trabajadores de los comedores:** enfrentan menos saturación en horas pico y pueden ofrecer mejor servicio.
 - **Sistema (asignación automática):** actor interno para las funciones que se ejecutan sin intervención humana (Req. 1 y 6).
 
@@ -49,8 +49,9 @@
 | 8 | Notificar a los administradores cada vez que se registre un reporte o se detecte una falla |
 | 9 | Permitir a los administradores consultar el desempeño de los comedores (capacidad, horario y funcionamiento) |
 | 10 | Mostrar a los estudiantes beneficiarios sus asignaciones de comedor para el periodo de asignación vigente |
+| 11 | Permitir que el estudiante beneficiario y el administrador inicien sesión en la página de Almuérzate |
 
-**Lectura rápida:** los requerimientos 1–6 son el núcleo (asignación); 7–9 cubren reportes, notificación y consulta de desempeño; 10 es la consulta del estudiante a lo que el núcleo asignó (solo lee, no calcula).
+**Lectura rápida:** los requerimientos 1–6 son el núcleo (asignación); 7–9 cubren reportes, notificación y consulta de desempeño; 10 es la consulta del estudiante a lo que el núcleo asignó (solo lee, no calcula); 11 es el inicio de sesión de estudiantes beneficiarios y administradores (transversal: no asigna ni consulta asignaciones, y es el candidato a cubrir la identificación de quien usa el sistema).
 
 ### Estado de la documentación
 
@@ -58,8 +59,9 @@
 |---|---|
 | `REQ-01.md` | Validated |
 | `REQ-10.md` | Validated (se alimenta solo de REQ-01) |
+| `REQ-11.md` | Draft (autores y fecha Pendiente; IDs US-02, AC-05, AC-06 y UC-02 propuestos; prioridad Must propuesta) |
 | `REQ-02` a `REQ-09` | Aún no redactados |
-| Diseño arquitectónico y detallado de REQ-10 (v1.0) | Draft; cubre REQ-10 y toma REQ-01 solo como productor de los datos |
+| Diseño arquitectónico y detallado de REQ-10 (v1.0) | Draft; cubre REQ-10 y toma REQ-01 solo como productor de los datos; no cubre REQ-11 (la verificación de identidad no está diseñada) |
 | ADR 0001–0005 | Aceptados |
 | ADR-0006 | Propuesto; fecha pendiente |
 | ADR-0007 y ADR-0008 | Propuestos; fecha 2026-11-22 (autor @julondono07) |
@@ -67,6 +69,7 @@
 ### Reglas de negocio ya definidas por el equipo
 - **BR-01:** la asignación de comedores a los estudiantes beneficiarios debe tener frecuencia diaria.
 - **BR-02:** las asignaciones solo se pueden realizar mientras se esté cursando un semestre académico.
+- REQ-11 no define reglas de negocio nuevas.
 
 ---
 
@@ -105,6 +108,7 @@
 - Si ADR-0006 se acepta: la consulta del estudiante a sus comedores asignados pasa siempre por Consulta de Asignaciones.
 - Si ADR-0007 se acepta: no se lanza un proceso del backend por solicitud (el costo del ADR-0002 deja de aplicar a la invocación), pero PHP debe tener FFI habilitado y hay que compilar la librería por sistema operativo.
 - Si ADR-0008 se acepta: el backend no se conecta directamente a PostgreSQL; ejecuta un script PHP por consulta. Los componentes del diseño y sus capacidades no cambian (los nombres siguen la responsabilidad, no la tecnología).
+- Inicio de sesión (REQ-11, Draft): el navegador tampoco habla directo con el backend al iniciar sesión; lo que la persona escribe pasa por PHP y los argumentos deben validarse (ADR-0002). El mecanismo de verificación y el lugar donde viven las cuentas no están definidos.
 
 ### Componentes del diseño ya definidos (diseño de REQ-10 v1.0)
 Los nombres siguen la responsabilidad, no la tecnología. El detalle y las clases están en `ai_context_design.md`.
@@ -116,11 +120,13 @@ Los nombres siguen la responsabilidad, no la tecnología. El detalle y las clase
 | Registro de Asignaciones | Persiste y entrega las asignaciones y el periodo de asignación vigente |
 | Cálculo de Asignaciones | Calcula y asigna un comedor por día (REQ-01); su diseño interno no se detalla en el diseño de REQ-10 |
 
+> Ningún componente de esta tabla cubre REQ-11 (verificación de identidad y rol). Si REQ-10 va a mostrar solo las asignaciones del estudiante que inició sesión, su diseño deberá recibir esa identidad: es una brecha abierta, no una decisión.
+
 ---
 
 ## 5. Plan de entregas (RFC)
 
-1. **Entrega 1:** aplicación en línea donde el estudiante consulta el comedor asignado (Req. 10); asignación "inteligente" según información personal y características del estudiante (Req. 1 a 6).
+1. **Entrega 1:** aplicación en línea donde el estudiante consulta el comedor asignado (Req. 10); asignación "inteligente" según información personal y características del estudiante (Req. 1 a 6). El RFC no menciona el inicio de sesión (Req. 11); su asociación con esta entrega es una hipótesis.
 2. **Entrega 2:** encuesta para conocer necesidades y preferencias; sistema de reasignación periódica; mejora del proceso de asignación de cupos.
 3. **Entrega final:** sistema de estadísticas para administradores; reasignaciones de emergencia; diferenciación en la asignación de cupos según el lapso de tiempo que el estudiante elija (a partir de la encuesta).
 
@@ -146,12 +152,15 @@ Los nombres siguen la responsabilidad, no la tecnología. El detalle y las clase
 - **Riesgos técnicos aceptados (ADR):** costo por ejecución de PHP al lanzar un proceso por solicitud, validación de argumentos contra inyección de comandos y curva de aprendizaje de PHP (ADR-0002, vigente). Si se aceptan los ADR 0007 y 0008 el riesgo cambia de lugar: FFI habilitado, una librería por sistema operativo, firmas sincronizadas, memoria manual (0007) y un proceso `php` lanzado desde C++ por cada consulta a la base de datos (0008). Mientras sean Propuestos, se sigue citando el riesgo del ADR-0002.
 - **Error de acceso a los datos de asignación (REQ-10):** probabilidad Low, impacto High; mitigación: se muestra un mensaje de error y se da al estudiante la opción de reintentar.
 - **Capacidad mal estimada (REQ-01):** estudiantes no beneficiarios afectan el aforo real y el sistema no lo mide; probabilidad Alta, impacto Medio.
+- **Acceso no autorizado y entrada del usuario (REQ-11, Draft):** verificación de identidad deficiente que exponga datos de estudiantes (relacionado con la fuga de datos personales del RFC), inyección de comandos con lo que la persona escribe al iniciar sesión (ADR-0002) y falla de acceso a los datos que impida iniciar sesión. Probabilidad e impacto: estimación del equipo a validar.
 
 **Dependencias**
 - Estado actual de los comedores (infraestructura y capacidad).
 - Entidades que administran los datos de los estudiantes relevantes para la asignación.
 - Momento en que entran en efecto los subsidios de alimentación en la Universidad Nacional de Colombia sede Bogotá (REQ-01).
 - REQ-10 depende de REQ-01 (las asignaciones deben existir y estar persistidas).
+- REQ-11 (por confirmar): REQ-10 necesita saber qué estudiante consulta; REQ-07 y REQ-09 también involucran personas identificadas.
+- REQ-11 depende de la información sobre quiénes son estudiantes beneficiarios (entidades que administran esos datos); el origen de la información de los administradores está sin definir.
 
 **Alternativas al sistema (descartadas en el RFC):** asignación aleatoria (ignora las características de cada estudiante) y mantener el sistema actual (no ha resuelto saturación ni filas).
 
@@ -180,7 +189,7 @@ Cada pregunta se responde solo con lo que ya está en el RFC, los ADR y los requ
 
 **5. ¿Qué convenios o permisos se necesitan con las entidades que administran los datos de los estudiantes?** — *Sin definir*
 - Las fuentes solo establecen que estas entidades son una dependencia del sistema y que el acceso a los datos debe estar restringido y protegido (RFC, seguridad).
-- No se especifican convenios ni permisos concretos.
+- No se especifican convenios ni permisos concretos. Es probable que también afecte a REQ-11 (cómo se sabe quién es estudiante beneficiario); por confirmar.
 
 **6. ¿Cómo se mide de forma confiable el tiempo real de fila para validar la meta de 40 minutos?** — *Pendiente*
 
@@ -195,6 +204,7 @@ Cada pregunta se responde solo con lo que ya está en el RFC, los ADR y los requ
 ### Preguntas abiertas propias de los requerimientos ya redactados
 - **REQ-01:** ¿qué se debe hacer cuando no se puede medir acertadamente la capacidad de atención de un comedor?
 - **REQ-10:** ¿qué representación visual se usará para el horario de comedores de un estudiante? (el diseño solo fija la representación lógica: día + comedor).
+- **REQ-11:** credenciales de cada rol; quién crea y mantiene las cuentas y cómo se determina quién es estudiante beneficiario o administrador; otros usuarios con sesión (estudiantes no beneficiarios, trabajadores de los comedores, los "usuarios" de REQ-07); políticas de sesión (duración, cierre e intentos fallidos); qué se informa y si se puede reintentar cuando no se pueden verificar las credenciales por una falla de acceso a los datos.
 
 ---
 
@@ -207,6 +217,8 @@ Cada pregunta se responde solo con lo que ya está en el RFC, los ADR y los requ
 - **Alcance temporal de la asignación:** REQ-01 fija un comedor por día (lunes a viernes), igual para todas las semanas del semestre. El RFC menciona reasignación periódica (entrega 2); la relación entre ambos sigue sin definir.
 - **Brechas abiertas entre REQ-01 y REQ-10** (se señalan, no se resuelven aquí):
   - Quién mantiene el periodo de asignación vigente y dónde vive.
-  - Cómo se identifica al estudiante que consulta (el RFC pide acceso restringido a sus datos).
+  - Cómo se identifica al estudiante que consulta (el RFC pide acceso restringido a sus datos). REQ-11 (Draft) es la candidata a cubrir la identificación; falta confirmarlo y definir credenciales y origen de las cuentas.
   - Cómo se relacionan BR-01 (frecuencia diaria) y la asignación fija del semestre con el periodo "semana en curso" de REQ-10.
   - El enunciado del archivo `REQ-10.md` repite el de REQ-09 (consulta de desempeño); el enunciado correcto es el de `Requirements.md`, Requerimiento 10.
+- **Brechas abiertas de REQ-11** (se señalan, no se resuelven aquí): el RFC no menciona el inicio de sesión, por lo que su evidencia es `Requirements.md` y, de forma indirecta, la sección Seguridad del RFC; `Requirements.md` conserva el error ortográfico "incien sesion"; REQ-07 habla de "usuarios" sin precisar roles mientras REQ-11 nombra solo dos; la prioridad Must, los IDs (US-02, AC-05, AC-06, UC-02) y la asociación con la entrega 1 son propuestas por validar con el equipo.
+
