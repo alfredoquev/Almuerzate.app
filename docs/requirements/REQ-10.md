@@ -56,6 +56,8 @@
 
 > Intervalo cubierto por los periodos de asignación vigentes.
 
+> REQ-11: el estudiante debe haber iniciado sesión para que el sistema sepa qué estudiante consulta.
+
 **Risk(s)**
 
 | Risk | Likelihood | Impact | Mitigation (optional) |
@@ -64,6 +66,8 @@
 
 **Open Questions**
 > ¿Qué representación se usará para el horario de comedores de un estudiante?
+
+> ¿Qué debe ocurrir si una persona que no ha iniciado sesión intenta consultar comedores asignados?
 ---
 
 ## 3. Priority & Estimation
@@ -105,11 +109,11 @@
 | **Actor** | Estudiante beneficiario |
 | **Goal** | Hacer conocer al estudiante el comedor al que deberá ir en cada día de la semana |
 | **Trigger** | El estudiante consulta sus comedores asignados |
-| **Precondition** | Los comedores ya fueron asignados (aún no se ha brindado el subsidio alimentario, o el semestre ya acabó) |
+| **Precondition** | El estudiante beneficiario ha iniciado sesión (REQ-11, UC-02). Los comedores ya fueron asignados (aún no se ha brindado el subsidio alimentario, o el semestre ya acabó) |
 
 **Main Flow**
 1. El estudiante consulta sus comedores asignados para la semana.
-2. El sistema busca los comedores asignados para el estudiante.
+2. El sistema busca los comedores asignados para el estudiante que inició sesión.
 3. El sistema muestra el nombre de cada comedor asignado junto con su día correspondiente de la semana.
 
 **Alternative Flow**
@@ -127,7 +131,7 @@
 ```mermaid
 flowchart TD
     A([El estudiante consulta sus comedores asignados]) --> B["El estudiante consulta sus comedores asignados para la semana"]
-    B --> C["El sistema busca los comedores asignados para el estudiante"]
+    B --> C["El sistema busca los comedores asignados para el estudiante que inició sesión"]
     C --> D{"La información de las asignaciones está disponible"}
     D -- "La asignación existe y está disponible" --> G["Se muestra el nombre de cada comedor asignado junto con su día correspondiente de la semana"]
     G --> H(["El estudiante beneficiario puede ver sus comedores asignados"])
@@ -186,3 +190,4 @@ flowchart TD
 - [X] **Traceable?** Can every part of this document be traced back to real evidence — not invented to fill a section?
 
 > If any box is unchecked, say what's missing and whether it becomes an Open Question or sends you back to Class 8 (re-elicit) or Class 9 (re-specify).
+
