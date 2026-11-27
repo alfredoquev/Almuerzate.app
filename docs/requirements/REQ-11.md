@@ -3,9 +3,9 @@
 
 | | |
 |---|---|
-| **Status** | Draft |
-| **Team / Author(s)** | Pendiente |
-| **Date** | Pendiente |
+| **Status** | Validated |
+| **Team / Author(s)** | Juan Felipe Pineda |
+| **Date** | 26-11-2026 |
 | **Linked User Story / AC** | US-02; AC-05; AC-06 |
 
 ---
@@ -35,8 +35,6 @@
 > N/A — none identified. BR-01 y BR-02 regulan la asignación de comedores, no el acceso al sistema, y ninguna fuente define reglas del dominio sobre quién puede iniciar sesión.
 
 **Constraint(s)**
-> Solo el estudiante beneficiario y el administrador inician sesión (enunciado del Requerimiento 11).
-
 > El acceso a los datos de los estudiantes debe estar restringido y protegido (RFC, sección Seguridad).
 
 > Lo que la persona escribe al iniciar sesión llega al backend a través de PHP, y los argumentos que PHP pasa al ejecutable deben validarse (ADR-0002, Aceptado).
@@ -50,8 +48,6 @@
 > Información sobre quiénes son estudiantes beneficiarios, entregada por las entidades correspondientes (dependencia ya declarada en REQ-01).
 
 > Origen de la información que identifica a los administradores: Pendiente.
-
-> Requerimientos que probablemente se apoyan en este (por confirmar): REQ-10 (identificar al estudiante que consulta), REQ-07 (usuarios que registran reportes) y REQ-09 (administradores que consultan el desempeño de los comedores).
 
 **Risk(s)**
 
@@ -99,8 +95,8 @@
 
 **Scenario 1 — Credenciales válidas [AC-05]**
 > **Dado** que la persona es un estudiante beneficiario o un administrador con credenciales válidas y no ha iniciado sesión
-> **Cuando** inicia sesión
-> **Entonces** el sistema le concede acceso según su rol
+> **Cuando** inicia sesión con sus respectivas credenciales
+> **Entonces** el sistema inicia su sesión y habilita el acceso correspondiente a su rol de estudiante beneficiario o administrador.
 
 **Scenario 2 — Credenciales no válidas [AC-06]**
 > **Dado** que una persona entrega credenciales que no son válidas
@@ -181,11 +177,11 @@ flowchart TD
 
 ## 6. Validation — Quality Gate
 
-- [ ] **Valid?** Does it reflect a real, evidenced need — not an invented one?
-- [ ] **Clear / Unambiguous?** Is there only one reasonable interpretation?
+- [x] **Valid?** Does it reflect a real, evidenced need — not an invented one?
+- [x] **Clear / Unambiguous?** Is there only one reasonable interpretation?
 - [X] **Atomic?** Is this one independently testable expectation, not several bundled together?
 - [X] **Necessary?** Does removing it actually break something real?
-- [ ] **Feasible?** Can this realistically be built with what the team has?
+- [x] **Feasible?** Can this realistically be built with what the team has?
 - [X] **Verifiable?** Can you demonstrate, concretely, whether it's satisfied?
 - [X] **Consistent?** Does it conflict with any other requirement in your set?
 - [ ] **Complete enough?** Are there important functions or constraints still missing?
