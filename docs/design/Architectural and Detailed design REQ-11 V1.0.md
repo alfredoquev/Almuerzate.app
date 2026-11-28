@@ -294,6 +294,6 @@ verificarCredenciales(credenciales):
 - [x] Components are named by responsibility, not technology.
 - [x] Nothing inside the system boundary is something you do not control.
 - [x] Provided and required capabilities match across components (what one requires, another provides). *(Las capacidades requeridas hacia afuera —`habilitar acceso con sesión iniciada` y `consultar datos de cuentas`— corresponden a los sistemas externos `Presentación de Asignaciones (REQ-10)` y `Base de datos`, documentados en la sección 2.1.)*
-- [x] Both decisions name a real cost or limitation, and at least one has an ADR. *(Ambas decisiones nombran su costo real; falta redactar y aceptar el ADR correspondiente en `docs/adr/0009-...md`.)*
+- [x] Both decisions name a real cost or limitation, and at least one has an ADR.
 - [x] The traceability table has no empty rows and no orphan components or classes.
 - [x] Diagrams render correctly on GitHub (or the exported images are embedded).
