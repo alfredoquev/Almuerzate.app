@@ -6,26 +6,7 @@
 | **Members** | @amadodev07, @juanfpg1, @xedroc422, @alfredoquev, @julondono07 |
 | **Status** | Draft |
 | **Date** | 2026-11-27 |
-| **Inputs** | `docs/requirements/REQ-11.md`, `ADR-0002`, `ADR-0005`, Diseño de REQ-10 v1.0 (referencia de contexto) |
-
-> **Alcance:** este documento cubre REQ-11 (inicio de sesión de estudiantes beneficiarios y administradores). Incluye a *Presentación de Asignaciones* (REQ-10) únicamente como referencia de contexto del acceso que se habilita tras iniciar sesión como estudiante beneficiario; su diseño interno no se repite aquí.
-
----
-
-## 1. System Overview & Design Drivers
-
-**System purpose**
-> Reconocer quién utiliza la página web de Almuérzate y con qué rol (estudiante beneficiario o administrador), para conceder acceso únicamente a lo que corresponde a cada rol y proteger los datos personales de los estudiantes frente a terceros. Cuando las credenciales no son válidas o no pueden verificarse por una falla de acceso a los datos, el sistema debe denegar el acceso e informar a la persona.
-
-| Requirement / Use Case ID | Why it shapes the structure | Quality attribute, constraint or business rule involved |# Almuérzate — Architectural & Detailed Design v1.0 (REQ-11)
-
-| | |
-|---|---|
-| **Team** | Almuérzate |
-| **Members** | @amadodev07, @juanfpg1, @xedroc422, @alfredoquev, @julondono07 |
-| **Status** | Draft |
-| **Date** | 2026-11-27 |
-| **Inputs** | `docs/requirements/REQ-11.md`, `docs/requirements/REQ-10.md`, `ADR-0001`, `ADR-0004`, `ADR-0007`, `ADR-0008`, Diseño de REQ-10 v1.0 (referencia de contexto) |
+| **Inputs** | `docs/requirements/REQ-11.md`, `docs/requirements/REQ-10.md`, `ADR-0001`, `ADR-0004`, `ADR-0007`, `ADR-0008`, `ADR-0009`, Diseño de REQ-10 v1.0 (referencia de contexto) |
 
 > **Alcance:** este documento cubre REQ-11 (inicio de sesión de estudiantes beneficiarios y administradores). Incluye a *Presentación de Asignaciones* (REQ-10) únicamente como referencia de contexto del acceso que se habilita tras iniciar sesión como estudiante beneficiario; su diseño interno no se repite aquí.
 
@@ -191,12 +172,7 @@ classDiagram
 
 > No se usa composición ni herencia entre clases de dominio: `CuentaUsuario` existe en el registro independientemente del resultado de un intento de inicio de sesión, y los roles se modelan con `RolUsuario` porque en REQ-11 ambos roles comparten el mismo flujo de autenticación sin atributos ni operaciones especializadas definidas. Sí se utiliza realización de interfaz (`RepositorioCuentasScriptPHP ..|> RepositorioCuentas`) para aislar el acceso mediante subproceso PHP (`ADR-0008`) del núcleo de verificación. `ResultadoInicioSesion` contiene `0..1` `CuentaUsuario` (presente solo cuando el estado es `SESION_INICIADA`).
 >
-> La frontera de comunicación entre lenguajes (`ADR-0007`) se encapsula en `ClienteVerificacionFFI` (lado PHP) e `InterfazVerificacionJSON` (lado librería compartida C++): el intercambio se realiza mediante cadenas JSON y `ClienteVerificacionFFI` es responsable de invocar `liberarMemoria` tras leer la respuesta. Los tipos `Credenciales` e `IdUsuario` se mantienen opacos sin campos internos porque con qué credenciales inicia sesión cada rol y cómo se crean y mantienen las cuentas son Open Questions de REQ-11.>
 > La frontera de comunicación entre lenguajes (`ADR-0007`) se encapsula en `ClienteVerificacionFFI` (lado PHP) e `InterfazVerificacionJSON` (lado librería compartida C++): el intercambio se realiza mediante cadenas JSON y `ClienteVerificacionFFI` es responsable de invocar `liberarMemoria` tras leer la respuesta. Los tipos `Credenciales` e `IdUsuario` se mantienen opacos sin campos internos porque con qué credenciales inicia sesión cada rol y cómo se crean y mantienen las cuentas son Open Questions de REQ-11.
-
-> No se usa composición ni generalización: `CuentaUsuario` existe en el registro independientemente del resultado de un intento de inicio de sesión, y los roles se modelan con `RolUsuario` en lugar de herencia porque en REQ-11 ambos roles comparten el mismo flujo de autenticación sin atributos ni operaciones especializadas definidas. `ResultadoInicioSesion` contiene `0..1` `CuentaUsuario` (presente solo cuando el estado es `SESION_INICIADA`).
->
-> Los tipos `Credenciales` e `IdUsuario` se mantienen opacos sin campos internos porque con qué credenciales inicia sesión cada rol y cómo se crean y mantienen las cuentas son Open Questions de REQ-11.
 
 ### 3.3 Class Responsibilities
 
@@ -214,6 +190,7 @@ classDiagram
 | RepositorioCuentasScriptPHP | Registro de Cuentas | Implementa `RepositorioCuentas` ejecutando desde C++ el script PHP que consulta PostgreSQL, interpreta el JSON devuelto para construir `CuentaUsuario` y señala falla de acceso a datos si `php` no está disponible, el script falla o el JSON es inválido (ADR-0008) | RepositorioCuentas, CuentaUsuario |
 | CuentaUsuario | Registro de Cuentas | Representa la identidad y el rol de una cuenta autenticada, sin exponer sus credenciales | RolUsuario |
 | RolUsuario | Registro de Cuentas | Enumera los roles reconocidos por REQ-11: `ESTUDIANTE_BENEFICIARIO` y `ADMINISTRADOR` | Ninguno |
+
 ### 3.4 Behavior of one key operation
 
 ```text
@@ -245,6 +222,7 @@ verificarCredenciales(credenciales):
 > 1. **Múltiples orígenes para `PROBLEMA_DE_COMUNICACION` y desalineación documental con `REQ-11.md`:** el estado puede originarse en `VerificacionIdentidad` cuando falla `RepositorioCuentasScriptPHP` (ausencia de `php`, fallo del script, error de PostgreSQL o JSON inválido según ADR-0008), pero también en `ClienteVerificacionFFI` si falla la carga FFI o el parseo JSON del borde PHP→C++ (ADR-0007). Se diseñó que ambos orígenes se unifiquen en `PROBLEMA_DE_COMUNICACION` y ofrezcan `reintentar()` (comportamiento análogo a REQ-10 definido por el equipo).
 > 2. **Cómo se entrega la identidad autenticada a REQ-10:** `CuentaUsuario` provee `idUsuario` y `rol`, pero el diseño aún no fija cómo se conserva la sesión entre solicitudes web ni cómo `Consulta de Asignaciones` (REQ-10) recibe el identificador del estudiante sin confiar en datos manipulables desde el navegador. Cuando el equipo resuelva las Open Questions de políticas de sesión de REQ-11, será necesario añadir el componente o mecanismo que gestiona la sesión activa.
 > 3. **Doble paso por PHP (`PHP → C++ → PHP`), sincronización FFI y gestión manual de memoria:** combinar `ADR-0007` y `ADR-0008` introduce riesgo de fuga de memoria o caída del proceso ante desajustes de firma FFI, además del costo de lanzar un proceso `php` por consulta desde C++. Para mitigarlo sin romper el diseño del dominio, se encapsuló toda la interacción FFI y la llamada obligatoria a `liberarMemoria` en `ClienteVerificacionFFI` / `InterfazVerificacionJSON`, y se aisló la invocación del subproceso detrás de la interfaz `RepositorioCuentas` (implementada por `RepositorioCuentasScriptPHP`), permitiendo migrar luego a una conexión directa como `libpqxx` sin modificar `VerificacionIdentidad` ni `PresentacionInicioSesion`.
+
 ---
 
 ## 5. Design Decisions & Decision Record
@@ -269,7 +247,7 @@ verificarCredenciales(credenciales):
 
 ### ADR
 
-**ADR file:** `Pendiente` — corresponde redactar `docs/adr/0009-verificacion-de-identidad-unico-punto-de-acceso.md` para registrar la Decisión A (siguiendo el mismo patrón de separación adoptado en `ADR-0006` para REQ-10). *(No se reutilizan `ADR-0006`, `ADR-0007` ni `ADR-0008` porque ya corresponden a decisiones aceptadas previamente.)*
+**ADR file:** [`docs/adr/0009-verificacion-de-identidad-unico-punto-de-acceso.md`](docs/adr/0009-verificacion-de-identidad-unico-punto-de-acceso.md) — registra la Decisión A (Verificación de Identidad como único punto de acceso para el inicio de sesión), siguiendo el mismo patrón de separación adoptado en `ADR-0006` para REQ-10 y respetando los mecanismos de integración y persistencia definidos en `ADR-0007` y `ADR-0008`.
 
 ---
 
