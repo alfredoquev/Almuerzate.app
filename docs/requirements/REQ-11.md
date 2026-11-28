@@ -4,7 +4,7 @@
 | | |
 |---|---|
 | **Status** | Validated |
-| **Team / Author(s)** | Juan Felipe Pineda |
+| **Team / Author(s)** | @amadodev07, @juanfpg1, @xedroc422, @alfredoquev y @julondono07 |
 | **Date** | 26-11-2026 |
 | **Linked User Story / AC** | US-02; AC-05; AC-06 |
 
@@ -48,6 +48,8 @@
 > Información sobre quiénes son estudiantes beneficiarios, entregada por las entidades correspondientes (dependencia ya declarada en REQ-01).
 
 > Origen de la información que identifica a los administradores: Pendiente.
+
+> Requerimientos que se apoyan en este: REQ-10 (el estudiante consulta sus comedores asignados con la sesión iniciada aquí). Probablemente también REQ-07 (usuarios que registran reportes) y REQ-09 (administradores que consultan el desempeño de los comedores), por confirmar.
 
 **Risk(s)**
 
@@ -104,7 +106,7 @@
 > **Entonces** el sistema no le concede acceso e informa que no fue posible iniciar sesión
 
 ### 4.3 Use Case
-
+ 
 | Field | |
 |---|---|
 | **Use Case name** | Iniciar sesión [UC-02] |
@@ -112,24 +114,23 @@
 | **Goal** | Acceder al sistema con su identidad y su rol |
 | **Trigger** | La persona decide iniciar sesión en la página de Almuérzate |
 | **Precondition** | La persona no ha iniciado sesión y dispone de credenciales (supuesto) |
-
+ 
 **Main Flow**
 1. La persona solicita iniciar sesión.
 2. La persona entrega sus credenciales.
 3. El sistema verifica las credenciales.
 4. El sistema reconoce el rol de la persona (estudiante beneficiario o administrador) y le concede acceso.
-
 **Alternative Flow**
 > Las credenciales no son válidas → El sistema no concede acceso e informa que no fue posible iniciar sesión.
-
+ 
 **Exception**
-> No se pueden verificar las credenciales por una falla de acceso a los datos → El sistema no concede acceso. El aviso que recibe la persona y si puede reintentar no están definidos por el equipo (ver Open Questions).
-
+> No se pueden verificar las credenciales por una falla de acceso a los datos → El sistema no concede acceso, informa que hubo un problema de comunicación y pide reintentar.
+ 
 **Postcondition**
 > La persona tiene una sesión iniciada con su rol y puede acceder al sistema como estudiante beneficiario o como administrador.
-
+ 
 **Flow Diagram**
-
+ 
 ```mermaid
 flowchart TD
     A(["La persona solicita iniciar sesión"]) --> B["La persona entrega sus credenciales"]
@@ -138,10 +139,10 @@ flowchart TD
     D -- "Credenciales válidas" --> E["El sistema reconoce el rol y concede acceso"]
     E --> F(["Sesión iniciada como estudiante beneficiario o administrador"])
     D -- "Credenciales no válidas" --> G["No se concede acceso e informa que no fue posible iniciar sesión"]
-    D -- "No se pudo verificar" --> H["No se concede acceso, aviso pendiente de definir"]
+    D -- "No se pudo verificar" --> H["No se concede acceso, se informa el problema de comunicación y se pide reintentar"]
     G --> I(["Sin sesión iniciada"])
     H --> I
-
+ 
     classDef mainflow fill:#E3E7F1,color:#1E2761,stroke:#7B86A8;
     classDef alt fill:#FBF1DD,color:#5C4A1E,stroke:#C9A961;
     classDef exception fill:#F6E3E1,color:#6B2A25,stroke:#B98A86;
@@ -149,9 +150,6 @@ flowchart TD
     class G alt;
     class H exception;
 ```
-
----
-
 ## 5. Traceability & Impact
 
 **Backward — why does this requirement exist?**
