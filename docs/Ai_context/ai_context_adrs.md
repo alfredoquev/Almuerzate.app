@@ -28,9 +28,9 @@ Actúas como asistente de documentación de arquitectura. Tu tarea es ayudar al 
 | Estilos / interfaz | Tailwind CSS | 0003 |
 | Backend / lógica (árbol decisional) | C++, ejecutado en el servidor | 0004 |
 | Frontend (enfoque web) | Aplicación web con HTML, JavaScript y CSS (más Tailwind), sin React/Vue/React Native | 0005 |
-| Consulta de comedores asignados (estructura del diseño de REQ-10) | Presentación de Asignaciones no accede directamente a Registro de Asignaciones; toda consulta pasa por Consulta de Asignaciones | 0006 (Propuesto) |
-| Invocación del backend desde PHP | Backend C++ compilado como librería compartida (`.dll` en Windows) que PHP carga mediante FFI; reemplazaría el ejecutable invocado del ADR-0002 | 0007 (Propuesto) |
-| Acceso a PostgreSQL desde el backend | El backend C++ ejecuta un script PHP que consulta PostgreSQL y devuelve JSON, en lugar de una conexión directa con `libpqxx` | 0008 (Propuesto) |
+| Consulta de comedores asignados (estructura del diseño de REQ-10) | Presentación de Asignaciones no accede directamente a Registro de Asignaciones; toda consulta pasa por Consulta de Asignaciones | 0006 |
+| Invocación del backend desde PHP | Backend C++ compilado como librería compartida (`.dll` en Windows) que PHP carga mediante FFI; reemplazaría el ejecutable invocado del ADR-0002 | 0007 |
+| Acceso a PostgreSQL desde el backend | El backend C++ ejecuta un script PHP que consulta PostgreSQL y devuelve JSON, en lugar de una conexión directa con `libpqxx` | 0008 |
 
 **Arquitectura en una línea:** el backend en C++ (incluido el árbol decisional) corre en el servidor y consulta PostgreSQL; PHP entrega al navegador únicamente los datos ya procesados que cada usuario necesita ver; el frontend es una página web que los muestra.
 
@@ -59,11 +59,11 @@ Autores habituales (usuarios de GitHub): `@amadodev07`, `@juanfpg1`, `@xedroc422
 | 0003 | Usar Tailwind CSS como framework de estilos para el frontend | Aceptado | @amadodev07, @juanfpg1 |
 | 0004 | Usar C++ para el backend y el árbol decisional | Aceptado | Todo el equipo |
 | 0005 | Uso de tecnologías web para el frontend | Aceptado | Todo el equipo |
-| 0006 | Consulta de Asignaciones como único punto de acceso a los comedores asignados | Propuesto | Todo el equipo |
-| 0007 | Integrar PHP con el backend mediante una librería compartida de C++ | Propuesto | @julondono07 |
-| 0008 | Acceder a PostgreSQL desde el backend mediante un script PHP | Propuesto | @julondono07 |
+| 0006 | Consulta de Asignaciones como único punto de acceso a los comedores asignados | Aceptado | Todo el equipo |
+| 0007 | Integrar PHP con el backend mediante una librería compartida de C++ | Aceptado | @julondono07 |
+| 0008 | Acceder a PostgreSQL desde el backend mediante un script PHP | Aceptado | @julondono07 |
 
-Fecha de los ADR 0001–0005: 2026-10-30 (todos se toman como decididos en la misma fecha de partida). **ADR-0006: fecha pendiente** (la plantilla exige `AAAA-MM-DD`). **ADR-0007 y ADR-0008: 2026-11-22.** El siguiente ADR nuevo es el **0009**.
+Fecha de los ADR 0001–0005: 2026-10-30 (todos se toman como decididos en la misma fecha de partida). **ADR-0006: fecha pendiente**
 
 ### Resumen de lo decidido (para mantener coherencia)
 
