@@ -1,8 +1,8 @@
 # AI Context General — almuerzate.app
 
-> Contexto del proyecto para que una IA entienda de qué trata, qué se decidió y qué se espera construir. No impone formato de salida: el formato lo define cada petición. Fuentes: RFC "Almuérzate", ADR 0001–0005 (aceptados), ADR 0006–0008 (propuestos), `Requirements.md` y los requerimientos ya redactados (`REQ-01.md`, `REQ-10.md` y el borrador `REQ-11.md`).
+> Contexto del proyecto para que una IA entienda de qué trata, qué se decidió y qué se espera construir. No impone formato de salida: el formato lo define cada petición. Fuentes: RFC "Almuérzate", ADR 0001–0008 (aceptados), ADR-0009 (propuesto), `Requirements.md`, los requerimientos ya redactados (`REQ-01.md`, `REQ-10.md` y el borrador `REQ-11.md`) y los diseños arquitectónicos y detallados de REQ-10 y REQ-11.
 >
-> Última actualización: 2026-11-25.
+> Última actualización: 2026-11-28.
 
 ---
 
@@ -51,7 +51,7 @@
 | 10 | Mostrar a los estudiantes beneficiarios sus asignaciones de comedor para el periodo de asignación vigente |
 | 11 | Permitir que el estudiante beneficiario y el administrador inicien sesión en la página de Almuérzate |
 
-**Lectura rápida:** los requerimientos 1–6 son el núcleo (asignación); 7–9 cubren reportes, notificación y consulta de desempeño; 10 es la consulta del estudiante a lo que el núcleo asignó (solo lee, no calcula); 11 es el inicio de sesión de estudiantes beneficiarios y administradores (transversal: no asigna ni consulta asignaciones, y es el candidato a cubrir la identificación de quien usa el sistema).
+**Lectura rápida:** los requerimientos 1–6 son el núcleo (asignación); 7–9 cubren reportes, notificación y consulta de desempeño; 10 es la consulta del estudiante a lo que el núcleo asignó (solo lee, no calcula); 11 es el inicio de sesión de estudiantes beneficiarios y administradores (transversal: no asigna ni consulta asignaciones, y cubre la identificación de quien usa el sistema).
 
 ### Estado de la documentación
 
@@ -61,10 +61,10 @@
 | `REQ-10.md` | Validated (se alimenta solo de REQ-01) |
 | `REQ-11.md` | Draft (autores y fecha Pendiente; IDs US-02, AC-05, AC-06 y UC-02 propuestos; prioridad Must propuesta) |
 | `REQ-02` a `REQ-09` | Aún no redactados |
-| Diseño arquitectónico y detallado de REQ-10 (v1.0) | Draft; cubre REQ-10 y toma REQ-01 solo como productor de los datos; no cubre REQ-11 (la verificación de identidad no está diseñada) |
-| ADR 0001–0005 | Aceptados |
-| ADR-0006 | Propuesto; fecha pendiente |
-| ADR-0007 y ADR-0008 | Propuestos; fecha 2026-11-22 (autor @julondono07) |
+| Diseño arquitectónico y detallado de REQ-10 (v1.0) | Draft; cubre REQ-10 y toma REQ-01 solo como productor de los datos (el inicio de sesión se diseña por separado en REQ-11) |
+| Diseño arquitectónico y detallado de REQ-11 (v1.0) | Draft; cubre el inicio de sesión de estudiantes beneficiarios y administradores (3 componentes, 12 clases), alineado con ADR-0007, ADR-0008 y ADR-0009 |
+| ADR 0001–0008 | Aceptados (0001–0005: 2026-10-30; 0006: fecha pendiente; 0007 y 0008: 2026-11-22) |
+| ADR-0009 | Propuesto; fecha 2026-11-28 |
 
 ### Reglas de negocio ya definidas por el equipo
 - **BR-01:** la asignación de comedores a los estudiantes beneficiarios debe tener frecuencia diaria.
@@ -73,54 +73,57 @@
 
 ---
 
-## 4. Arquitectura y decisiones técnicas (ADR 0001–0005 aceptados; ADR 0006–0008 propuestos)
+## 4. Arquitectura y decisiones técnicas (ADR 0001–0008 aceptados; ADR-0009 propuesto)
 
-**En una línea:** el backend en C++ (incluido el árbol decisional) corre en el servidor y consulta PostgreSQL; PHP entrega al navegador solo los datos ya procesados que se necesitan para visualizar; el frontend es una aplicación web que los muestra.
-
-> **Propuesto (no vigente):** con los ADR 0007 y 0008, PHP cargaría el backend como librería compartida de C++ mediante FFI y el backend obtendría los datos ejecutando un script PHP que consulta PostgreSQL. Hasta que se acepten, la fila vigente de integración es la del ADR-0002 (PHP invoca el ejecutable).
+**En una línea:** el backend en C++ (incluido el árbol decisional) se compila como librería compartida que PHP carga en el servidor mediante FFI (ADR-0007) y consulta PostgreSQL ejecutando un script PHP que devuelve JSON (ADR-0008); PHP entrega al navegador solo los datos ya procesados que se necesitan para visualizar; el frontend es una aplicación web que los muestra.
 
 | ADR | Decisión | Por qué | Costo aceptado |
 |---|---|---|---|
 | 0001 | **PostgreSQL** como base de datos principal | Integridad transaccional (ACID) para asignar cupos, buen rendimiento y soporte maduro desde C++ (p. ej. `libpqxx`), consultas complejas y datos agregados para paneles | Servidor de BD independiente; requiere diseño cuidadoso del esquema e indexación |
-| 0002 | **PHP** conecta frontend y backend: corre en el servidor, invoca el ejecutable C++ (árbol decisional) y envía al cliente solo los datos requeridos | Reutiliza el C++ existente sin reescribirlo, integración simple y separación de responsabilidades (backend analiza y gestiona datos; frontend visualiza) | El equipo debe aprender PHP; cada solicitud lanza un proceso (puede penalizar el rendimiento con alto flujo de datos); hay que validar los argumentos que PHP pasa al ejecutable para evitar inyección de comandos |
+| 0002 | **PHP** conecta frontend y backend: corre en el servidor y envía al cliente solo los datos requeridos *(su mecanismo de invocación por ejecutable fue reemplazado por ADR-0007)* | Reutiliza el C++ existente sin reescribirlo, integración simple y separación de responsabilidades (backend analiza y gestiona datos; frontend visualiza) | El equipo debe aprender PHP |
 | 0003 | **Tailwind CSS** para la maquetación e interfaz | Iteración rápida, curva de aprendizaje baja, ecosistema amplio e integración sencilla con librerías JS de gráficos como Chart.js | Acoplamiento al entorno web y necesidad de una capa de comunicación JS ↔ C++ (PHP, ADR-0002) |
 | 0004 | **C++** para el backend y el árbol decisional, ejecutado en el servidor | Buen manejo de estructuras de datos y grandes volúmenes de datos por el control de memoria; el equipo ya conoce el lenguaje | Complejidad en la implementación de estructuras de datos; conexión con el frontend vía PHP |
 | 0005 | **Frontend web con HTML, JavaScript y CSS** (mantiene Tailwind) | Accesible desde navegador sin instalar app móvil; alcance de interfaz acotado y datos que llegan ya procesados | Se renuncia a herramientas de React/Vue; más código propio que escribir y mantener |
-| 0006 *(Propuesto)* | **Consulta de Asignaciones como único punto de acceso a los comedores asignados**: Presentación de Asignaciones no accede directamente a Registro de Asignaciones | Los cuatro resultados del flujo de REQ-10 (disponible, no asignados aún, sin periodo vigente, problema de comunicación) y los fallos de acceso a los datos se resuelven en un solo componente | Un componente y un salto adicionales para una función de solo lectura (algo más de latencia); el estado de problema de comunicación puede originarse en dos puntos (fallo de acceso a los datos y falta de respuesta de Consulta de Asignaciones) y debe tratarse igual |
-| 0007 *(Propuesto)* | **Librería compartida de C++**: el backend se compila como librería (`.dll` en Windows) que PHP carga mediante FFI; reemplazaría el mecanismo de invocación del ADR-0002 | La implementación real carga una librería y no invoca un ejecutable; no se lanza un proceso del backend por solicitud y PHP recibe directamente el JSON | Requiere habilitar FFI en PHP; una librería por sistema operativo; firmas declaradas en PHP sincronizadas con el C++ (un desajuste puede tumbar el proceso); liberación manual de la memoria reservada por C++ |
-| 0008 *(Propuesto)* | **Script PHP para acceder a PostgreSQL**: el backend C++ ejecuta el script que consulta la base de datos y devuelve JSON | Acceso a la base de datos más sencillo de aprender y de entender que una conexión directa con `libpqxx` | Cada consulta lanza un proceso `php` desde C++; el flujo pasa por PHP dos veces (PHP → C++ → PHP); el backend depende de que `php` esté en el servidor; se deja de aprovechar `libpqxx` (ADR-0001) |
+| 0006 | **Consulta de Asignaciones como único punto de acceso a los comedores asignados**: Presentación de Asignaciones no accede directamente a Registro de Asignaciones | Los cuatro resultados del flujo de REQ-10 (disponible, no asignados aún, sin periodo vigente, problema de comunicación) y los fallos de acceso a los datos se resuelven en un solo componente | Un componente y un salto adicionales para una función de solo lectura (algo más de latencia); el estado de problema de comunicación puede originarse en dos puntos (fallo de acceso a los datos y falta de respuesta de Consulta de Asignaciones) y debe tratarse igual |
+| 0007 | **Librería compartida de C++**: el backend se compila como librería (`.dll` en Windows) que PHP carga mediante FFI; reemplaza el mecanismo de invocación del ADR-0002 | La implementación real carga una librería y no invoca un ejecutable; no se lanza un proceso del backend por solicitud y PHP recibe directamente el JSON | Requiere habilitar FFI en PHP; una librería por sistema operativo; firmas declaradas en PHP sincronizadas con el C++ (un desajuste puede tumbar el proceso); liberación manual de la memoria reservada por C++ |
+| 0008 | **Script PHP para acceder a PostgreSQL**: el backend C++ ejecuta el script que consulta la base de datos y devuelve JSON | Acceso a la base de datos más sencillo de aprender y de entender que una conexión directa con `libpqxx` | Cada consulta lanza un proceso `php` desde C++; el flujo pasa por PHP dos veces (PHP → C++ → PHP); el backend depende de que `php` esté en el servidor; se deja de aprovechar `libpqxx` (ADR-0001) |
+| 0009 *(Propuesto)* | **Verificación de Identidad como único punto de acceso para el inicio de sesión**: Presentación de Inicio de Sesión no accede directamente a Registro de Cuentas ni valida credenciales | Centraliza la validación de entradas, los tres resultados de UC-02 (sesión iniciada, credenciales no válidas y problema de comunicación) y la determinación de rol en un solo componente (mismo patrón que ADR-0006) | Un componente y un salto adicionales cruzando la frontera de integración (ADR-0007 y ADR-0008); el estado de problema de comunicación puede originarse en dos puntos y debe tratarse de forma uniforme |
 
 ### Alternativas descartadas
 - **Base de datos:** MySQL/MariaDB, SQLite, MongoDB.
 - **Integración:** Emscripten (obligaría a ejecutar C++ en el cliente; el ADR-0007 dice que podría volver a evaluarse, pero no está habilitado) y bibliotecas C++ (acoplan la conexión a C++).
-- **Invocación del backend (ADR-0007, propuesto):** ejecutable invocado por PHP (mecanismo del ADR-0002, que el 0007 reemplazaría).
-- **Acceso a la base de datos (ADR-0008, propuesto):** conexión directa desde C++ con `libpqxx` (más compleja de aprender y entender).
+- **Invocación del backend (ADR-0007):** ejecutable invocado por PHP (mecanismo del ADR-0002, que el 0007 reemplaza).
+- **Acceso a la base de datos (ADR-0008):** conexión directa desde C++ con `libpqxx` (más compleja de aprender y entender).
 - **Interfaz:** Slint y Dear ImGui.
 - **Backend:** Java (el equipo no lo domina).
 - **Frontend:** React, Vue y React Native.
 - **Consulta de asignaciones (ADR-0006):** que la presentación consulte directamente al registro de asignaciones (cada resultado y cada fallo tendrían que resolverse en la interfaz).
+- **Inicio de sesión (ADR-0009, propuesto):** que la presentación consulte directamente a Registro de Cuentas y valide credenciales en la interfaz (dispersaría validaciones, fallos y riesgos de seguridad en la presentación).
 
 ### Implicaciones prácticas
 - El C++ **no** se ejecuta en el cliente.
 - El navegador nunca habla directo con el backend: pasa por PHP.
 - Las gráficas y paneles estadísticos usan librerías JS (Chart.js) alimentadas con datos del backend.
 - La persistencia es relacional y transaccional.
-- Si ADR-0006 se acepta: la consulta del estudiante a sus comedores asignados pasa siempre por Consulta de Asignaciones.
-- Si ADR-0007 se acepta: no se lanza un proceso del backend por solicitud (el costo del ADR-0002 deja de aplicar a la invocación), pero PHP debe tener FFI habilitado y hay que compilar la librería por sistema operativo.
-- Si ADR-0008 se acepta: el backend no se conecta directamente a PostgreSQL; ejecuta un script PHP por consulta. Los componentes del diseño y sus capacidades no cambian (los nombres siguen la responsabilidad, no la tecnología).
-- Inicio de sesión (REQ-11, Draft): el navegador tampoco habla directo con el backend al iniciar sesión; lo que la persona escribe pasa por PHP y los argumentos deben validarse (ADR-0002). El mecanismo de verificación y el lugar donde viven las cuentas no están definidos.
+- La consulta del estudiante a sus comedores asignados pasa siempre por Consulta de Asignaciones (ADR-0006).
+- No se lanza un proceso del backend por solicitud (el costo del ADR-0002 deja de aplicar a la invocación PHP → C++), pero PHP debe tener FFI habilitado (`ffi.enable=true`), hay que compilar la librería por sistema operativo, mantener las firmas sincronizadas y liberar manualmente la memoria reservada por C++ (ADR-0007).
+- El backend no se conecta directamente a PostgreSQL; ejecuta un script PHP por consulta que devuelve JSON (ADR-0008). Los componentes del diseño y sus capacidades se nombran por responsabilidad, no por tecnología.
+- Inicio de sesión (REQ-11, diseño v1.0 Draft): el navegador no habla directo con el backend; Presentación de Inicio de Sesión cruza la frontera FFI/JSON hacia Verificación de Identidad (ADR-0007 y ADR-0009), que valida las entradas antes de lanzar el subproceso `php` hacia PostgreSQL (ADR-0008). Siguen sin definir las credenciales concretas de cada rol, quién crea/mantiene las cuentas y cómo se conserva la sesión activa entre solicitudes.
 
-### Componentes del diseño ya definidos (diseño de REQ-10 v1.0)
-Los nombres siguen la responsabilidad, no la tecnología. El detalle y las clases están en `ai_context_design.md`.
+### Componentes del diseño ya definidos (diseños de REQ-10 y REQ-11 v1.0)
+Los nombres siguen la responsabilidad, no la tecnología. El detalle y las clases están en `ai_context_design.md` y en los documentos de diseño de cada requerimiento.
 
-| Componente | Responsabilidad |
-|---|---|
-| Presentación de Asignaciones | Muestra al estudiante sus comedores asignados o el mensaje que corresponde |
-| Consulta de Asignaciones | Decide qué debe ver el estudiante: sus asignaciones o la razón por la que no están disponibles |
-| Registro de Asignaciones | Persiste y entrega las asignaciones y el periodo de asignación vigente |
-| Cálculo de Asignaciones | Calcula y asigna un comedor por día (REQ-01); su diseño interno no se detalla en el diseño de REQ-10 |
+| Componente | Requerimiento | Responsabilidad |
+|---|---|---|
+| Presentación de Asignaciones | REQ-10 | Muestra al estudiante sus comedores asignados o el mensaje que corresponde |
+| Consulta de Asignaciones | REQ-10 | Decide qué debe ver el estudiante: sus asignaciones o la razón por la que no están disponibles |
+| Registro de Asignaciones | REQ-10 | Persiste y entrega las asignaciones y el periodo de asignación vigente |
+| Cálculo de Asignaciones | REQ-01 (contexto de REQ-10) | Calcula y asigna un comedor por día (REQ-01); su diseño interno no se detalla en el diseño de REQ-10 |
+| Presentación de Inicio de Sesión | REQ-11 | Recibe credenciales en la página web, solicita la verificación (vía FFI/JSON), habilita el acceso según rol o muestra el aviso correspondiente y permite reintentar |
+| Verificación de Identidad | REQ-11 | Único punto de acceso para validar credenciales, consultar la cuenta, determinar el rol y decidir el resultado del inicio de sesión (ADR-0009) |
+| Registro de Cuentas | REQ-11 | Accede a la persistencia de cuentas en PostgreSQL (vía script PHP/JSON, ADR-0008) y entrega la cuenta registrada con su identidad y rol |
 
-> Ningún componente de esta tabla cubre REQ-11 (verificación de identidad y rol). Si REQ-10 va a mostrar solo las asignaciones del estudiante que inició sesión, su diseño deberá recibir esa identidad: es una brecha abierta, no una decisión.
+> El diseño de REQ-11 cubre la verificación de identidad y rol, pero sigue abierta la brecha de cómo se conserva la sesión activa entre solicitudes web y cómo `Consulta de Asignaciones` (REQ-10) recibe de forma segura la identidad del estudiante autenticado (`IdUsuario`).
 
 ---
 
@@ -149,10 +152,10 @@ Los nombres siguen la responsabilidad, no la tecnología. El detalle y las clase
 - **Asignación errónea:** si el árbol decisional asigna mal, pueden aumentar los tiempos de desplazamiento y de fila.
 - **Límites físicos:** el aforo real de cada comedor es un tope que el sistema no puede superar.
 - **Fuga de datos personales:** se manejan ubicación, condiciones y preferencias; el acceso debe estar restringido y protegido (es el punto más sensible).
-- **Riesgos técnicos aceptados (ADR):** costo por ejecución de PHP al lanzar un proceso por solicitud, validación de argumentos contra inyección de comandos y curva de aprendizaje de PHP (ADR-0002, vigente). Si se aceptan los ADR 0007 y 0008 el riesgo cambia de lugar: FFI habilitado, una librería por sistema operativo, firmas sincronizadas, memoria manual (0007) y un proceso `php` lanzado desde C++ por cada consulta a la base de datos (0008). Mientras sean Propuestos, se sigue citando el riesgo del ADR-0002.
+- **Riesgos técnicos aceptados (ADR):** curva de aprendizaje de PHP (ADR-0002); requisitos de FFI habilitado, una librería compartida por sistema operativo, sincronización de firmas entre PHP y C++ (un desajuste puede tumbar el proceso) y liberación manual de memoria (ADR-0007); lanzamiento de un proceso `php` desde C++ por cada consulta a PostgreSQL, doble paso por PHP (`PHP → C++ → PHP`) y necesidad de validar argumentos pasados al subproceso contra inyección de comandos (ADR-0008).
 - **Error de acceso a los datos de asignación (REQ-10):** probabilidad Low, impacto High; mitigación: se muestra un mensaje de error y se da al estudiante la opción de reintentar.
 - **Capacidad mal estimada (REQ-01):** estudiantes no beneficiarios afectan el aforo real y el sistema no lo mide; probabilidad Alta, impacto Medio.
-- **Acceso no autorizado y entrada del usuario (REQ-11, Draft):** verificación de identidad deficiente que exponga datos de estudiantes (relacionado con la fuga de datos personales del RFC), inyección de comandos con lo que la persona escribe al iniciar sesión (ADR-0002) y falla de acceso a los datos que impida iniciar sesión. Probabilidad e impacto: estimación del equipo a validar.
+- **Acceso no autorizado y entrada del usuario (REQ-11, Draft):** verificación de identidad deficiente que exponga datos de estudiantes (relacionado con la fuga de datos personales del RFC), inyección de comandos al invocar el subproceso `php` desde C++ con lo que la persona escribe al iniciar sesión (ADR-0008), fallos en el borde FFI/JSON (ADR-0007) y falla de acceso a los datos que impida iniciar sesión. Probabilidad e impacto: estimación del equipo a validar.
 
 **Dependencias**
 - Estado actual de los comedores (infraestructura y capacidad).
@@ -204,7 +207,7 @@ Cada pregunta se responde solo con lo que ya está en el RFC, los ADR y los requ
 ### Preguntas abiertas propias de los requerimientos ya redactados
 - **REQ-01:** ¿qué se debe hacer cuando no se puede medir acertadamente la capacidad de atención de un comedor?
 - **REQ-10:** ¿qué representación visual se usará para el horario de comedores de un estudiante? (el diseño solo fija la representación lógica: día + comedor).
-- **REQ-11:** credenciales de cada rol; quién crea y mantiene las cuentas y cómo se determina quién es estudiante beneficiario o administrador; otros usuarios con sesión (estudiantes no beneficiarios, trabajadores de los comedores, los "usuarios" de REQ-07); políticas de sesión (duración, cierre e intentos fallidos); qué se informa y si se puede reintentar cuando no se pueden verificar las credenciales por una falla de acceso a los datos.
+- **REQ-11:** credenciales de cada rol; quién crea y mantiene las cuentas y cómo se determina quién es estudiante beneficiario o administrador; otros usuarios con sesión (estudiantes no beneficiarios, trabajadores de los comedores, los "usuarios" de REQ-07); políticas de sesión (duración, cierre e intentos fallidos); formalizar en `REQ-11.md` el comportamiento de reintento ante falla de acceso a los datos ya adoptado en el diseño v1.0.
 
 ---
 
@@ -213,12 +216,11 @@ Cada pregunta se responde solo con lo que ya está en el RFC, los ADR y los requ
 - El RFC incluye la **ubicación relativa** como criterio y menciona encuesta, reasignación periódica y estadísticas por entregas; `Requirements.md` aún no contiene requerimientos explícitos para ubicación ni para la encuesta.
 - El proyecto es de escala acotada: se prefiere una integración simple y no sobredimensionar la solución.
 - Terminología usada en las fuentes: comedor, cupos, aforo, estudiante beneficiario, administrador, árbol decisional (o árbol de decisión), frontend, backend, periodo de asignación vigente, comedores asignados.
-- **Decisiones técnicas pendientes de aceptación (ADR 0006–0008):** se citan siempre como propuesta. Brechas señaladas, no resueltas: el 0007 declara que reemplaza el mecanismo del 0002 pero el 0002 sigue Aceptado y su estado no admite un reemplazo parcial; el 0007 cita como beneficio no lanzar un proceso por solicitud mientras el 0008 lanza un proceso `php` por consulta; el 0008 deja de aprovechar `libpqxx` (ADR-0001); el sistema operativo del servidor no está definido (el 0007 menciona `.dll` de Windows).
+- **Brechas abiertas entre ADR aceptados (0001–0008):** el 0007 reemplaza el mecanismo de invocación del 0002 pero el 0002 sigue `Aceptado` y la plantilla no admite un reemplazo parcial; el 0007 cita como beneficio no lanzar un proceso por solicitud mientras el 0008 lanza un proceso `php` por consulta; el 0008 deja de aprovechar `libpqxx` (ADR-0001); el sistema operativo del servidor no está definido (el 0007 menciona `.dll` de Windows); ADR-0006 mantiene su fecha como `Pendiente`.
 - **Alcance temporal de la asignación:** REQ-01 fija un comedor por día (lunes a viernes), igual para todas las semanas del semestre. El RFC menciona reasignación periódica (entrega 2); la relación entre ambos sigue sin definir.
-- **Brechas abiertas entre REQ-01 y REQ-10** (se señalan, no se resuelven aquí):
+- **Brechas abiertas entre REQ-01, REQ-10 y REQ-11** (se señalan, no se resuelven aquí):
   - Quién mantiene el periodo de asignación vigente y dónde vive.
-  - Cómo se identifica al estudiante que consulta (el RFC pide acceso restringido a sus datos). REQ-11 (Draft) es la candidata a cubrir la identificación; falta confirmarlo y definir credenciales y origen de las cuentas.
+  - Cómo se conserva la sesión activa y cómo recibe `Consulta de Asignaciones` (REQ-10) la identidad del estudiante autenticado por REQ-11 (`IdUsuario`) sin confiar en datos manipulables desde el navegador.
   - Cómo se relacionan BR-01 (frecuencia diaria) y la asignación fija del semestre con el periodo "semana en curso" de REQ-10.
   - El enunciado del archivo `REQ-10.md` repite el de REQ-09 (consulta de desempeño); el enunciado correcto es el de `Requirements.md`, Requerimiento 10.
 - **Brechas abiertas de REQ-11** (se señalan, no se resuelven aquí): el RFC no menciona el inicio de sesión, por lo que su evidencia es `Requirements.md` y, de forma indirecta, la sección Seguridad del RFC; `Requirements.md` conserva el error ortográfico "incien sesion"; REQ-07 habla de "usuarios" sin precisar roles mientras REQ-11 nombra solo dos; la prioridad Must, los IDs (US-02, AC-05, AC-06, UC-02) y la asociación con la entrega 1 son propuestas por validar con el equipo.
-
